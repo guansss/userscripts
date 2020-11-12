@@ -5,8 +5,8 @@
 // @description  Enhances UI for better experience
 // @author       guansss
 // @match        *://*.iwara.tv/*
-// @require      https://vjs.zencdn.net/7.8.2/video.min.js
-// @resource     vjs-css https://vjs.zencdn.net/7.8.2/video-js.min.css
+// @require      https://cdn.jsdelivr.net/npm/video.js@7.10.1/dist/video.min.js#sha256=9HM07Of11yw3TL/m0BxP9pw08qXmG/xOTDc1d3sp2Wo=
+// @resource     vjs-css https://cdn.jsdelivr.net/npm/video.js@7.10.1/dist/video-js.min.css#sha256=/fXfq3QrnWyMYmF0zX6ImdI1DTraNCAq1vPofa2rs2w=
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_addStyle
@@ -121,7 +121,7 @@ const FILE_NAME = 'DATE TITLE - AUTHOR (ID)';
             return readyFn.apply(this, arguments);
         };
 
-        // expose the videojs to page context
+        // inject the videojs to page context
         unsafeWindow._videojs = videojs;
 
         // switch to newer version of videojs
