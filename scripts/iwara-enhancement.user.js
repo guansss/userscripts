@@ -1,8 +1,10 @@
 // ==UserScript==
 // @name         Iwara Enhancement
+// @name:zh-CN   Iwara增强
 // @namespace    https://github.com/guansss/userscripts
 // @version      0.1
-// @description  Enhances UI for better experience
+// @description  Multiple UI enhancements for better experience.
+// @description:zh-CN 多种增强体验的界面优化
 // @author       guansss
 // @match        *://*.iwara.tv/*
 // @require      https://cdn.jsdelivr.net/npm/video.js@7.10.1/dist/video.min.js#sha256=9HM07Of11yw3TL/m0BxP9pw08qXmG/xOTDc1d3sp2Wo=
