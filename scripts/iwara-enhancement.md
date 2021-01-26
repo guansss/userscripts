@@ -2,4 +2,5 @@
 - Displays like rates in content list, highlight the item with like rate higher than 4%.
 - Uses newer version of the video player (5.6.0->7.10.1), a notable change is that you can double-click on the player to toggle fullscreen.
 - Remembers volume settings permanently. I know some of you guys visit this site in incognito mode and therefore have to set volume everytime, so this is to save your hands.
+  - To get this feature to work, you need to set the volume in non-incognito mode at least once.
 - Automatically downloads the video with "source" resolution and with a formatted file name when clicking the download button. The file name pattern can be tweaked by modifying the `FILE_NAME` in source code.
