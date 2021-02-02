@@ -188,11 +188,15 @@ const FILE_NAME = 'DATE TITLE - AUTHOR (ID)';
     async function setupAutoDownload() {
         await ready;
 
-        $('#download-button').off('click').click(e => {
+        $('#download-button').off('click').click(function (e) {
             e.preventDefault();
 
-            // like the video
-            $('.flag-like a').click();
+            const likeBtn = $('.flag-like a');
+
+            // like the video if not liked
+            if (!likeBtn.attr('href').includes('unflag')) {
+                likeBtn.click();
+            }
 
             const id = location.pathname.slice(location.pathname.lastIndexOf('/') + 1);
 
@@ -210,11 +214,23 @@ const FILE_NAME = 'DATE TITLE - AUTHOR (ID)';
                 .reduce((fileName, [key, value]) => fileName.replace(key, value), FILE_NAME)
                 .replace(/[*/:<>?\\|]/g, '');
 
+            const buttonText = $(this).text();
+
+            $(this).text(buttonText + ' 0%');
+
             GM_download({
                 url,
                 name: fileName + ext,
                 saveAs: true,
+                onprogress: (e) => {
+                    const progress = ~~(e.loaded / e.total * 100);
+
+                    $(this).text(buttonText + ' ' + progress + '%');
+                }
             });
+
+            this.style.opacity = '0.8';
+            this.style.pointerEvents = 'none';
         });
     }
 
