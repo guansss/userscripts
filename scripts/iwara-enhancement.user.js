@@ -87,15 +87,15 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
         general();
         enhanceList();
 
-        const secondSlashIndex = location.pathname.indexOf('/', 1);
-        const place = location.pathname.slice(1, secondSlashIndex !== -1 ? secondSlashIndex : undefined);
-
-        if ((place === 'videos' || place === 'images') && secondSlashIndex !== -1) {
+        if (location.pathname.match(/(videos|images)\//)) {
             prettifyContentPage();
-        }
-        if (place === 'videos' && secondSlashIndex !== -1) {
-            enhanceVideo();
-            setupAutoDownload();
+
+            if (location.pathname.includes('videos')) {
+                enhanceVideo();
+                setupAutoDownload();
+            }
+        } else if (location.pathname.includes('search')) {
+            enhanceSearch();
         }
     }
 
@@ -364,6 +364,23 @@ UP_DATE_TS  the UP_DATE in timestamp format</pre>
         $('#filename-reset').hide().click(() => {
             $('#filename-input').val(DEFAULT_FILENAME_TEMPLATE);
             $('#filename-submit').click();
+        });
+    }
+
+    async function enhanceSearch() {
+        await ready;
+
+        $('.node-image').each(function () {
+            const thiz = $(this);
+            const twitterShareLink = thiz.find('[title="Share on Twitter"]').attr('href');
+
+            if (twitterShareLink) {
+                let iwaraLink = twitterShareLink.slice(twitterShareLink.indexOf('http', 10));
+
+                iwaraLink = decodeURIComponent(iwaraLink);
+
+                thiz.find('h1').wrapInner(`<a href="${iwaraLink}"></a>`);
+            }
         });
     }
 
