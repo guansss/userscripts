@@ -112,21 +112,28 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
         await ready;
 
         // display like rate and highlight
-        $('.views-column').each(function () {
+        $('.view-content .views-column, .view-content .col-sm-3').each(function () {
             const thiz = $(this);
-            const children = $(this).find('.likes-icon');
 
-            let likes = children.eq(0).contents().filter((i, e) => e.nodeType === 3).text().trim();
-            let views = children.eq(1).contents().filter((i, e) => e.nodeType === 3).text().trim();
+            if (thiz.children(':first-child').is('.node-teaser')) {
+                const likesIcons = thiz.find('.likes-icon');
 
-            views = views.includes('k') ? views.slice(0, -1) * 1000 : views;
-            const likeRate = Math.round(1000 * likes / (+views || Infinity)) / 10;
+                // the right icon will be missing if the likes is 0
+                if (likesIcons.length === 2) {
+                    let likes = likesIcons.eq(0).html().replace(/<i.*<\/i>/m, '').trim();
+                    let views = likesIcons.eq(1).html().replace(/<i.*<\/i>/m, '').trim();
 
-            children.eq(1).text(likeRate + '%');
+                    views = views.includes('k') ? views.slice(0, -1) * 1000 : views;
 
-            if (likeRate >= 4) {
-                thiz.css('background', '#79ecd6');
-                thiz.find('.username').css('color', '#555');
+                    const likeRate = Math.round(1000 * likes / (+views || Infinity)) / 10;
+
+                    likesIcons.eq(1).text(likeRate + '%');
+
+                    if (likeRate >= 4) {
+                        thiz.css('background', '#79ecd6');
+                        thiz.find('.username').css('color', '#555');
+                    }
+                }
             }
         });
     }
