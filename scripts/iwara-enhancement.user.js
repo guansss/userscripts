@@ -14,11 +14,66 @@
 // @grant        GM_addStyle
 // @grant        GM_getResourceText
 // @grant        GM_download
+// @grant        GM_info
 // @grant        unsafeWindow
 // @run-at       document-start
 // ==/UserScript==
 
-const FILE_NAME = 'DATE TITLE - AUTHOR (ID)';
+const GLOBAL_STYLES =
+    // large screen mode
+    `
+@media (min-width: 2560px) {
+  .container {
+    width: 1984px;
+  }
+
+  .slick-slider {
+    height: 920px !important;
+  }
+
+  .slick-list img {
+    width: 1800px;
+  }
+
+  .comment .user-avatar {
+    width: 8.33333333%;
+  }
+}
+` +
+    // auto-download actions
+    `
+.btn-disabled {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.icon-btn {
+    margin-left: 4px;
+    padding: 8px 8px;
+    cursor: pointer;
+}
+
+#options-switch {
+    vertical-align: middle;
+}
+
+#filename-input {
+    margin-top: 2px;
+    width: 400px;
+    max-width: 100%;
+}
+
+#filename-preview {
+    color: #666;
+    font-size: 0.8em;
+}`;
+
+// the storage keys
+const KEY_VOLUME = 'volume';
+const KEY_FILENAME = 'filename';
+
+const DEFAULT_FILENAME_TEMPLATE = 'DATE TITLE - AUTHOR (ID)';
+let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
 
 (() => {
     'use strict';
@@ -45,26 +100,7 @@ const FILE_NAME = 'DATE TITLE - AUTHOR (ID)';
     }
 
     async function general() {
-        // large screen mode
-        GM_addStyle(`
-@media (min-width: 2560px) {
-    .container {
-        width: 1984px;
-    }
-
-    .slick-slider {
-        height: 920px !important;
-    }
-
-    .slick-list img {
-        width: 1800px;
-    }
-
-    .comment .user-avatar {
-        width: 8.33333333%;
-    }
-}
-`);
+        GM_addStyle(GLOBAL_STYLES);
 
         await ready;
 
@@ -76,7 +112,7 @@ const FILE_NAME = 'DATE TITLE - AUTHOR (ID)';
         await ready;
 
         // display like rate and highlight
-        $('.views-column').each(function() {
+        $('.views-column').each(function () {
             const thiz = $(this);
             const children = $(this).find('.likes-icon');
 
@@ -110,11 +146,11 @@ const FILE_NAME = 'DATE TITLE - AUTHOR (ID)';
         const Player = videojs.getComponent('Player');
         const readyFn = Player.prototype.ready;
 
-        Player.prototype.ready = function() {
+        Player.prototype.ready = function () {
             const onFn = this.on;
 
             if (onFn && !onFn.patched) {
-                this.on = function() {
+                this.on = function () {
                     onFn.apply(this, arguments);
                     return this;
                 };
@@ -146,7 +182,7 @@ const FILE_NAME = 'DATE TITLE - AUTHOR (ID)';
 
         // recover the volume in incognito mode
         if (localStorage['-volume'] === undefined) {
-            localStorage['-volume'] = GM_getValue('volume', 0.5);
+            localStorage['-volume'] = GM_getValue(KEY_VOLUME, 0.5);
         }
 
         await ready;
@@ -157,11 +193,11 @@ const FILE_NAME = 'DATE TITLE - AUTHOR (ID)';
             if (player) {
                 player.ready(() => {
                     player.on('fullscreenchange', () => {
-                            $('#video-player').focus();
-                        })
+                        $('#video-player').focus();
+                    })
                         .on('volumechange', () => {
                             // save volume when changed
-                            GM_setValue('volume', player.volume() || 0.5);
+                            GM_setValue(KEY_VOLUME, player.volume() || 0.5);
                         });
                 });
 
@@ -188,55 +224,152 @@ const FILE_NAME = 'DATE TITLE - AUTHOR (ID)';
     async function setupAutoDownload() {
         await ready;
 
-        $('#download-button').off('click').click(function (e) {
-            e.preventDefault();
+        // wait for Bootstrap's initialization
+        await delay(200);
 
-            const likeBtn = $('.flag-like a');
-
-            // like the video if not liked
-            if (!likeBtn.attr('href').includes('unflag')) {
-                likeBtn.click();
-            }
-
-            const id = location.pathname.slice(location.pathname.lastIndexOf('/') + 1);
-
+        function getDownloadTarget(template = filenameTemplate) {
             const url = $('#download-options li:first-child a')[0].href;
             const ext = url.match(/Source(\.[^&]+)/)[1];
 
+            const urlMatches = unescape(url).match(/file=.+\/(\d+)_(\w+)_/);
+            const uploadDate = urlMatches[1] * 1000;
+            const id = urlMatches[2];
+
             const title = $('.node-info .title').text();
             const author = $('.node-info .username').text();
-            const fileName = Object.entries({
-                    ID: id,
-                    TITLE: title,
-                    AUTHOR: author,
-                    DATE: new Date().toLocaleString('zh-cn', { hour12: false }).replace(/[\/ :]/g, ''),
-                })
-                .reduce((fileName, [key, value]) => fileName.replace(key, value), FILE_NAME)
+
+            const vars = {
+                ID: id,
+                TITLE: title,
+                AUTHOR: author,
+                DATE: formatDate(new Date()),
+                DATE_TS: new Date(),
+                UP_DATE: formatDate(new Date(uploadDate)),
+                UP_DATE_TS: uploadDate
+            };
+
+            // the keys should be sorted to prevent certain keys from overriding its longer form
+            // e.g. "DATE_TS" gets populated with DATE instead of DATE_TS
+            const sortedKeys = Object.keys(vars).sort((a, b) => b.length - a.length);
+
+            const filename = sortedKeys.reduce((_filename, key) => _filename.replace(key, vars[key]), template)
+                // strip characters disallowed in file path
                 .replace(/[*/:<>?\\|]/g, '');
 
-            const buttonText = $(this).text();
-
-            $(this).text(buttonText + ' 0%');
-
-            GM_download({
+            return {
                 url,
-                name: fileName + ext,
-                saveAs: true,
-                onprogress: (e) => {
-                    const progress = ~~(e.loaded / e.total * 100);
+                filename: filename + ext,
+            };
+        }
 
-                    $(this).text(buttonText + ' ' + progress + '%');
+        const downloadBtn = $('#download-button');
+        const downloadBtnText = downloadBtn.text();
+
+        downloadBtn.off('click').click(function (e) {
+            try {
+                e.preventDefault();
+
+                this.blur();
+
+                const likeBtn = $('.flag-like a');
+
+                // like the video if not liked
+                if (!likeBtn.attr('href').includes('unflag')) {
+                    likeBtn.click();
                 }
+
+                const downloadTarget = getDownloadTarget();
+
+                downloadBtn.addClass('btn-disabled');
+
+                let onprogress;
+
+                // progress is only available in the "native" mode
+                if (GM_info.downloadMode !== 'browser') {
+                    onprogress = (e) => {
+                        const progress = ~~(e.loaded / e.total * 100);
+                        downloadBtn.text(downloadBtnText + ' ' + progress + '%');
+                    };
+
+                    onprogress({ loaded: 0, total: 1 });
+                }
+
+                GM_download({
+                    url: downloadTarget.url,
+                    name: downloadTarget.filename,
+                    saveAs: true,
+                    onload: downloadEnded,
+                    onerror: downloadEnded,
+                    ontimeout: downloadEnded,
+                    onprogress,
+                });
+            } catch (e) {
+                showError(e + '');
+            }
+        });
+
+        function downloadEnded(e) {
+            if (e && e.error) {
+                console.warn('Download error', e);
+                showError(`Download error (${e.error}): ${e.details.current}`);
+            }
+
+            downloadBtn.removeClass('btn-disabled').text(downloadBtnText);
+        }
+
+        function showError(msg) {
+            $('#download-options').before(`<div class="text-danger">${msg}</div>`);
+        }
+
+        $('<a id="options-switch" class="icon-btn glyphicon glyphicon-cog"></a>')
+            .insertAfter('#download-button')
+            .click(() => {
+                $('#download-options').toggleClass('hidden');
+                $('#filename-input').trigger('input');
             });
 
-            this.style.opacity = '0.8';
-            this.style.pointerEvents = 'none';
+        $(`
+            <h3>Download filename</h3>
+            <p>The filename template to use when downloading a video.</p>
+            <p>Note the userscript settings will be lost when exiting the incognito mode,
+                so in order to apply the settings permanently, you need to modify them in non-incognito mode.</p>
+            <pre>ID          the video's ID
+TITLE       title
+AUTHOR      author's name
+DATE        date time when the download starts
+DATE_TS     the DATE in timestamp format
+UP_DATE     date time when the video was uploaded
+UP_DATE_TS  the UP_DATE in timestamp format</pre>
+            <input id="filename-input" value="${filenameTemplate}"></input>
+            <a id="filename-submit" class="icon-btn glyphicon glyphicon-ok" title="Apply"></a>
+            <a id="filename-reset" class="icon-btn glyphicon glyphicon-repeat" title="Reset to default"></a>
+            <p id="filename-preview"></p>`)
+            .prependTo('#download-options .panel-body');
+
+        $('#filename-input').on('input', function (e) {
+            $('#filename-preview').text(getDownloadTarget(this.value).filename);
+
+            const isChanged = this.value !== filenameTemplate;
+            const isDefault = this.value === DEFAULT_FILENAME_TEMPLATE;
+            $('#filename-submit')[isChanged ? 'show' : 'hide']();
+            $('#filename-reset')[!isDefault ? 'show' : 'hide']();
+        });
+
+        $('#filename-submit').hide().click(() => {
+            filenameTemplate = $('#filename-input').val();
+            GM_setValue(KEY_FILENAME, filenameTemplate);
+            $('#filename-input').trigger('input');
+        });
+
+        $('#filename-reset').hide().click(() => {
+            $('#filename-input').val(DEFAULT_FILENAME_TEMPLATE);
+            $('#filename-submit').click();
         });
     }
 
     function repeat(fn, interval = 500) {
         if (fn()) {
-            return undefined;
+            return 0;
         }
 
         const id = setInterval(() => {
@@ -248,5 +381,18 @@ const FILE_NAME = 'DATE TITLE - AUTHOR (ID)';
         }, interval);
 
         return id;
+    }
+
+    function delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function formatDate(date) {
+        const pad = num => String(num).padStart(2, '0');
+        return [
+            date.getFullYear(), date.getMonth() + 1, date.getDate(),
+            date.getHours(), date.getMinutes(), date.getSeconds(),
+        ]
+            .map(pad).join('');
     }
 })();
