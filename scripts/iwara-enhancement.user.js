@@ -179,23 +179,37 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
         // inject the videojs to page context
         unsafeWindow._videojs = videojs;
 
-        // switch to newer version of videojs
+        // replace the old videojs
+        let replaceVideoJS = (oldScript) => {
+            const script = document.createElement('script');
+            script.innerHTML = 'window.videojs = window._videojs';
+            oldScript.after(script);
+            oldScript.remove();
+        };
+
+        for (const element of document.head.children) {
+            if (element.src && element.src.includes('video-js/video.js')) {
+                replaceVideoJS(element);
+                replaceVideoJS = undefined;
+                break;
+            }
+        }
+
+        // if not replaced
+        if (replaceVideoJS) {
             new MutationObserver((mutationsList, observer) => {
                 mutationsList.forEach(mutation => {
                     if (mutation.type === 'childList') {
                         for (const node of mutation.addedNodes) {
                             if (node && node.src && node.src.includes('video-js/video.js')) {
                                 observer.disconnect();
-
-                            const script = document.createElement('script');
-                            script.innerHTML = 'window.videojs = window._videojs';
-                            node.after(script);
-                            node.remove();
+                                replaceVideoJS(node);
                             }
                         }
                     }
                 });
             }).observe(document.head, { childList: true });
+        }
 
         // recover the volume in incognito mode
         if (localStorage['-volume'] === undefined) {
