@@ -2,7 +2,7 @@
 // @name         Iwara Enhancement
 // @name:zh-CN   Iwara增强
 // @namespace    https://github.com/guansss/userscripts
-// @version      0.2
+// @version      0.3
 // @description  Multiple UI enhancements for better experience.
 // @description:zh-CN 多种增强体验的界面优化
 // @author       guansss
