@@ -270,50 +270,71 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
         }
 
         const downloadBtn = $('#download-button');
-        const downloadBtnText = downloadBtn.text();
+        const downloadBtnHTML = downloadBtn.html();
 
-        downloadBtn.off('click').click(function (e) {
-            try {
-                e.preventDefault();
+        // a function to abort the current download
+        let abortDownload;
 
-                this.blur();
-
-                const likeBtn = $('.flag-like a');
-
-                // like the video if not liked
-                if (!likeBtn.attr('href').includes('unflag')) {
-                    likeBtn.click();
-                }
-
-                const downloadTarget = getDownloadTarget();
-
-                downloadBtn.addClass('btn-disabled');
-
-                let onprogress;
-
-                // progress is only available in the "native" mode
-                if (GM_info.downloadMode !== 'browser') {
-                    onprogress = (e) => {
-                        const progress = ~~(e.loaded / e.total * 100);
-                        downloadBtn.text(downloadBtnText + ' ' + progress + '%');
-                    };
-
-                    onprogress({ loaded: 0, total: 1 });
-                }
-
-                GM_download({
-                    url: downloadTarget.url,
-                    name: downloadTarget.filename,
-                    saveAs: true,
-                    onload: downloadEnded,
-                    onerror: downloadEnded,
-                    ontimeout: downloadEnded,
-                    onprogress,
-                });
-            } catch (e) {
-                showError(e + '');
+        unsafeWindow.onbeforeunload = () => {
+            if (abortDownload) {
+                // the message is unlikely to be displayed in modern browsers but, just in case
+                return 'Download still in progress, would you like to abort it and exit?';
             }
-        });
+        };
+
+        unsafeWindow.onunload = () => abortDownload && abortDownload();
+
+        if (GM_info.downloadMode !== 'disabled') {
+            downloadBtn.off('click').click(function (e) {
+                try {
+                    e.preventDefault();
+
+                    this.blur();
+
+                    const likeBtn = $('.flag-like a');
+
+                    // like the video if not liked
+                    if (!likeBtn.attr('href').includes('unflag')) {
+                        likeBtn.click();
+                    }
+
+                    const downloadTarget = getDownloadTarget();
+
+                    downloadBtn.addClass('btn-disabled');
+
+                    let onprogress;
+
+                    // progress is only available in the "native" mode
+                    if (GM_info.downloadMode !== 'browser') {
+                        onprogress = (e) => {
+                            const progress = ~~(e.loaded / e.total * 100);
+                            downloadBtn.html(downloadBtnHTML + ' ' + progress + '%');
+                        };
+
+                        onprogress({ loaded: 0, total: 1 });
+                    }
+
+                    const { abort } = GM_download({
+                        url: downloadTarget.url,
+                        name: downloadTarget.filename,
+                        saveAs: true,
+                        onload: downloadEnded,
+                        onerror: downloadEnded,
+                        ontimeout: downloadEnded,
+                        onprogress,
+                    });
+
+                    // aborting will be handled by the browser's download manager in non-native mode
+                    if (GM_info.downloadMode === 'native') {
+                        abortDownload = abort;
+                    }
+                } catch (e) {
+                    showError(e + '');
+                }
+            });
+        } else {
+            showError(new Error('Download has been disabled, the default method will be used instead.'));
+        }
 
         function downloadEnded(e) {
             if (e && e.error) {
@@ -321,7 +342,9 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
                 showError(`Download error (${e.error}): ${e.details.current}`);
             }
 
-            downloadBtn.removeClass('btn-disabled').text(downloadBtnText);
+            downloadBtn.removeClass('btn-disabled').html(downloadBtnHTML);
+
+            abortDownload = undefined;
         }
 
         function showError(msg) {
@@ -339,7 +362,9 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
             <h3>Download filename</h3>
             <p>The filename template to use when downloading a video.</p>
             <p>Note the userscript settings will be lost when exiting the incognito mode,
-                so in order to apply the settings permanently, you need to modify them in non-incognito mode.</p>
+              so in order to apply the settings permanently, you need to modify them in non-incognito mode.</p>
+            <p>If you're using Tampermonkey, you can check the <a href="https://greasyfork.org/scripts/416003-iwara-enhancement">description</a>
+              for how to improve the download experience.</p>
             <pre>ID          the video's ID
 TITLE       title
 AUTHOR      author's name
