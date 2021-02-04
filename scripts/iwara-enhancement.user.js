@@ -19,6 +19,8 @@
 // @run-at       document-start
 // ==/UserScript==
 
+const VIDEOJS_THUMB_PLUGIN = 'https://cdn.jsdelivr.net/npm/videojs-thumbnail-sprite@0.1.1/dist/index.min.js';
+
 const GLOBAL_STYLES =
     // large screen mode
     `
@@ -40,6 +42,13 @@ const GLOBAL_STYLES =
   }
 }
 ` +
+    // progress thumbnails
+    `
+.vjs-mouse-display .vjs-time-tooltip {
+    background-size: cover;
+    text-shadow: 0 0 2px black, 0 0 2px black !important;
+}
+`+
     // auto-download actions
     `
 .btn-disabled {
@@ -92,6 +101,7 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
 
             if (location.pathname.includes('videos')) {
                 enhanceVideo();
+                setupThumbnails();
                 setupAutoDownload();
             }
         } else if (location.pathname.includes('search')) {
@@ -170,22 +180,22 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
         unsafeWindow._videojs = videojs;
 
         // switch to newer version of videojs
-        new MutationObserver((mutationsList, observer) => {
-            mutationsList.forEach(mutation => {
-                if (mutation.type === 'childList') {
-                    for (const node of mutation.addedNodes) {
-                        if (node && node.src && node.src.includes('video-js/video.js')) {
-                            observer.disconnect();
+            new MutationObserver((mutationsList, observer) => {
+                mutationsList.forEach(mutation => {
+                    if (mutation.type === 'childList') {
+                        for (const node of mutation.addedNodes) {
+                            if (node && node.src && node.src.includes('video-js/video.js')) {
+                                observer.disconnect();
 
                             const script = document.createElement('script');
                             script.innerHTML = 'window.videojs = window._videojs';
                             node.after(script);
                             node.remove();
+                            }
                         }
                     }
-                }
-            });
-        }).observe(document.head, { childList: true });
+                });
+            }).observe(document.head, { childList: true });
 
         // recover the volume in incognito mode
         if (localStorage['-volume'] === undefined) {
@@ -194,23 +204,96 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
 
         await ready;
 
-        repeat(() => {
-            const player = videojs.getPlayers()['video-player'];
+        const player = await repeatUntil(() => videojs.getPlayers()['video-player']);
 
-            if (player) {
-                player.ready(() => {
-                    player.on('fullscreenchange', () => {
-                        $('#video-player').focus();
-                    })
-                        .on('volumechange', () => {
-                            // save volume when changed
-                            GM_setValue(KEY_VOLUME, player.volume() || 0.5);
-                        });
-                });
+        player
+            .on('fullscreenchange', () => {
+                $('#video-player').focus();
+            })
+            .on('volumechange', () => {
+                // save volume when changed
+                GM_setValue(KEY_VOLUME, player.volume() || 0.5);
+            });
+    }
 
-                return true;
-            }
-        }, 200);
+    async function setupThumbnails() {
+        await ready;
+
+        const player = await repeatUntil(() => videojs.getPlayers()['video-player']);
+
+        // e.g. //i.iwara.tv/sites/default/files/videos/thumbnails/1404656/thumbnail-1404656_0001.jpg
+        const previewURL = player.poster();
+
+        if (previewURL && previewURL.includes('thumbnail')) {
+            // the thumbnail plugin is a commonjs module so we have to define these stuff for it
+            unsafeWindow.exports = {};
+            unsafeWindow.require = module => module === 'video.js' ? videojs : undefined;
+
+            // load the thumbnail plugin
+            await new Promise(resolve => {
+                const script = document.createElement('script');
+                script.onload = resolve;
+                script.src = VIDEOJS_THUMB_PLUGIN;
+                document.head.appendChild(script);
+            });
+
+            // duration and dimensions are included in the meta data
+            player.on('loadedmetadata', () => {
+                const division = 16;
+                const interval = player.duration() / division;
+
+                const width = 180;
+                const height = width * player.videoHeight() / player.videoWidth();
+
+                // strip the image number as well as the extension
+                const thumbBaseURL = previewURL.slice(0, -6);
+
+                const sprites = [];
+
+                for (let i = 0; i < division - 1; i++) {
+                    // append the base URL with numbers, starting from 01
+                    const url = thumbBaseURL + (i + 1 + '').padStart(2, '0') + '.jpg';
+
+                    // using (division-1) thumbnails to cover all the segments
+                    //
+                    //
+                    // thumbs(index):        0       1       2       3           div-3   div-2
+                    //                       v       v       v       v             v       v
+                    // timeline:     +-------+-------+-------+-------+-- ... ------+-------+-------+
+                    //               ^           ^       ^       ^             ^       ^           ^
+                    // time spans:   |___________|_______|_______|______ ... __|_______|___________|
+                    //                     0         1       2       3           div-3     div-2
+
+                    let start, timeSpan;
+
+                    switch (i) {
+                        case 0:
+                            start = 0;
+                            timeSpan = interval * 1.5;
+                            break;
+
+                        case division - 2:
+                            start = interval * (0.5 + i);
+
+                            // add extra 0.1 due to the floating point computation...
+                            timeSpan = interval * (1.5 + 0.1);
+                            break;
+
+                        default:
+                            start = interval * (0.5 + i);
+                            timeSpan = interval;
+                    }
+
+                    sprites.push({
+                        url, width, height, start,
+                        duration: timeSpan,
+                        interval: timeSpan,
+                    });
+                }
+
+                player.thumbnailSprite({ sprites });
+            });
+        }
     }
 
     async function prettifyContentPage() {
@@ -416,7 +499,7 @@ UP_DATE_TS  the UP_DATE in timestamp format</pre>
         });
     }
 
-    function repeat(fn, interval = 500) {
+    function repeat(fn, interval = 200) {
         if (fn()) {
             return 0;
         }
@@ -430,6 +513,18 @@ UP_DATE_TS  the UP_DATE in timestamp format</pre>
         }, interval);
 
         return id;
+    }
+
+    // non-cancelable
+    function repeatUntil(fn, interval) {
+        return new Promise(resolve => repeat(() => {
+            const result = fn();
+
+            if (result) {
+                resolve(result);
+                return true;
+            }
+        }, interval));
     }
 
     function delay(ms) {
