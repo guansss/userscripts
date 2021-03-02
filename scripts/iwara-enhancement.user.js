@@ -42,6 +42,126 @@ const GLOBAL_STYLES =
   }
 }
 ` +
+    // dark mode
+    `
+.dark {
+    background-color: #222;
+    color: #F8F8F8;
+}
+
+.dark body,
+.dark footer,
+.dark .panel,
+.dark section#content > .container,
+.dark .node.node-full.node-video .node-info,
+.dark .node.node-full.node-image .node-info,
+.dark tr.even,
+.dark tr.odd,
+.dark .table-striped > tbody > tr:nth-child(odd) > td,
+.dark .table-striped > tbody > tr:nth-child(odd) > th
+{
+    background-color: inherit;
+}
+
+.dark .node.node-full .node-buttons,
+.dark .node.node-full .field-name-body a.show,
+.dark .node.node-full .field-name-field-categories .field-items .field-item,
+.dark .node.node-full .field-name-field-image-categories .field-items .field-item,
+.dark .panel-default > .panel-heading,
+.dark .panel-default > .panel-footer,
+.dark .table-striped > tbody > tr:nth-child(even) > td,
+.dark .table-striped > tbody > tr:nth-child(even) > th,
+.dark .views-field.views-field-last-updated.active,
+.dark .privatemsg-header-lastupdated.active,
+.dark .page-messages #privatemsg-list-form tr,
+.dark .page-messages .private-message .message.mine,
+.dark .view-profile.view-display-id-block,
+.dark .view-id-content table > tbody > tr:nth-child(odd) > td,
+.dark .view-id-content table > tbody > tr:nth-child(odd) > th,
+.dark table.sticky-header,
+.dark .well,
+.dark .jumbotron,
+.dark select option
+{
+    background-color: #2a2a2a;
+}
+
+.dark .page-messages .private-message .message.theirs,
+.dark .view-profile.view-display-id-block .views-field-field-about
+{
+    background-color: #444;
+}
+
+.dark .page-node-add .form-textarea,
+.dark .page-node-edit .form-textarea,
+.dark .page-node-add .form-text,
+.dark .page-node-edit .form-text,
+.dark pre,
+.dark select,
+.dark textarea,
+.dark input:not(.btn):not(.form-submit)
+{
+    background-color: rgba(255, 255, 255, .05);
+}
+
+.dark .view-profile.view-display-id-block .views-field-field-about,
+.dark .panel-default,
+.dark .panel-default > .panel-heading,
+.dark .panel-default > .panel-footer,
+.dark .well,
+.dark pre,
+.dark textarea,
+.dark input[type="text"],
+.dark table,
+.dark thead,
+.dark tbody,
+.dark tfoot,
+.dark tr,
+.dark th,
+.dark td
+{
+    border-color: #333 !important;
+}
+
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6
+{
+    border-color: #666 !important;
+}
+
+.dark body,
+.dark .node.node-teaser h3.title a,
+.dark .panel-default > .panel-heading,
+.dark .page-node-add .form-textarea,
+.dark .page-node-edit .form-textarea,
+.dark .page-node-add .form-text,
+.dark .page-node-edit .form-text
+{
+    color: inherit;
+}
+` +
+    // item list
+    `
+.highlight {
+    background-color: #79ecd6;
+}
+
+.highlight .username {
+    color: #555
+}
+
+.dark .highlight {
+    background-color: #048c72;
+}
+
+.dark .highlight .username {
+    color: #CCC
+}
+` +
     // progress thumbnails
     `
 .vjs-mouse-display .vjs-time-tooltip {
@@ -73,13 +193,14 @@ const GLOBAL_STYLES =
 }
 
 #filename-preview {
-    color: #666;
+    color: #777;
     font-size: 0.8em;
 }`;
 
 // the storage keys
 const KEY_VOLUME = 'volume';
 const KEY_FILENAME = 'filename';
+const KEY_DARK_MODE = 'dark';
 
 const DEFAULT_FILENAME_TEMPLATE = 'DATE TITLE - AUTHOR (ID)';
 let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
@@ -112,10 +233,22 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
     async function general() {
         GM_addStyle(GLOBAL_STYLES);
 
+        // dark mode
+        if (GM_getValue(KEY_DARK_MODE, false)) {
+            document.documentElement.classList.add('dark');
+        }
+
         await ready;
 
         // remove R18 warning
         $('#r18-warning').remove();
+
+        $('<a class="btn btn-info btn-sm glyphicon glyphicon-eye-open" title="Dark mode"></a>')
+            .insertAfter('#user-links .search-link')
+            .on('click', () => {
+                document.documentElement.classList.toggle('dark');
+                GM_setValue(KEY_DARK_MODE, document.documentElement.classList.contains('dark'));
+            });
     }
 
     async function enhanceList() {
@@ -140,8 +273,7 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
                     likesIcons.eq(1).text(likeRate + '%');
 
                     if (likeRate >= 4) {
-                        thiz.css('background', '#79ecd6');
-                        thiz.find('.username').css('color', '#555');
+                        thiz.addClass('highlight');
                     }
                 }
             }
@@ -475,6 +607,7 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
             });
 
         $(`
+        <div class="page-node-edit">
             <h3>Download filename</h3>
             <p>The filename template to use when downloading a video.</p>
             <p>Note the userscript settings will be lost when exiting the incognito mode,
@@ -488,10 +621,11 @@ DATE        date time when the download starts
 DATE_TS     the DATE in timestamp format
 UP_DATE     date time when the video was uploaded
 UP_DATE_TS  the UP_DATE in timestamp format</pre>
-            <input id="filename-input" value="${filenameTemplate}"></input>
+            <input type="text" id="filename-input" class="form-text" value="${filenameTemplate}">
             <a id="filename-submit" class="icon-btn glyphicon glyphicon-ok" title="Apply"></a>
             <a id="filename-reset" class="icon-btn glyphicon glyphicon-repeat" title="Reset to default"></a>
-            <p id="filename-preview"></p>`)
+            <p id="filename-preview"></p>
+        </div>`)
             .prependTo('#download-options .panel-body');
 
         $('#filename-input').on('input', function(e) {
