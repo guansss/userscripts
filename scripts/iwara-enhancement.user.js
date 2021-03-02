@@ -406,9 +406,12 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
 
                     const likeBtn = $('.flag-like a');
 
-                    // like the video if not liked
-                    if (!likeBtn.attr('href').includes('unflag')) {
-                        likeBtn.click();
+                    // like button exists if user has logged in
+                    if (likeBtn.length) {
+                        // like the video if not liked
+                        if (!likeBtn.attr('href').includes('unflag')) {
+                            likeBtn.click();
+                        }
                     }
 
                     const downloadTarget = getDownloadTarget();
