@@ -48,7 +48,7 @@ const GLOBAL_STYLES =
     background-size: cover;
     text-shadow: 0 0 2px black, 0 0 2px black !important;
 }
-`+
+` +
     // auto-download actions
     `
 .btn-disabled {
@@ -122,7 +122,7 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
         await ready;
 
         // display like rate and highlight
-        $('.view-content .views-column, .view-content .col-sm-3').each(function () {
+        $('.view-content .views-column, .view-content .col-sm-3').each(function() {
             const thiz = $(this);
 
             if (thiz.children(':first-child').is('.node-teaser')) {
@@ -149,25 +149,18 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
     }
 
     async function enhanceVideo() {
-        // remove old CSS of videojs
-        for (const node of document.head.childNodes) {
-            if (node && node.tagName === 'STYLE' && node.innerHTML.includes('video-js')) {
-                node.innerHTML = node.innerHTML.replace(/.+?video-js\.min\.css.+/, '');
-            }
-        }
-
-        // load newer CSS of videojs
+        // load CSS of the new videojs
         GM_addStyle(GM_getResourceText('vjs-css'));
 
         // patch the player.on() to return itself to support method chaining, which is no longer supported in the new version
         const Player = videojs.getComponent('Player');
         const readyFn = Player.prototype.ready;
 
-        Player.prototype.ready = function () {
+        Player.prototype.ready = function() {
             const onFn = this.on;
 
             if (onFn && !onFn.patched) {
-                this.on = function () {
+                this.on = function() {
                     onFn.apply(this, arguments);
                     return this;
                 };
@@ -176,39 +169,55 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
             return readyFn.apply(this, arguments);
         };
 
-        // inject the videojs to page context
-        unsafeWindow._videojs = videojs;
+        // copy the plugins if the old videojs has already been loaded before this userscript is injected to the page
+        if (unsafeWindow.videojs) {
+            const oldVideojs = unsafeWindow.videojs;
 
-        // replace the old videojs
-        let replaceVideoJS = (oldScript) => {
-            const script = document.createElement('script');
-            script.innerHTML = 'window.videojs = window._videojs';
-            oldScript.after(script);
-            oldScript.remove();
-        };
+            unsafeWindow.videojs = videojs;
 
-        for (const element of document.head.children) {
-            if (element.src && element.src.includes('video-js/video.js')) {
-                replaceVideoJS(element);
-                replaceVideoJS = undefined;
-                break;
+            // registered plugins can be found by checking the <script> tags in page HTML
+            const registeredPlugins = ['hotkeys', 'persistvolume', 'loopbutton', 'videoJsResolutionSwitcher'];
+
+            // copy plugins to the new videojs
+            for (const plugin of registeredPlugins) {
+                const pluginMethod = oldVideojs.getComponent('Player').prototype[plugin];
+
+                if (typeof pluginMethod === 'function') {
+                    videojs.registerPlugin(plugin, pluginMethod);
+                }
             }
         }
+        // otherwise, prevent the old videojs from loading
+        else {
+            unsafeWindow.videojs = videojs;
 
-        // if not replaced
-        if (replaceVideoJS) {
-            new MutationObserver((mutationsList, observer) => {
-                mutationsList.forEach(mutation => {
-                    if (mutation.type === 'childList') {
-                        for (const node of mutation.addedNodes) {
-                            if (node && node.src && node.src.includes('video-js/video.js')) {
-                                observer.disconnect();
-                                replaceVideoJS(node);
+            let scriptExists = false;
+
+            // there's a chance that the <script> tag of videojs has been inserted to the page,
+            // I'm not quite sure though
+            for (const element of document.head.children) {
+                if (element.src && element.src.includes('video-js/video.js')) {
+                    element.remove();
+                    scriptExists = true;
+                    break;
+                }
+            }
+
+            if (!scriptExists) {
+                // immediately remove the <script> tag once it's inserted to the HTML
+                new MutationObserver((mutationsList, observer) => {
+                    mutationsList.forEach(mutation => {
+                        if (mutation.type === 'childList') {
+                            for (const node of mutation.addedNodes) {
+                                if (node && node.src && node.src.includes('video-js/video.js')) {
+                                    observer.disconnect();
+                                    node.remove();
+                                }
                             }
                         }
-                    }
-                });
-            }).observe(document.head, { childList: true });
+                    });
+                }).observe(document.head, { childList: true });
+            }
         }
 
         // recover the volume in incognito mode
@@ -217,6 +226,13 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
         }
 
         await ready;
+
+        // remove CSS of the old videojs
+        for (const node of document.head.childNodes) {
+            if (node && node.tagName === 'STYLE' && node.innerHTML.includes('video-js')) {
+                node.innerHTML = node.innerHTML.replace(/.+?video-js\.min\.css.+/, '');
+            }
+        }
 
         const player = await repeatUntil(() => videojs.getPlayers()['video-player']);
 
@@ -349,7 +365,7 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
                 DATE: formatDate(new Date()),
                 DATE_TS: new Date(),
                 UP_DATE: formatDate(new Date(uploadDate)),
-                UP_DATE_TS: uploadDate
+                UP_DATE_TS: uploadDate,
             };
 
             // the keys should be sorted to prevent certain keys from overriding its longer form
@@ -382,7 +398,7 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
         unsafeWindow.onunload = () => abortDownload && abortDownload();
 
         if (GM_info.downloadMode !== 'disabled') {
-            downloadBtn.off('click').click(function (e) {
+            downloadBtn.off('click').click(function(e) {
                 try {
                     e.preventDefault();
 
@@ -475,7 +491,7 @@ UP_DATE_TS  the UP_DATE in timestamp format</pre>
             <p id="filename-preview"></p>`)
             .prependTo('#download-options .panel-body');
 
-        $('#filename-input').on('input', function (e) {
+        $('#filename-input').on('input', function(e) {
             $('#filename-preview').text(getDownloadTarget(this.value).filename);
 
             const isChanged = this.value !== filenameTemplate;
@@ -499,7 +515,7 @@ UP_DATE_TS  the UP_DATE in timestamp format</pre>
     async function enhanceSearch() {
         await ready;
 
-        $('.node-image').each(function () {
+        $('.node-image').each(function() {
             const thiz = $(this);
             const twitterShareLink = thiz.find('[title="Share on Twitter"]').attr('href');
 
