@@ -99,11 +99,13 @@ function main() {
 
         enableLikeRates(likeRatesEnabled);
 
-        // set up like rates and highlights
         $('.view-content .views-column, .view-content .col-sm-3').each(function() {
             const thiz = $(this);
 
             if (thiz.children(':first-child').is('.node-teaser')) {
+
+                // set up like rates and highlights
+
                 const viewsIcon = thiz.find('.likes-icon.left-icon');
                 const likesIcon = thiz.find('.likes-icon.right-icon');
 
@@ -124,6 +126,16 @@ function main() {
                     if (likeRatePercent >= 4) {
                         thiz.addClass('highlight');
                     }
+                }
+
+                // fix broken preview images
+
+                const teaserContainer = thiz.find('.field-type-video .field-item');
+
+                if (!teaserContainer.children().length) {
+                    const url = thiz.find('.title a').attr('href');
+
+                    teaserContainer.append(`<a href="${url}" class="preview-placeholder"><div>NO PREVIEW</div></a>`);
                 }
             }
         });
@@ -708,6 +720,26 @@ const GLOBAL_STYLES = `
         margin: 0;
         width: 0;
         overflow: hidden;
+    }
+
+    .preview-placeholder {
+        position: relative;
+        display: block;
+        padding-bottom: calc(100% * 150 / 220); /* numbers from the width and height attributes of preview images */
+    }
+
+    .preview-placeholder > * {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #888;
+        font-size: 1.5em;
+        background: rgba(128, 128, 128, .1);
     }
 
     .highlight {
