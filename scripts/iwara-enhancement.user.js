@@ -24,7 +24,7 @@ const VIDEOJS_THUMB_PLUGIN = 'https://cdn.jsdelivr.net/npm/videojs-thumbnail-spr
 const GLOBAL_STYLES =
     // large screen mode
     `
-@media (min-width: 2560px) {
+@media (min-width: 2000px) {
   .container {
     width: 1984px;
   }
@@ -39,6 +39,12 @@ const GLOBAL_STYLES =
 
   .comment .user-avatar {
     width: 8.33333333%;
+  }
+}
+
+@media (min-width: 3000px) {
+  .container {
+    width: 2976px;
   }
 }
 ` +
