@@ -21,197 +21,16 @@
 
 const VIDEOJS_THUMB_PLUGIN = 'https://cdn.jsdelivr.net/npm/videojs-thumbnail-sprite@0.1.1/dist/index.min.js';
 
-const GLOBAL_STYLES =
-    // large screen mode
-    `
-@media (min-width: 2000px) {
-  .container {
-    width: 1984px;
-  }
-
-  .slick-slider {
-    height: 920px !important;
-  }
-
-  .slick-list img {
-    width: 1800px;
-  }
-
-  .comment .user-avatar {
-    width: 8.33333333%;
-  }
-}
-
-@media (min-width: 3000px) {
-  .container {
-    width: 2976px;
-  }
-}
-` +
-    // dark mode
-    `
-.dark {
-    background-color: #222;
-    color: #F8F8F8;
-}
-
-.dark body,
-.dark footer,
-.dark .panel,
-.dark section#content > .container,
-.dark .node.node-full.node-video .node-info,
-.dark .node.node-full.node-image .node-info,
-.dark tr.even,
-.dark tr.odd,
-.dark .table-striped > tbody > tr:nth-child(odd) > td,
-.dark .table-striped > tbody > tr:nth-child(odd) > th
-{
-    background-color: inherit;
-}
-
-.dark .node.node-full .node-buttons,
-.dark .node.node-full .field-name-body a.show,
-.dark .node.node-full .field-name-field-categories .field-items .field-item,
-.dark .node.node-full .field-name-field-image-categories .field-items .field-item,
-.dark .panel-default > .panel-heading,
-.dark .panel-default > .panel-footer,
-.dark .table-striped > tbody > tr:nth-child(even) > td,
-.dark .table-striped > tbody > tr:nth-child(even) > th,
-.dark .views-field.views-field-last-updated.active,
-.dark .privatemsg-header-lastupdated.active,
-.dark .page-messages #privatemsg-list-form tr,
-.dark .page-messages .private-message .message.mine,
-.dark .view-profile.view-display-id-block,
-.dark .view-id-content table > tbody > tr:nth-child(odd) > td,
-.dark .view-id-content table > tbody > tr:nth-child(odd) > th,
-.dark table.sticky-header,
-.dark .well,
-.dark .jumbotron,
-.dark select option
-{
-    background-color: #2a2a2a;
-}
-
-.dark .page-messages .private-message .message.theirs,
-.dark .view-profile.view-display-id-block .views-field-field-about
-{
-    background-color: #444;
-}
-
-.dark .page-node-add .form-textarea,
-.dark .page-node-edit .form-textarea,
-.dark .page-node-add .form-text,
-.dark .page-node-edit .form-text,
-.dark pre,
-.dark select,
-.dark textarea,
-.dark input:not(.btn):not(.form-submit)
-{
-    background-color: rgba(255, 255, 255, .05);
-}
-
-.dark .view-profile.view-display-id-block .views-field-field-about,
-.dark .panel-default,
-.dark .panel-default > .panel-heading,
-.dark .panel-default > .panel-footer,
-.dark .well,
-.dark pre,
-.dark textarea,
-.dark input[type="text"],
-.dark table,
-.dark thead,
-.dark tbody,
-.dark tfoot,
-.dark tr,
-.dark th,
-.dark td
-{
-    border-color: #333 !important;
-}
-
-.dark h1,
-.dark h2,
-.dark h3,
-.dark h4,
-.dark h5,
-.dark h6
-{
-    border-color: #666 !important;
-}
-
-.dark body,
-.dark .node.node-teaser h3.title a,
-.dark .panel-default > .panel-heading,
-.dark .page-node-add .form-textarea,
-.dark .page-node-edit .form-textarea,
-.dark .page-node-add .form-text,
-.dark .page-node-edit .form-text
-{
-    color: inherit;
-}
-` +
-    // item list
-    `
-.highlight {
-    background-color: #79ecd6;
-}
-
-.highlight .username {
-    color: #555
-}
-
-.dark .highlight {
-    background-color: #048c72;
-}
-
-.dark .highlight .username {
-    color: #CCC
-}
-` +
-    // progress thumbnails
-    `
-.vjs-mouse-display .vjs-time-tooltip {
-    background-size: cover;
-    text-shadow: 0 0 2px black, 0 0 2px black !important;
-}
-` +
-    // auto-download actions
-    `
-.btn-disabled {
-    opacity: 0.7;
-    pointer-events: none;
-}
-
-.icon-btn {
-    margin-left: 4px;
-    padding: 8px 8px;
-    cursor: pointer;
-}
-
-#options-switch {
-    vertical-align: middle;
-}
-
-#filename-input {
-    margin-top: 2px;
-    width: 400px;
-    max-width: 100%;
-}
-
-#filename-preview {
-    color: #777;
-    font-size: 0.8em;
-}`;
-
 // the storage keys
 const KEY_VOLUME = 'volume';
 const KEY_FILENAME = 'filename';
 const KEY_DARK_MODE = 'dark';
+const KEY_LIKE_RATES = 'like_rates';
 
 const DEFAULT_FILENAME_TEMPLATE = 'DATE TITLE - AUTHOR (ID)';
 let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
 
-(() => {
+function main() {
     'use strict';
 
     const ready = new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
@@ -260,25 +79,49 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
     async function enhanceList() {
         await ready;
 
-        // display like rate and highlight
+        const likeRatesEnabled = GM_getValue(KEY_LIKE_RATES, true);
+
+        $('#block-mainblocks-sub-menu .list-inline')
+            .after(`<input type="checkbox" id="check-like-rates" ${likeRatesEnabled ? 'checked' : ''}><label for="check-like-rates">Display like rates</label>`);
+
+        $('#check-like-rates').change(function() {
+            GM_setValue(KEY_LIKE_RATES, this.checked);
+            enableLikeRates(this.checked);
+        });
+
+        function enableLikeRates(enabled) {
+            if (enabled) {
+                $('body').removeClass('hide-like-rates');
+            } else {
+                $('body').addClass('hide-like-rates');
+            }
+        }
+
+        enableLikeRates(likeRatesEnabled);
+
+        // set up like rates and highlights
         $('.view-content .views-column, .view-content .col-sm-3').each(function() {
             const thiz = $(this);
 
             if (thiz.children(':first-child').is('.node-teaser')) {
-                const likesIcons = thiz.find('.likes-icon');
+                const viewsIcon = thiz.find('.likes-icon.left-icon');
+                const likesIcon = thiz.find('.likes-icon.right-icon');
 
-                // the right icon will be missing if the likes is 0
-                if (likesIcons.length === 2) {
-                    let likes = likesIcons.eq(0).html().replace(/<i.*<\/i>/m, '').trim();
-                    let views = likesIcons.eq(1).html().replace(/<i.*<\/i>/m, '').trim();
+                // ensure the likes icon exists because it will be missing if the likes are 0
+                if (likesIcon.length) {
+                    let [views, likes] = [viewsIcon, likesIcon].map(icon => {
+                        let value = icon.html().replace(/<i.*<\/i>/m, '').trim();
 
-                    views = views.includes('k') ? views.slice(0, -1) * 1000 : views;
+                        value = value.includes('k') ? value.slice(0, -1) * 1000 : value;
 
-                    const likeRate = Math.round(1000 * likes / (+views || Infinity)) / 10;
+                        return +value;
+                    });
 
-                    likesIcons.eq(1).text(likeRate + '%');
+                    const likeRatePercent = views === 0 ? 0 : Math.round(1000 * likes / views) / 10;
 
-                    if (likeRate >= 4) {
+                    viewsIcon.after(`<div class="like-rate">${likeRatePercent}%</div>`);
+
+                    if (likeRatePercent >= 4) {
                         thiz.addClass('highlight');
                     }
                 }
@@ -712,4 +555,210 @@ UP_DATE_TS  the UP_DATE in timestamp format</pre>
         ]
             .map(pad).join('');
     }
-})();
+}
+
+// language=CSS
+const GLOBAL_STYLES = `
+    /* ============================= large screen mode ============================= */
+
+    @media (min-width: 2000px) {
+        .container {
+            width: 1984px;
+        }
+
+        .slick-slider {
+            height: 920px !important;
+        }
+
+        .slick-list img {
+            width: 1800px;
+        }
+
+        .comment .user-avatar {
+            width: 8.33333333%;
+        }
+    }
+
+    @media (min-width: 3000px) {
+        .container {
+            width: 2976px;
+        }
+    }
+
+    /* ============================= dark mode ============================= */
+
+    .dark {
+        background-color: #222;
+        color: #F8F8F8;
+    }
+
+    .dark li a.active {
+        color: #02e8bb;
+    }
+
+    .dark body,
+    .dark footer,
+    .dark .panel,
+    .dark section#content > .container,
+    .dark .node.node-full.node-video .node-info,
+    .dark .node.node-full.node-image .node-info,
+    .dark tr.even,
+    .dark tr.odd,
+    .dark .table-striped > tbody > tr:nth-child(odd) > td,
+    .dark .table-striped > tbody > tr:nth-child(odd) > th {
+        background-color: inherit;
+    }
+
+    .dark .node.node-full .node-buttons,
+    .dark .node.node-full .field-name-body a.show,
+    .dark .node.node-full .field-name-field-categories .field-items .field-item,
+    .dark .node.node-full .field-name-field-image-categories .field-items .field-item,
+    .dark .panel-default > .panel-heading,
+    .dark .panel-default > .panel-footer,
+    .dark .table-striped > tbody > tr:nth-child(even) > td,
+    .dark .table-striped > tbody > tr:nth-child(even) > th,
+    .dark .views-field.views-field-last-updated.active,
+    .dark .privatemsg-header-lastupdated.active,
+    .dark .page-messages #privatemsg-list-form tr,
+    .dark .page-messages .private-message .message.mine,
+    .dark .view-profile.view-display-id-block,
+    .dark .view-id-content table > tbody > tr:nth-child(odd) > td,
+    .dark .view-id-content table > tbody > tr:nth-child(odd) > th,
+    .dark table.sticky-header,
+    .dark .well,
+    .dark .jumbotron,
+    .dark select option {
+        background-color: #2a2a2a;
+    }
+
+    .dark .page-messages .private-message .message.theirs,
+    .dark .view-profile.view-display-id-block .views-field-field-about {
+        background-color: #444;
+    }
+
+    .dark .page-node-add .form-textarea,
+    .dark .page-node-edit .form-textarea,
+    .dark .page-node-add .form-text,
+    .dark .page-node-edit .form-text,
+    .dark pre,
+    .dark select,
+    .dark textarea,
+    .dark input:not(.btn):not(.form-submit) {
+        background-color: rgba(255, 255, 255, .05);
+    }
+
+    .dark .view-profile.view-display-id-block .views-field-field-about,
+    .dark .panel-default,
+    .dark .panel-default > .panel-heading,
+    .dark .panel-default > .panel-footer,
+    .dark .well,
+    .dark pre,
+    .dark textarea,
+    .dark input[type="text"],
+    .dark table,
+    .dark thead,
+    .dark tbody,
+    .dark tfoot,
+    .dark tr,
+    .dark th,
+    .dark td {
+        border-color: #333 !important;
+    }
+
+    .dark h1,
+    .dark h2,
+    .dark h3,
+    .dark h4,
+    .dark h5,
+    .dark h6 {
+        border-color: #666 !important;
+    }
+
+    .dark body,
+    .dark .node.node-teaser h3.title a,
+    .dark .panel-default > .panel-heading,
+    .dark .page-node-add .form-textarea,
+    .dark .page-node-edit .form-textarea,
+    .dark .page-node-add .form-text,
+    .dark .page-node-edit .form-text {
+        color: inherit;
+    }
+
+    /* ============================= item list ============================= */
+
+    #block-mainblocks-sub-menu .list-inline {
+        display: inline-block;
+    }
+
+    #block-mainblocks-sub-menu .checkbox {
+        display: inline-block;
+        margin: 0 16px;
+        font-size: inherit;
+    }
+
+    .like-rate {
+        padding-left: 3px;
+        color: #FFF;
+        font-weight: 700;
+    }
+
+    /* hide likes icons only when displaying like rates */
+    .hide-like-rates .like-rate,
+    body:not(.hide-like-rates) .likes-icon.left-icon {
+        margin: 0;
+        width: 0;
+        overflow: hidden;
+    }
+
+    .highlight {
+        background-color: #79ecd6;
+    }
+
+    .highlight .username {
+        color: #555;
+    }
+
+    .dark .highlight {
+        background-color: #048c72;
+    }
+
+    .dark .highlight .username {
+        color: #CCC;
+    }
+
+    /* ============================= progress bar thumbnails ============================= */
+
+    .vjs-mouse-display .vjs-time-tooltip {
+        background-size: cover;
+        text-shadow: 0 0 2px black, 0 0 2px black !important;
+    }
+
+    /* ============================= auto-download options ============================= */
+
+    .btn-disabled {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    .icon-btn {
+        margin-left: 4px;
+        padding: 8px 8px;
+        cursor: pointer;
+    }
+
+    #options-switch {
+        vertical-align: middle;
+    }
+
+    #filename-input {
+        margin-top: 2px;
+        width: 400px;
+        max-width: 100%;
+    }
+
+    #filename-preview {
+        color: #777;
+        font-size: 0.8em;
+    }`;
+
+main();
