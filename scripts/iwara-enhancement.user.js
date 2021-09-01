@@ -103,7 +103,8 @@ function main() {
         $('.view-content .views-column, .view-content .col-sm-3').each(function() {
             const thiz = $(this);
 
-            if (thiz.children(':first-child').is('.node-teaser')) {
+            if (thiz.children(':first-child').is('.node-teaser, .node-sidebar_teaser')) {
+                const url = thiz.find('.title a').attr('href');
 
                 // set up like rates and highlights
 
@@ -133,8 +134,6 @@ function main() {
                 // by adding an "image" icon on the image item that's not denoted by a "multiple" icon
 
                 if (location.href.includes('subscriptions') && !thiz.find('.multiple-icon').length) {
-                    const url = thiz.find('.title a').attr('href');
-
                     if (url.startsWith('/images')) {
                         viewsIcon.before('<div class="left-icon"><i class="glyphicon glyphicon-picture"></i></div>');
                     }
@@ -142,12 +141,15 @@ function main() {
 
                 // fix broken preview images
 
+                const placeholder = `<a href="${url}" class="preview-placeholder"><div>NO PREVIEW</div></a>`;
                 const teaserContainer = thiz.find('.field-type-video .field-item');
 
                 if (!teaserContainer.children().length) {
-                    const url = thiz.find('.title a').attr('href');
-
-                    teaserContainer.append(`<a href="${url}" class="preview-placeholder"><div>NO PREVIEW</div></a>`);
+                    teaserContainer.append(placeholder);
+                } else {
+                    teaserContainer.find('img').error(function() {
+                        teaserContainer.empty().append(placeholder);
+                    });
                 }
             }
         });
@@ -745,6 +747,8 @@ const GLOBAL_STYLES = `
         align-items: center;
         color: #888;
         font-size: 1.5em;
+        text-align: center;
+        line-height: 1.2;
         background: rgba(128, 128, 128, .1);
     }
 
@@ -754,6 +758,10 @@ const GLOBAL_STYLES = `
 
     .highlight .username {
         color: #555;
+    }
+
+    .highlight .preview-placeholder > * {
+        color: #EEE;
     }
 
     .dark .highlight {
