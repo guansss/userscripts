@@ -99,6 +99,7 @@ function main() {
 
         enableLikeRates(likeRatesEnabled);
 
+        // iterates over video/image items in the page
         $('.view-content .views-column, .view-content .col-sm-3').each(function() {
             const thiz = $(this);
 
@@ -121,10 +122,21 @@ function main() {
 
                     const likeRatePercent = views === 0 ? 0 : Math.round(1000 * likes / views) / 10;
 
-                    viewsIcon.after(`<div class="like-rate">${likeRatePercent}%</div>`);
+                    viewsIcon.after(`<div class="like-rate left-icon">${likeRatePercent}%</div>`);
 
                     if (likeRatePercent >= 4) {
                         thiz.addClass('highlight');
+                    }
+                }
+
+                // differentiate images from videos in subscriptions page
+                // by adding an "image" icon on the image item that's not denoted by a "multiple" icon
+
+                if (location.href.includes('subscriptions') && !thiz.find('.multiple-icon').length) {
+                    const url = thiz.find('.title a').attr('href');
+
+                    if (url.startsWith('/images')) {
+                        viewsIcon.before('<div class="left-icon"><i class="glyphicon glyphicon-picture"></i></div>');
                     }
                 }
 
@@ -706,12 +718,6 @@ const GLOBAL_STYLES = `
         display: inline-block;
         margin: 0 16px;
         font-size: inherit;
-    }
-
-    .like-rate {
-        padding-left: 3px;
-        color: #FFF;
-        font-weight: 700;
     }
 
     /* hide likes icons only when displaying like rates */
