@@ -68,7 +68,7 @@ function main() {
         // remove R18 warning
         $('#r18-warning').remove();
 
-        $('<a class="btn btn-info btn-sm glyphicon glyphicon-eye-open" title="Dark mode"></a>')
+        $('<a class="btn btn-info btn-sm" title="Dark mode"><i class="glyphicon glyphicon-eye-open"></i></a>')
             .insertAfter('#user-links .search-link')
             .on('click', () => {
                 document.documentElement.classList.toggle('dark');
@@ -82,7 +82,7 @@ function main() {
         const likeRatesEnabled = GM_getValue(KEY_LIKE_RATES, true);
 
         $('#block-mainblocks-sub-menu .list-inline')
-            .after(`<input type="checkbox" id="check-like-rates" ${likeRatesEnabled ? 'checked' : ''}><label for="check-like-rates">Display like rates</label>`);
+            .after(`<label for="check-like-rates" class="checkbox"><input type="checkbox" id="check-like-rates" ${likeRatesEnabled ? 'checked' : ''}>Display like rates</label>`);
 
         $('#check-like-rates').change(function() {
             GM_setValue(KEY_LIKE_RATES, this.checked);
