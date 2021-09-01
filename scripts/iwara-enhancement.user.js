@@ -328,7 +328,7 @@ function main() {
         // enlarge content area
         $('.node-full .col-sm-12:last-child').removeClass('col-sm-12').addClass('col-sm-9').parent().append($('.container .sidebar'));
         $('.container>.col-sm-9, .node-full').removeClass('col-sm-9').addClass('col-sm-12');
-        $('.extra-content-block').remove();
+        // $('.extra-content-block').remove();
 
         // move "liked by" block to the bottom
         $('#block-views-likes-block').appendTo('.sidebar .region-sidebar');
@@ -791,6 +791,12 @@ const GLOBAL_STYLES = `
     #filename-preview {
         color: #777;
         font-size: 0.8em;
-    }`;
+    }
+
+    /* ============================= misc ============================= */
+    video {
+        outline: none !important;
+    }
+`;
 
 main();
