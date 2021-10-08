@@ -699,10 +699,15 @@ const GLOBAL_STYLES = `
     .dark .page-node-add .form-text,
     .dark .page-node-edit .form-text,
     .dark pre,
+    .dark code,
     .dark select,
     .dark textarea,
     .dark input:not(.btn):not(.form-submit) {
         background-color: rgba(255, 255, 255, .05);
+    }
+
+    .dark code {
+        color: #cd798e;
     }
 
     .dark .view-profile.view-display-id-block .views-field-field-about,
