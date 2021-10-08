@@ -657,6 +657,10 @@ const GLOBAL_STYLES = `
         background-color: #2a2a2a;
     }
 
+    .dark .preview .node {
+        background-color: #ffffea40;
+    }
+
     .dark .page-messages .private-message .message.theirs,
     .dark .view-profile.view-display-id-block .views-field-field-about {
         background-color: #444;
