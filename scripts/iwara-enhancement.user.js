@@ -22,12 +22,13 @@
 const VIDEOJS_THUMB_PLUGIN = 'https://cdn.jsdelivr.net/npm/videojs-thumbnail-sprite@0.1.1/dist/index.min.js';
 
 // the storage keys
+const KEY_VERSION = 'version';
 const KEY_VOLUME = 'volume';
 const KEY_FILENAME = 'filename';
 const KEY_DARK_MODE = 'dark';
 const KEY_LIKE_RATES = 'like_rates';
 
-const DEFAULT_FILENAME_TEMPLATE = 'DATE TITLE - AUTHOR (ID)';
+const DEFAULT_FILENAME_TEMPLATE = '{DATE} {TITLE} - {AUTHOR} ({ID})';
 let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
 
 function main() {
@@ -37,6 +38,14 @@ function main() {
 
     // jQuery is available only when ready
     ready.then(() => window.$ = unsafeWindow.$ = unsafeWindow.jQuery);
+
+    // retrieve the old version and write the new one
+    let oldVersion = GM_getValue(KEY_VERSION, '0');
+    GM_setValue(KEY_VERSION, GM_info.script.version);
+
+    if (+oldVersion <= 0.6) {
+        migrateFilename();
+    }
 
     {
         general();
@@ -370,18 +379,19 @@ function main() {
                 TITLE: title,
                 AUTHOR: author,
                 DATE: formatDate(new Date()),
-                DATE_TS: new Date(),
+                DATE_TS: new Date().getTime(),
                 UP_DATE: formatDate(new Date(uploadDate)),
                 UP_DATE_TS: uploadDate,
             };
 
-            // the keys should be sorted to prevent certain keys from overriding its longer form
-            // e.g. "DATE_TS" gets populated with DATE instead of DATE_TS
-            const sortedKeys = Object.keys(vars).sort((a, b) => b.length - a.length);
+            let filename = template;
 
-            const filename = sortedKeys.reduce((_filename, key) => _filename.replace(key, vars[key]), template)
-                // strip characters disallowed in file path
-                .replace(/[*/:<>?\\|]/g, '');
+            for (const v in vars) {
+                filename = filename.replaceAll('{' + v + '}', vars[v]);
+            }
+
+            // strip characters disallowed in file path
+            filename = filename.replace(/[*/:<>?\\|]/g, '');
 
             return {
                 url,
@@ -489,6 +499,7 @@ function main() {
               so in order to apply the settings permanently, you need to modify them in non-incognito mode.</p>
             <p>If you're using Tampermonkey, you can check the <a href="https://greasyfork.org/scripts/416003-iwara-enhancement">description</a>
               for how to improve the download experience.</p>
+            <p>Each keyword should be surrounded by <code>{}</code>.</p>
             <pre>ID          the video's ID
 TITLE       title
 AUTHOR      author's name
@@ -522,6 +533,23 @@ UP_DATE_TS  the UP_DATE in timestamp format</pre>
             $('#filename-input').val(DEFAULT_FILENAME_TEMPLATE);
             $('#filename-submit').click();
         });
+    }
+
+    // migrate filename template like from KEYWORD to {KEYWORD}
+    function migrateFilename() {
+        if (filenameTemplate === DEFAULT_FILENAME_TEMPLATE) {
+            return;
+        }
+
+        const vars = ['ID', 'TITLE', 'AUTHOR', 'DATE', 'DATE_TS', 'UP_DATE', 'UP_DATE_TS']
+            .sort((a, b) => b.length - a.length);
+
+        // surround keywords with {}
+        for (const v of vars) {
+            filenameTemplate = filenameTemplate.replace(new RegExp('(?<!\\{)' + v + '(?!\\})'), '{' + v + '}');
+        }
+
+        GM_setValue(KEY_FILENAME, filenameTemplate);
     }
 
     async function enhanceSearch() {
@@ -804,6 +832,7 @@ const GLOBAL_STYLES = `
         margin-top: 2px;
         width: 400px;
         max-width: 100%;
+        display: inline;
     }
 
     #filename-preview {
