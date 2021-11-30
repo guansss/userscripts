@@ -681,6 +681,8 @@ const GLOBAL_STYLES = `
     .dark table.sticky-header,
     .dark .well,
     .dark .jumbotron,
+    .dark .node-video.node-full .playlist-button-wrapper .playlists,
+    .dark .private-notice,
     .dark select option {
         background-color: #2a2a2a;
     }
@@ -715,6 +717,7 @@ const GLOBAL_STYLES = `
     .dark .panel-default > .panel-heading,
     .dark .panel-default > .panel-footer,
     .dark .well,
+    .dark #comments .indented,
     .dark pre,
     .dark textarea,
     .dark input[type="text"],
@@ -738,6 +741,7 @@ const GLOBAL_STYLES = `
     }
 
     .dark body,
+    .dark .form-control,
     .dark .node.node-teaser h3.title a,
     .dark .panel-default > .panel-heading,
     .dark .page-node-add .form-textarea,

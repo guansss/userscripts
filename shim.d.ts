@@ -11,6 +11,13 @@ declare function GM_addStyle(css: string): HTMLStyleElement
 
 declare function GM_getResourceText(name: string): string
 
+declare const GM_info: {
+    script: {
+        version: string
+    }
+    downloadMode: 'native' | 'browser' | 'disabled'
+};
+
 declare function GM_download(details: {
     url: string,
     name?: string
