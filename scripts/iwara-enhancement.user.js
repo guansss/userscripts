@@ -17,6 +17,7 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @run-at       document-start
+// @noframes
 // ==/UserScript==
 
 const VIDEOJS_THUMB_PLUGIN = 'https://cdn.jsdelivr.net/npm/videojs-thumbnail-sprite@0.1.1/dist/index.min.js';
@@ -209,7 +210,7 @@ function main() {
 
             let scriptExists = false;
 
-            // there's a chance that the <script> tag of videojs has been inserted to the page,
+            // there's a chance that the <script> tag of videojs has already been inserted to the page,
             // I'm not quite sure though
             for (const element of document.head.children) {
                 if (element.src && element.src.includes('video-js/video.js')) {
@@ -228,6 +229,11 @@ function main() {
                                 if (node && node.src && node.src.includes('video-js/video.js')) {
                                     observer.disconnect();
                                     node.remove();
+
+                                    // though removed, the <script> still attempts to load on Firefox
+                                    node.addEventListener('load', () => {
+                                        unsafeWindow.videojs = videojs;
+                                    });
                                 }
                             }
                         }
