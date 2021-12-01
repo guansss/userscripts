@@ -28,6 +28,7 @@ const KEY_VOLUME = 'volume';
 const KEY_FILENAME = 'filename';
 const KEY_DARK_MODE = 'dark';
 const KEY_LIKE_RATES = 'like_rates';
+const KEY_PLAYER_SIZE = 'player_size';
 
 const DEFAULT_FILENAME_TEMPLATE = '{DATE} {TITLE} - {AUTHOR} ({ID})';
 let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
@@ -266,6 +267,35 @@ function main() {
                 // save volume when changed
                 GM_setValue(KEY_VOLUME, player.volume() || 0.5);
             });
+
+        // player size option
+
+        let playerSize = GM_getValue(KEY_PLAYER_SIZE, 100);
+
+        $(`
+        <div class="page-node-edit">
+            <h3>Player Size</h3>
+            <p><input type="number" id="player-size-input" class="form-text" value="${playerSize}"> %</p>
+        </div>`)
+            .prependTo('#download-options .panel-body');
+
+        $('#player-size-input').on('input', function(e) {
+            if (Number(this.value) > 0) {
+                playerSize = Number(this.value);
+                GM_setValue(KEY_PLAYER_SIZE, playerSize);
+
+                updatePlayerSize();
+            }
+        });
+
+        function updatePlayerSize() {
+            $('#video-player').each(function() {
+                this.style.setProperty('width', playerSize + '%', 'important');
+                this.style.setProperty('margin', '0 ' + (100 - playerSize) / 2 + '%');
+            });
+        }
+
+        updatePlayerSize();
     }
 
     async function setupThumbnails() {
@@ -727,6 +757,7 @@ const GLOBAL_STYLES = `
     .dark pre,
     .dark textarea,
     .dark input[type="text"],
+    .dark input[type="number"],
     .dark table,
     .dark thead,
     .dark tbody,
@@ -859,6 +890,12 @@ const GLOBAL_STYLES = `
 
     video {
         outline: none !important;
+    }
+
+    #player-size-input {
+        display: inline-block;
+        width: 100px;
+        text-align: right;
     }
 
     .vjs-big-play-button .vjs-icon-placeholder:before {
