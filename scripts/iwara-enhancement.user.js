@@ -856,8 +856,23 @@ const GLOBAL_STYLES = `
     }
 
     /* ============================= misc ============================= */
+
     video {
         outline: none !important;
+    }
+
+    .vjs-big-play-button .vjs-icon-placeholder:before {
+        line-height: 65px;
+    }
+
+    .vjs-icon-replay:before {
+        font-size: 1.8em;
+        line-height: 1.67;
+    }
+
+    .vjs-resolution-button .vjs-icon-placeholder:before {
+        content: "\\f110";
+        font-family: VideoJS;
     }
 `;
 
