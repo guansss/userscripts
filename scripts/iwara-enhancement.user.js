@@ -716,6 +716,11 @@ const GLOBAL_STYLES = `
         color: #02e8bb;
     }
 
+    .dark footer a:hover,
+    .dark footer a:focus {
+        background-color: rgba(255, 255, 255, .1) !important;
+    }
+
     .dark body,
     .dark footer,
     .dark .panel,
