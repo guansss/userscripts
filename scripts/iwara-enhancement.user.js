@@ -683,7 +683,8 @@ const GLOBAL_STYLES = `
 
     /* ============================= dark mode ============================= */
 
-    .dark {
+    .dark,
+    .dark section#content > .container {
         background-color: #222;
         color: #F8F8F8;
     }
@@ -695,7 +696,6 @@ const GLOBAL_STYLES = `
     .dark body,
     .dark footer,
     .dark .panel,
-    .dark section#content > .container,
     .dark .node.node-full.node-video .node-info,
     .dark .node.node-full.node-image .node-info,
     .dark tr.even,
