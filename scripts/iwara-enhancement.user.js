@@ -2,7 +2,7 @@
 // @name         Iwara Enhancement
 // @name:zh-CN   Iwara增强
 // @namespace    https://github.com/guansss/userscripts
-// @version      0.9
+// @version      0.10
 // @description  Multiple UI enhancements for better experience.
 // @description:zh-CN 多种增强体验的界面优化
 // @author       guansss
@@ -51,7 +51,7 @@ function main() {
     let oldVersion = GM_getValue(KEY_VERSION, '0');
     GM_setValue(KEY_VERSION, GM_info.script.version);
 
-    if (+oldVersion <= 0.6) {
+    if (oldVersion.length <= '0.6'.length && +oldVersion <= 0.6) {
         migrateFilename();
     }
 
