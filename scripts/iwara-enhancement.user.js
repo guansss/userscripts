@@ -117,7 +117,20 @@ function main() {
         enableLikeRates(likeRatesEnabled);
 
         // iterates over video/image items in the page
-        $('.view-content .views-column, .view-content .col-sm-3').each(function() {
+        $('.view-content .views-column, .view-content .col-sm-3').each(processItem);
+
+        const itemContainer = $('.view-content > .views-columns-4').get(0);
+
+        if (itemContainer) {
+            // observe newly added items for compatibility with the Iwara Custom Sort script
+            observeAddedChild(itemContainer, node => {
+                if (node.tagName === 'DIV') {
+                    $(node).find('.views-column, .col-sm-3').each(processItem);
+                }
+            });
+        }
+
+        function processItem() {
             const thiz = $(this);
 
             if (thiz.children(':first-child').is('.node-teaser, .node-sidebar_teaser')) {
@@ -169,7 +182,7 @@ function main() {
                     });
                 }
             }
-        });
+        }
     }
 
     async function enhanceVideo() {
@@ -229,23 +242,19 @@ function main() {
 
             if (!scriptExists) {
                 // immediately remove the <script> tag once it's inserted to the HTML
-                new MutationObserver((mutationsList, observer) => {
-                    mutationsList.forEach(mutation => {
-                        if (mutation.type === 'childList') {
-                            for (const node of mutation.addedNodes) {
-                                if (node && node.src && node.src.includes('video-js/video.js')) {
-                                    observer.disconnect();
-                                    node.remove();
+                observeAddedChild(document.head, (node, observer) => {
+                    if (node && node.src && node.src.includes('video-js/video.js')) {
+                        observer.disconnect();
+                        node.remove();
 
-                                    // though removed, the <script> still attempts to load on Firefox
-                                    node.addEventListener('load', () => {
-                                        unsafeWindow.videojs = videojs;
-                                    });
-                                }
-                            }
-                        }
-                    });
-                }).observe(document.head, { childList: true });
+                        // though removed, the <script> still attempts to load on Firefox
+                        node.addEventListener('load', () => {
+                            unsafeWindow.videojs = videojs;
+                        });
+
+                        return true;
+                    }
+                });
             }
         }
 
@@ -609,6 +618,20 @@ UP_DATE_TS  the UP_DATE in timestamp format</pre>
                 thiz.find('h1').wrapInner(`<a href="${iwaraLink}"></a>`);
             }
         });
+    }
+
+    function observeAddedChild(container, callback) {
+        new MutationObserver((mutationsList, observer) => {
+            for (const mutation of mutationsList) {
+                if (mutation.type === 'childList') {
+                    for (const node of mutation.addedNodes) {
+                        if (callback(node, observer)) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }).observe(container, { childList: true });
     }
 
     function repeat(fn, interval = 200) {
