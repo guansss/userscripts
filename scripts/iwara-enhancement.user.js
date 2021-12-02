@@ -36,7 +36,13 @@ let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
 function main() {
     'use strict';
 
-    const ready = new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
+    const ready = new Promise(resolve => {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', resolve);
+        } else {
+            resolve();
+        }
+    });
 
     // jQuery is available only when ready
     ready.then(() => window.$ = unsafeWindow.$ = unsafeWindow.jQuery);
