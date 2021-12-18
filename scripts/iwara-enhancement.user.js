@@ -208,6 +208,8 @@ function main() {
 
         // copy the plugins if the old videojs has already been loaded before this userscript is injected to the page
         if (unsafeWindow.videojs) {
+            log('videojs loaded');
+
             const oldVideojs = unsafeWindow.videojs;
 
             unsafeWindow.videojs = videojs;
@@ -226,6 +228,8 @@ function main() {
         }
         // otherwise, prevent the old videojs from loading
         else {
+            log('videojs not loaded, waiting');
+
             unsafeWindow.videojs = videojs;
 
             let scriptExists = false;
@@ -234,6 +238,8 @@ function main() {
             // I'm not quite sure though
             for (const element of document.head.children) {
                 if (element.src && element.src.includes('video-js/video.js')) {
+                    log('videojs <script> detected');
+
                     element.remove();
                     scriptExists = true;
                     break;
@@ -244,6 +250,8 @@ function main() {
                 // immediately remove the <script> tag once it's inserted to the HTML
                 observeAddedChild(document.head, (node, observer) => {
                     if (node && node.src && node.src.includes('video-js/video.js')) {
+                        log('videojs <script> inserted');
+
                         observer.disconnect();
                         node.remove();
 
@@ -522,8 +530,8 @@ function main() {
 
         function downloadEnded(e) {
             if (e && e.error) {
-                console.warn('Download error', e);
-                showError(`Download error (${e.error}): ${e.details.current}`);
+                log('Download error', e);
+                showError(`Download error (${e.error}): ${e.details && e.details.current}`);
             }
 
             downloadBtn.removeClass('btn-disabled').html(downloadBtnHTML);
@@ -673,6 +681,10 @@ UP_DATE_TS  the UP_DATE in timestamp format</pre>
             date.getHours(), date.getMinutes(), date.getSeconds(),
         ]
             .map(pad).join('');
+    }
+
+    function log(...args) {
+        console.log(`[${GM_info.script.name}]`, ...args);
     }
 }
 

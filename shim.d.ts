@@ -13,6 +13,7 @@ declare function GM_getResourceText(name: string): string
 
 declare const GM_info: {
     script: {
+        name: string
         version: string
     }
     downloadMode: 'native' | 'browser' | 'disabled'
