@@ -969,6 +969,16 @@ const GLOBAL_STYLES = `
         content: "\\f110";
         font-family: VideoJS;
     }
+
+    /* prevent icon from triggering the button's "mouseout" listener, which dismisses its popup menu */
+    .vjs-resolution-button .vjs-menu-icon {
+        pointer-events: none;
+    }
+
+    /* prevent popup menu from disappearing when hovered */
+    .vjs-menu-button-popup .vjs-menu:hover {
+        display: block;
+    }
 `;
 
 main();
