@@ -287,6 +287,25 @@ async function main() {
 
         const player = await repeatUntil(() => videojs.getPlayers()['video-player']);
 
+        const originalPlay = player.play;
+
+        player.play = function() {
+            // return value is the player instance in old version, and a Promise in new version
+            const ret = originalPlay.call(this);
+
+            const originalLimit = Error.stackTraceLimit;
+            Error.stackTraceLimit = 2; // we only want the second entry
+            const e = new Error();
+            Error.stackTraceLimit = originalLimit;
+
+            // fix broken chain-call `player.play().handleTechSeeked_()` in Resolution Switcher plugin
+            if (e.stack.includes('videojs-resolution-switcher')) {
+                return player;
+            }
+
+            return ret;
+        };
+
         player
             .on('fullscreenchange', () => {
                 $('#video-player').focus();
