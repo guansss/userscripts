@@ -33,8 +33,13 @@ const KEY_PLAYER_SIZE = 'player_size';
 const DEFAULT_FILENAME_TEMPLATE = '{DATE} {TITLE} - {AUTHOR} ({ID})';
 let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
 
-function main() {
+async function main() {
     'use strict';
+
+    // by specifying "@run-at document-start", the script will be injected into the page ASAP,
+    // and this can happen even before the page's <html> tag is downloaded and parsed, in which case
+    // `document.documentElement` is null, so we have to ensure its existence
+    await repeatUntil(() => document.documentElement, 0);
 
     const ready = new Promise(resolve => {
         if (document.readyState === 'loading') {
@@ -55,7 +60,7 @@ function main() {
         migrateFilename();
     }
 
-    {
+    (function startup() {
         general();
         enhanceList();
 
@@ -70,7 +75,7 @@ function main() {
         } else if (location.pathname.includes('search')) {
             enhanceSearch();
         }
-    }
+    })();
 
     async function general() {
         GM_addStyle(GLOBAL_STYLES);
@@ -660,11 +665,18 @@ UP_DATE_TS  the UP_DATE in timestamp format</pre>
 
     // non-cancelable
     function repeatUntil(fn, interval) {
-        return new Promise(resolve => repeat(() => {
-            const result = fn();
+        return new Promise((resolve, reject) => repeat(() => {
+            try {
+                const result = fn();
 
-            if (result) {
-                resolve(result);
+                if (result) {
+                    resolve(result);
+
+                    // break the repeat() loop
+                    return true;
+                }
+            } catch (e) {
+                reject(e);
                 return true;
             }
         }, interval));
