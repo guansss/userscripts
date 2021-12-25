@@ -194,6 +194,11 @@ async function main() {
         // load CSS of the new videojs
         GM_addStyle(GM_getResourceText('vjs-css'));
 
+        // recover volume in incognito mode
+        if (localStorage['-volume'] === undefined) {
+            localStorage['-volume'] = GM_getValue(KEY_VOLUME, 0.5);
+        }
+
         // patch the player.on() to return itself to support method chaining, which is no longer supported in the new version
         const Player = videojs.getComponent('Player');
         const readyFn = Player.prototype.ready;
@@ -211,74 +216,26 @@ async function main() {
             return readyFn.apply(this, arguments);
         };
 
-        // copy the plugins if the old videojs has already been loaded before this userscript is injected to the page
-        if (unsafeWindow.videojs) {
-            log('videojs loaded');
-
-            const oldVideojs = unsafeWindow.videojs;
-
-            unsafeWindow.videojs = videojs;
-
-            // registered plugins can be found by checking the <script> tags in page HTML
-            const registeredPlugins = ['hotkeys', 'persistvolume', 'loopbutton', 'videoJsResolutionSwitcher'];
-
-            // copy plugins to the new videojs
-            for (const plugin of registeredPlugins) {
-                const pluginMethod = oldVideojs.getComponent('Player').prototype[plugin];
-
-                if (typeof pluginMethod === 'function') {
-                    videojs.registerPlugin(plugin, pluginMethod);
-                }
-            }
-        }
-        // otherwise, prevent the old videojs from loading
-        else {
-            log('videojs not loaded, waiting');
-
-            unsafeWindow.videojs = videojs;
-
-            let scriptExists = false;
-
-            // there's a chance that the <script> tag of videojs has already been inserted to the page,
-            // I'm not quite sure though
-            for (const element of document.head.children) {
-                if (element.src && element.src.includes('video-js/video.js')) {
-                    log('videojs <script> detected');
-
-                    element.remove();
-                    scriptExists = true;
-                    break;
-                }
-            }
-
-            if (!scriptExists) {
-                // immediately remove the <script> tag once it's inserted to the HTML
-                observeAddedChild(document.head, (node, observer) => {
-                    if (node && node.src && node.src.includes('video-js/video.js')) {
-                        log('videojs <script> inserted');
-
-                        observer.disconnect();
-                        node.remove();
-
-                        // though removed, the <script> still attempts to load on Firefox
-                        node.addEventListener('load', () => {
-                            unsafeWindow.videojs = videojs;
-                        });
-
-                        return true;
-                    }
-                });
-            }
-        }
-
-        // recover the volume in incognito mode
-        if (localStorage['-volume'] === undefined) {
-            localStorage['-volume'] = GM_getValue(KEY_VOLUME, 0.5);
-        }
-
         await ready;
 
-        // remove CSS of the old videojs
+        const oldVideojs = await repeatUntil(() => unsafeWindow.videojs, 0);
+
+        unsafeWindow.videojs = videojs;
+        unsafeWindow.oldVideojs = oldVideojs;
+
+        // registered plugins can be found by checking the <script> tags in page HTML
+        const registeredPlugins = ['hotkeys', 'persistvolume', 'loopbutton', 'videoJsResolutionSwitcher'];
+
+        // copy plugins to the new videojs
+        for (const plugin of registeredPlugins) {
+            const pluginMethod = oldVideojs.getComponent('Player').prototype[plugin];
+
+            if (typeof pluginMethod === 'function') {
+                videojs.registerPlugin(plugin, pluginMethod);
+            }
+        }
+
+        // remove CSS of old videojs
         for (const node of document.head.childNodes) {
             if (node && node.tagName === 'STYLE' && node.innerHTML.includes('video-js')) {
                 node.innerHTML = node.innerHTML.replace(/.+?video-js\.min\.css.+/, '');
