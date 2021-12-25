@@ -29,6 +29,10 @@ const KEY_FILENAME = 'filename';
 const KEY_DARK_MODE = 'dark';
 const KEY_LIKE_RATES = 'like_rates';
 const KEY_PLAYER_SIZE = 'player_size';
+const KEY_PREFERRED_RESOLUTION = 'preferred_res';
+
+// resolution for auto download
+const DEFAULT_RESOLUTION = 'Source';
 
 const DEFAULT_FILENAME_TEMPLATE = '{DATE} {TITLE} - {AUTHOR} ({ID})';
 let filenameTemplate = GM_getValue(KEY_FILENAME, DEFAULT_FILENAME_TEMPLATE);
@@ -242,7 +246,7 @@ async function main() {
             }
         }
 
-        const player = await repeatUntil(() => videojs.getPlayers()['video-player']);
+        const player = await getPlayer();
 
         const originalPlay = player.play;
 
@@ -305,7 +309,7 @@ async function main() {
     async function setupThumbnails() {
         await ready;
 
-        const player = await repeatUntil(() => videojs.getPlayers()['video-player']);
+        const player = await getPlayer();
 
         // e.g. //i.iwara.tv/sites/default/files/videos/thumbnails/1404656/thumbnail-1404656_0001.jpg
         const previewURL = player.poster();
@@ -403,13 +407,27 @@ async function main() {
         // wait for Bootstrap's initialization
         await delay(200);
 
-        function getDownloadTarget(template = filenameTemplate) {
-            const url = $('#download-options li:first-child a')[0].href;
-            const ext = url.match(/Source(\.[^&]+)/)[1];
+        let resolution = GM_getValue(KEY_PREFERRED_RESOLUTION, DEFAULT_RESOLUTION);
+        let sources;
 
-            const urlMatches = unescape(url).match(/file=.+\/(\d+)_(\w+)_/);
-            const uploadDate = urlMatches[1] * 1000;
-            const id = urlMatches[2];
+        function getDownloadTarget(template = filenameTemplate) {
+            if (!sources || !sources.length) {
+                throw new Error('Sources not found.');
+            }
+
+            let source = sources.find(({ label }) => label === resolution);
+
+            if (!source) {
+                source = sources[0];
+                showError(`Warning: Could not find source by resolution "${resolution}", switching to first available source (${source.label})`);
+            }
+
+            const url = (source.src.startsWith('//') ? location.protocol : '') + source.src;
+            const ext = url.match(/file=.+(\.[^&]+)/)[1];
+
+            const urlMatch = unescape(url).match(/file=.+\/(\d+)_(\w+)_/);
+            const uploadDate = urlMatch[1] * 1000;
+            const id = urlMatch[2];
 
             const title = $('.node-info .title').text();
             const author = $('.node-info .username').text();
@@ -442,6 +460,60 @@ async function main() {
         const downloadBtn = $('#download-button');
         const downloadBtnHTML = downloadBtn.html();
 
+        // disable it until sources are ready
+        downloadBtn.addClass('btn-disabled');
+
+        getPlayer().then(player => {
+            // need to check its type because it can be a function before being initialized
+            if (Array.isArray(player.currentSources)) {
+                updateSources(player.currentSources);
+            } else {
+                // this event comes from Resolution Switcher plugin
+                player.on('updateSources', () => {
+                    if (Array.isArray(player.currentSources)) {
+                        updateSources(player.currentSources);
+                    }
+                });
+            }
+
+            function updateSources(src) {
+                sources = src;
+
+                downloadBtn.removeClass('btn-disabled');
+
+                // resolution options have just been inited
+                $('#download-options ul li').append('<span class="enh-preferred-res-option">Preferred</span>');
+
+                updateResolution(resolution);
+
+                // update filename preview
+                $('#filename-input').trigger('input');
+            }
+        });
+
+        function updateResolution(res) {
+            if (res !== resolution) {
+                resolution = res;
+                GM_setValue(KEY_PREFERRED_RESOLUTION, res);
+            }
+
+            downloadBtn.html(downloadBtnHTML + ` (${resolution})`);
+
+            $('.enh-preferred-res-option').each(function(index) {
+                const selected = sources[index] && sources[index].label === resolution;
+                this.classList[selected ? 'add' : 'remove']('active');
+            });
+        }
+
+        $('#download-options').on('click', '.enh-preferred-res-option', function() {
+            // since resolution options exist (as one is clicked), the sources must exist
+            const source = sources[$(this).parent().index()];
+
+            if (source) {
+                updateResolution(source.label);
+            }
+        });
+
         // a function to abort the current download
         let abortDownload;
 
@@ -472,6 +544,8 @@ async function main() {
                     }
 
                     const downloadTarget = getDownloadTarget();
+
+                    log('Downloading:', downloadTarget.url);
 
                     downloadBtn.addClass('btn-disabled');
 
@@ -510,16 +584,16 @@ async function main() {
         }
 
         function downloadEnded(type, e) {
+            if (type === 'ontimeout') {
+                e = { error: 'timed_out' };
+            }
+
             if (e && e.error) {
                 log('Download error', e);
-                showError(`Download error (${e.error}): ${e.details && e.details.current}`);
+                showError(`Download error (${e.error}): ${e.details && e.details.current || 'No info'}`);
             }
 
-            if (type === 'ontimeout') {
-                showError('Download timed out.');
-            }
-
-            downloadBtn.removeClass('btn-disabled').html(downloadBtnHTML);
+            downloadBtn.removeClass('btn-disabled').html(downloadBtnHTML + ` (${resolution})`);
 
             abortDownload = undefined;
         }
@@ -559,7 +633,11 @@ UP_DATE_TS  the UP_DATE in timestamp format</pre>
             .prependTo('#download-options .panel-body');
 
         $('#filename-input').on('input', function(e) {
-            $('#filename-preview').text(getDownloadTarget(this.value).filename);
+            if (sources && sources.length) {
+                $('#filename-preview').text(getDownloadTarget(this.value).filename);
+            } else {
+                $('#filename-preview').text('(Could not preview filename because video sources are not ready, please wait)');
+            }
 
             const isChanged = this.value !== filenameTemplate;
             const isDefault = this.value === DEFAULT_FILENAME_TEMPLATE;
@@ -625,6 +703,10 @@ UP_DATE_TS  the UP_DATE in timestamp format</pre>
                 }
             }
         }).observe(container, { childList: true });
+    }
+
+    function getPlayer() {
+        return repeatUntil(() => videojs.getPlayers()['video-player']);
     }
 
     function repeat(fn, interval = 200) {
@@ -922,6 +1004,20 @@ const GLOBAL_STYLES = `
     #filename-preview {
         color: #777;
         font-size: 0.8em;
+    }
+
+    .enh-preferred-res-option {
+        padding: 10px;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .enh-preferred-res-option:hover {
+        opacity: 0.5;
+    }
+
+    .enh-preferred-res-option.active {
+        opacity: 1;
     }
 
     /* ============================= misc ============================= */
