@@ -506,7 +506,7 @@ async function main() {
 
                     const likeBtn = $('.flag-like a');
 
-                    // like button exists if user has logged in
+                    // like button does not exist if user is not logged in
                     if (likeBtn.length) {
                         // like the video if not liked
                         if (!likeBtn.attr('href').includes('unflag')) {
@@ -534,9 +534,9 @@ async function main() {
                         url: downloadTarget.url,
                         name: downloadTarget.filename,
                         saveAs: true,
-                        onload: downloadEnded,
-                        onerror: downloadEnded,
-                        ontimeout: downloadEnded,
+                        onload: () => downloadEnded('onload'),
+                        onerror: e => downloadEnded('onerror', e),
+                        ontimeout: () => downloadEnded('ontimeout'),
                         onprogress,
                     });
 
@@ -552,10 +552,14 @@ async function main() {
             showError(new Error('Download has been disabled, the default method will be used instead.'));
         }
 
-        function downloadEnded(e) {
+        function downloadEnded(type, e) {
             if (e && e.error) {
                 log('Download error', e);
                 showError(`Download error (${e.error}): ${e.details && e.details.current}`);
+            }
+
+            if (type === 'ontimeout') {
+                showError('Download timed out.');
             }
 
             downloadBtn.removeClass('btn-disabled').html(downloadBtnHTML);
