@@ -4,7 +4,7 @@
 // @source       https://github.com/guansss/userscripts
 // @supportURL   https://github.com/guansss/userscripts/issues
 // @updateURL    https://sleazyfork.org/scripts/416003-iwara-enhancement/code/Iwara%20Enhancement.user.js
-// @version      0.10
+// @version      0.11
 // @description  Multiple UI enhancements for better experience.
 // @description:zh-CN 多种增强体验的界面优化
 // @author       guansss
