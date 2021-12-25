@@ -1,12 +1,15 @@
 // ==UserScript==
 // @name         Iwara Enhancement
 // @name:zh-CN   Iwara增强
-// @namespace    https://github.com/guansss/userscripts
+// @source       https://github.com/guansss/userscripts
+// @supportURL   https://github.com/guansss/userscripts/issues
+// @updateURL    https://sleazyfork.org/scripts/416003-iwara-enhancement/code/Iwara%20Enhancement.user.js
 // @version      0.10
 // @description  Multiple UI enhancements for better experience.
 // @description:zh-CN 多种增强体验的界面优化
 // @author       guansss
 // @match        *://*.iwara.tv/*
+// @exclude      *://staging.iwara.tv/*
 // @require      https://cdn.jsdelivr.net/npm/video.js@7.10.1/dist/video.min.js#sha256=9HM07Of11yw3TL/m0BxP9pw08qXmG/xOTDc1d3sp2Wo=
 // @resource     vjs-css https://cdn.jsdelivr.net/npm/video.js@7.10.1/dist/video-js.min.css#sha256=/fXfq3QrnWyMYmF0zX6ImdI1DTraNCAq1vPofa2rs2w=
 // @grant        GM_setValue
