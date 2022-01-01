@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build"
+    "build": "vite build"
   },
   "devDependencies": {
     "@mdi/svg": "^6.2.95",
     "@types/lodash": "^4.14.175",
     "autoprefixer": "^10.3.7",
+    "browser-extension-url-match": "^0.3.3",
     "cross-env": "^7.0.3",
     "glob": "^7.2.0",
     "lodash": "^4.17.11",
