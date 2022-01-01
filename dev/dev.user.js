@@ -5,14 +5,14 @@
 // @grant        all
 // ==/UserScript==
 
-(async function() {
+(async function () {
     'use strict';
 
     const host = 'http://127.0.0.1:3000';
 
     const viteClientImported = import(host + '/@vite/client');
 
-    const scripts = await fetch(host + '/@userscripts/available').then(res => res.json());
+    const scripts = await fetch(host + '/@userscripts/available').then((res) => res.json());
 
     // wait for HMR setup
     await viteClientImported;

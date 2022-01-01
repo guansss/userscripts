@@ -9,24 +9,22 @@ export default defineConfig(async ({ mode }) => {
     const userscripts = await getAllUserscripts();
 
     return {
-        plugins: [
-            serveUserscripts()
-        ],
+        plugins: [serveUserscripts()],
         css: {
             postcss: {
-                plugins: [autoprefixer(), nested()]
-            }
+                plugins: [autoprefixer(), nested()],
+            },
         },
         server: {
-            port: 3000
+            port: 3000,
         },
         define: {
-            __BUILD_TIME__: Date.now()
+            __BUILD_TIME__: Date.now(),
         },
         build: {
             rollupOptions: {
-                input: Object.fromEntries(userscripts.map(({ name, entry }) => [name, entry]))
-            }
-        }
+                input: Object.fromEntries(userscripts.map(({ name, entry }) => [name, entry])),
+            },
+        },
     };
 });

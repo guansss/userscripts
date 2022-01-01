@@ -6,14 +6,14 @@ const { matchPattern } = require('browser-extension-url-match');
 async function getAllUserscripts() {
     const dirs = await glob(path.resolve(__dirname, '../userscripts') + '/*/');
 
-    return dirs.map(dir => {
+    return dirs.map((dir) => {
         const name = path.basename(dir);
 
         return {
             dir,
             name,
             entry: dir + 'index.ts',
-            url: `userscripts/${name}/index.ts`
+            url: `userscripts/${name}/index.ts`,
         };
     });
 }
@@ -30,5 +30,5 @@ function urlMatch(pattern, url) {
 
 module.exports = {
     getAllUserscripts,
-    urlMatch
+    urlMatc,
 };

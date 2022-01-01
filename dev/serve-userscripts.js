@@ -9,7 +9,7 @@ export default function serveUserscripts() {
         name: 'serve-userscripts',
         configureServer(server) {
             server.middlewares.use(namespace + '/available', getAvailableUserscripts);
-        }
+        },
     };
 }
 
@@ -33,13 +33,13 @@ export async function findUserscripts(url) {
 
             const include = [meta.include, meta.match].filter(Boolean).flat(Infinity);
 
-            if (!include.some(pattern => urlMatch(pattern, url))) {
+            if (!include.some((pattern) => urlMatch(pattern, url))) {
                 return false;
             }
 
             const exclude = [meta.exclude].filter(Boolean).flat(Infinity);
 
-            if (exclude.some(pattern => urlMatch(pattern, url))) {
+            if (exclude.some((pattern) => urlMatch(pattern, url))) {
                 return false;
             }
 
