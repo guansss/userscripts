@@ -34,7 +34,6 @@ export default defineConfig(async ({ mode }) => {
         },
         define: {
             __BUILD_TIME__: Date.now(),
-            __I18N__: 1,
         },
         build: {
             rollupOptions: {

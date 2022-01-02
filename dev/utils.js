@@ -62,5 +62,5 @@ module.exports = {
     USERSCRIPTS_ROOT,
     getAllUserscripts,
     urlMatch,
-    getGMAPI,
+    getGMAPIs,
 };
