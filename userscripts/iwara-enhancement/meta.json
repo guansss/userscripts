@@ -1,0 +1,8 @@
+{
+  "version": "0.11",
+  "updateURL": "https://sleazyfork.org/scripts/416003-iwara-enhancement/code/Iwara%20Enhancement.user.js",
+  "match": ["*://*.iwara.tv/*"],
+  "exclude": "*://staging.iwara.tv/*",
+  "run-at": "document-start",
+  "noframes": true
+}
