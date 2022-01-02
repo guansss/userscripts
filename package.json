@@ -8,6 +8,7 @@
   },
   "devDependencies": {
     "@mdi/svg": "^6.2.95",
+    "@rollup/plugin-replace": "^3.0.1",
     "@types/lodash": "^4.14.175",
     "autoprefixer": "^10.3.7",
     "browser-extension-url-match": "^0.3.3",
