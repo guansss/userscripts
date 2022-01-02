@@ -14,17 +14,23 @@ export default function serveUserscripts() {
 }
 
 async function getAvailableUserscripts(req, res) {
-    const scripts = await findUserscripts(req.originalUrl);
+    const query = new URLSearchParams(req.originalUrl.slice(req.originalUrl.indexOf('?')));
+    const forceLoad = query.get('forceLoad') && query.get('forceLoad').split(',');
+    const scripts = await findUserscripts(req.originalUrl, forceLoad);
 
     res.setHeader('Content-Type', 'application/json')
         .setHeader('Access-Control-Allow-Origin', '*')
         .end(JSON.stringify(scripts));
 }
 
-export async function findUserscripts(url) {
+export async function findUserscripts(url, forceLoad = []) {
     const userscripts = await getAllUserscripts();
 
     return userscripts.filter(({ name, dir }) => {
+        if (forceLoad.includes(name)) {
+            return true;
+        }
+
         try {
             const meta = require(dir + '/meta.json');
 
