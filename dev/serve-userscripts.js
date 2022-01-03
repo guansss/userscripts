@@ -1,6 +1,7 @@
 // vite plugin
 
 import { getAllUserscripts, urlMatch } from './utils';
+import { getLocaleFiles } from './i18n';
 
 const namespace = '/@userscripts';
 
@@ -9,6 +10,13 @@ export default function serveUserscripts() {
         name: 'serve-userscripts',
         configureServer(server) {
             server.middlewares.use(namespace + '/available', getAvailableUserscripts);
+        },
+        transform(code, moduleID) {
+            if (code.includes('__LOCALES__')) {
+                for (const localeFile of getLocaleFiles(moduleID)) {
+                    this.addWatchFile(localeFile);
+                }
+            }
         },
     };
 }

@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import autoprefixer from 'autoprefixer';
 import nested from 'postcss-nested';
 import serveUserscripts from './dev/serve-userscripts';
-import { getAllUserscripts, getGMAPIs, USERSCRIPTS_ROOT } from './dev/utils';
+import { getAllUserscripts, getGMAPIs } from './dev/utils';
 import replace from '@rollup/plugin-replace';
 import { getLocales } from './dev/i18n';
 
@@ -18,9 +18,9 @@ export default defineConfig(async ({ mode }) => {
                 ...(mode !== 'production' && Object.fromEntries(getGMAPIs().map((api) => [api, '__GM.' + api]))),
 
                 __LOCALES__(moduleID) {
-                    const userscriptDir = moduleID.slice(0, moduleID.indexOf('/', USERSCRIPTS_ROOT.length + 2));
+                    const locales = getLocales(moduleID);
 
-                    return `JSON.parse(${JSON.stringify(JSON.stringify(getLocales(userscriptDir)))})`;
+                    return `JSON.parse(${JSON.stringify(JSON.stringify(locales))})`;
                 },
             }),
         ],
@@ -34,6 +34,10 @@ export default defineConfig(async ({ mode }) => {
         },
         define: {
             __BUILD_TIME__: Date.now(),
+
+            // disable stupid warnings during dev
+            __VUE_I18N_FULL_INSTALL__: true,
+            __VUE_I18N_LEGACY_API__: true,
         },
         build: {
             rollupOptions: {

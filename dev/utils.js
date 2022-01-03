@@ -48,6 +48,20 @@ async function getAllUserscripts() {
     });
 }
 
+function getUserscriptDir(filePath) {
+    if (filePath.length <= USERSCRIPTS_ROOT) {
+        throw new TypeError('Invalid path: ' + filePath);
+    }
+
+    const slashIndex = filePath.indexOf('/', USERSCRIPTS_ROOT.length + 2);
+
+    if (slashIndex === -1) {
+        return filePath;
+    }
+
+    return filePath.slice(0, slashIndex);
+}
+
 function urlMatch(pattern, url) {
     const matcher = matchPattern(pattern);
 
@@ -61,6 +75,7 @@ function urlMatch(pattern, url) {
 module.exports = {
     USERSCRIPTS_ROOT,
     getAllUserscripts,
+    getUserscriptDir,
     urlMatch,
     getGMAPIs,
 };
