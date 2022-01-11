@@ -22,9 +22,6 @@
 
     const scripts = await fetch(host + '/@userscripts/available?forceLoad=' + forceLoad).then((res) => res.json());
 
-    // wait for HMR setup
-    await viteClientImported;
-
     // when in dev mode, we need to expose the GM APIs to unsafeWindow
     // so they can be referenced by modules imported by import(),
     // which are executed outside the userscript scope
@@ -55,6 +52,9 @@
             'GM_info',
         ].map((api) => [api, window[api]])
     );
+
+    // wait for HMR setup
+    await viteClientImported;
 
     for (const script of scripts) {
         console.log('Loading script:', script.name);

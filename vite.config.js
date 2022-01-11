@@ -14,6 +14,10 @@ export default defineConfig(async ({ mode }) => {
         plugins: [
             serveUserscripts(),
             replace({
+                // allow replacing occurrences followed by a dot, such as "GM_info.script",
+                // however this won't work until the bug is fixed: https://github.com/rollup/plugins/issues/904
+                // delimiters: ['\b', '\b'],
+
                 // prepend "__GM." to GM APIs, see "dev/dev.user.js"
                 ...(mode !== 'production' && Object.fromEntries(getGMAPIs().map((api) => [api, '__GM.' + api]))),
 
@@ -34,6 +38,13 @@ export default defineConfig(async ({ mode }) => {
         },
         define: {
             __BUILD_TIME__: Date.now(),
+
+            ...(mode !== 'production' && {
+                // see above, because the default delimiters in rollup replace plugin is ['\b', '\b(?!\.)']
+                // and cannot be changed due to the bug, occurrences like `GM_info.script` will not be replaced,
+                // that's why we have to put the replacement here
+                GM_info: '__GM.GM_info',
+            }),
 
             // disable stupid warnings during dev
             __VUE_I18N_FULL_INSTALL__: true,
