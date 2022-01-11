@@ -11,9 +11,68 @@
     right: 0;
     width: 400px;
     padding: 16px;
-    background: var(--color-bg);
-    color: #DDD;
+    background: #333;
     font-size: 14px;
+
+    p {
+        margin-bottom: 8px;
+    }
+
+    a {
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    ol {
+        padding-inline-start: 20px;
+    }
+
+    table {
+        margin: 16px 0;
+        width: 100%;
+        background: #3A3A3A;
+        border: 1px solid #555;
+        border-collapse: collapse;
+
+        th {
+            text-align: right;
+        }
+
+        th, td {
+            padding: 4px 8px;
+            border: 1px solid #555;
+        }
+    }
+
+    label {
+        cursor: pointer;
+
+        &:hover {
+            background-color: #444;
+        }
+
+        input {
+            cursor: pointer;
+        }
+    }
+
+    input[type='text'] {
+        margin-bottom: 16px;
+        width: 100%;
+        padding: 8px;
+        background: #444;
+        color: #FFF;
+        border: 2px solid #555;
+        border-radius: 3px;
+
+        &:hover, &:focus {
+            background: #4A4A4A;
+        }
+    }
+}
+
+.title {
+
 }
 
 .section-header {
@@ -22,47 +81,38 @@
 }
 
 .field-label {
-    margin-bottom: 16px;
-    color: #FFF;
-}
-
-.field-desc {
-    margin-bottom: 8px;
-}
-
-.keywords {
-
-}
-
-.keyword-table {
+    position: relative;
     margin: 16px 0;
-    width: 100%;
-    background: #FFFFFF08;
+    padding-top: 16px;
+    color: #FFF;
 
-    tr {
-
-    }
-
-    th {
-        padding-right: 8px;
-        text-align: right;
-    }
-
-    td {
-
+    &:not(:first-of-type) {
+        border-top: 1px solid #444;
     }
 }
 
-.input {
-    margin-bottom: 16px;
-    width: 100%;
-    padding: 8px;
-    background: #444;
-    color: #FFF;
-    border: 2px solid #555;
-    border-radius: 3px;
+.label-block {
+    display: flex;
+    padding: 8px 8px 8px 0;
 
-    &:hover, &:focus {
-        background: #4A4A4A;
+    input {
+        margin-left: auto;
     }
+}
+
+.label-inline {
+    padding: 8px 8px 8px 0;
+
+    &:not(:first-child) {
+        padding-left: 8px;
+    }
+
+    &:not(:last-child) {
+        margin-right: 8px;
+    }
+}
+
+.warn {
+    padding: 8px;
+    background-color: #594c00;
 }

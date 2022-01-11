@@ -5,16 +5,28 @@
 
   // settings
   "s": {
+    "enabled": "Enabled",
     "download": {
       "label": "Download",
-      "note": "If you're using Tampermonkey, you can check the <a href='https://greasyfork.org/scripts/416003-iwara-enhancement'>description</a> for how to improve download experience.",
-      "enabled": {
-        "label": "Enabled",
+      "auto": {
+        "label": "One-click Download",
+        "desc": "Automatically starts download when clicking the download button.",
+        "warn": "This feature requires Tampermonkey.",
+        "warn_tm": [
+          "This feature requires Tampermonkey's <b>Browser API</b> download mode, please follow these steps:",
+          "Navigate to Tampermonkey's settings panel and then the <b>Settings</b> tab.",
+          "In <b>General</b> section, set <b>Config Mode</b> to <b>Advanced</b> (or <b>Beginner</b>).",
+          "In <b>Downloads BETA</b> section, set <b>Download Mode</b> to <b>Browser API</b>.",
+          "Grant permission if requested.",
+          "Refresh this page.",
+        ]
+      },
+      "resolution": {
+        "label": "Preferred Resolution for Download",
       },
       "filename": {
         "label": "Filename",
-        "desc1": "Filename template to use when downloading a video.",
-        "desc2": "Each keyword should be surrounded by <code>{'{ }'}</code>.",
+        "desc": "Filename template to use when downloading a video.<br>Each keyword should be surrounded by <b>{'{ }'}</b>.",
         "preview": "Preview",
         "key": {
           "id": "video's ID",
