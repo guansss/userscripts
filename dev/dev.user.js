@@ -2,6 +2,7 @@
 // @name         Dev script
 // @version      0.1
 // @match        *://localhost:8080/*
+// @match        *://staging.iwara.tv/*
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_addStyle
@@ -11,16 +12,8 @@
 // @grant        unsafeWindow
 // ==/UserScript==
 
-(async function() {
+(async function () {
     ('use strict');
-
-    const host = 'http://127.0.0.1:3000';
-
-    const viteClientImported = import(host + '/@vite/client');
-
-    const forceLoad = ['iwara-enhancement'].join(',');
-
-    const scripts = await fetch(host + '/@userscripts/available?forceLoad=' + forceLoad).then((res) => res.json());
 
     // when in dev mode, we need to expose the GM APIs to unsafeWindow
     // so they can be referenced by modules imported by import(),
@@ -52,6 +45,14 @@
             'GM_info',
         ].map((api) => [api, window[api]])
     );
+
+    const host = 'https://127.0.0.1:3000';
+
+    const viteClientImported = import(host + '/@vite/client');
+
+    const forceLoad = ['iwara-enhancement'].join(',');
+
+    const scripts = await fetch(host + '/@userscripts/available?forceLoad=' + forceLoad).then((res) => res.json());
 
     // wait for HMR setup
     await viteClientImported;

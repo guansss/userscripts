@@ -26,9 +26,9 @@ async function getAvailableUserscripts(req, res) {
     const forceLoad = query.get('forceLoad') && query.get('forceLoad').split(',');
     const scripts = await findUserscripts(req.originalUrl, forceLoad);
 
-    res.setHeader('Content-Type', 'application/json')
-        .setHeader('Access-Control-Allow-Origin', '*')
-        .end(JSON.stringify(scripts));
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.end(JSON.stringify(scripts));
 }
 
 export async function findUserscripts(url, forceLoad = []) {
