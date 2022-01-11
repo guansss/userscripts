@@ -1,0 +1,10 @@
+#enh-settings {
+    --color-bg: #333;
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    & * {
+        box-sizing: border-box;
+    }
+}

@@ -24,7 +24,7 @@ declare function GM_download(details: {
     name?: string
     headers?: any
     saveAs?: boolean
-    onerror?(error: 'not_enabled' | 'not_whitelisted' | 'not_permitted' | 'not_supported' | 'not_succeeded', details: { current?: string }): void
+    onerror?(error: 'not_enabled' | 'not_forceLoaded' | 'not_permitted' | 'not_supported' | 'not_succeeded', details: { current?: string }): void
     onload?(): void
     onprogress?(): void
     ontimeout?(): void

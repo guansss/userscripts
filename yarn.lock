@@ -7,6 +7,44 @@
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.16.7.tgz#d372dda9c89fcec340a82630a9f533f2fe15877e"
   integrity sha512-sR4eaSrnM7BV7QPzGfEX5paG/6wrZM3I0HDzfIAK06ESvo9oy3xBuVBxE3MbQaKNhvg8g/ixjMWo2CGpzpHsDA==
 
+"@intlify/core-base@9.2.0-beta.26":
+  version "9.2.0-beta.26"
+  resolved "https://registry.yarnpkg.com/@intlify/core-base/-/core-base-9.2.0-beta.26.tgz#0092cfce681a47db1a502583e0108d61cd7b7327"
+  integrity sha512-4OXSF0zC70UElev6gam4FdWfC7u4l2ouNK9Hc6R44QlpEXkzhbwwbpZn9gIGB2l11zQnJkAwaovfYyiNJ/JvkA==
+  dependencies:
+    "@intlify/devtools-if" "9.2.0-beta.26"
+    "@intlify/message-compiler" "9.2.0-beta.26"
+    "@intlify/shared" "9.2.0-beta.26"
+    "@intlify/vue-devtools" "9.2.0-beta.26"
+
+"@intlify/devtools-if@9.2.0-beta.26":
+  version "9.2.0-beta.26"
+  resolved "https://registry.yarnpkg.com/@intlify/devtools-if/-/devtools-if-9.2.0-beta.26.tgz#06e498825aa1f4984476c2da9b1bcf9cdc3d0424"
+  integrity sha512-7GiF7v2jlHf7g5hoLF6sKlrX5Di2INfHN4PEAeVr2ashgoSaq1EYIRouBVAnJkOrDOJzCOEY7y53me7+gIbeTw==
+  dependencies:
+    "@intlify/shared" "9.2.0-beta.26"
+
+"@intlify/message-compiler@9.2.0-beta.26":
+  version "9.2.0-beta.26"
+  resolved "https://registry.yarnpkg.com/@intlify/message-compiler/-/message-compiler-9.2.0-beta.26.tgz#9cc5f9f112030483c4a35eaef105ba68cc888fa0"
+  integrity sha512-qtDgHCMqrXNTekKXGzm0Dm6r3+/X7/jFXP+E07hx+PJbPMv7DzK1iU8h5LlAMQ1/jr2UIRBgXvR5wh35OKoGrA==
+  dependencies:
+    "@intlify/shared" "9.2.0-beta.26"
+    source-map "0.6.1"
+
+"@intlify/shared@9.2.0-beta.26":
+  version "9.2.0-beta.26"
+  resolved "https://registry.yarnpkg.com/@intlify/shared/-/shared-9.2.0-beta.26.tgz#430f69235c12f002a93796cc74eb28546bed6be4"
+  integrity sha512-MjUlkjNThqkqy8yXUcFKBiW/hIfqAn5cP3Vd0b4wdOHS8rPCEbvSbAnF08uiZDkVv8gTcsLyymX21GaU6oYyyQ==
+
+"@intlify/vue-devtools@9.2.0-beta.26":
+  version "9.2.0-beta.26"
+  resolved "https://registry.yarnpkg.com/@intlify/vue-devtools/-/vue-devtools-9.2.0-beta.26.tgz#1528e053d72aadf796bf478daeb33c5f700d8a98"
+  integrity sha512-Ghe2xTSezRzL2fBdIbZEus5+5spE2RMxgjBg6GyvbsDy1M05o2OvukBninJ4/Tc2I5A30lYgAsF1gQlOyfmv1g==
+  dependencies:
+    "@intlify/core-base" "9.2.0-beta.26"
+    "@intlify/shared" "9.2.0-beta.26"
+
 "@mdi/svg@^6.2.95":
   version "6.5.95"
   resolved "https://registry.yarnpkg.com/@mdi/svg/-/svg-6.5.95.tgz#f01d928d32d17fef21ec54479feee09d8ec9cbf5"
@@ -38,6 +76,11 @@
   version "4.14.178"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.178.tgz#341f6d2247db528d4a13ddbb374bcdc80406f4f8"
   integrity sha512-0d5Wd09ItQWH1qFbEyQ7oTQ3GZrMfth5JkbN3EvTKLXcHLRDSXeLnlvlOn0wvxVIwK5o2M8JzP/OWz7T3NRsbw==
+
+"@types/video.js@^7.3.29":
+  version "7.3.29"
+  resolved "https://registry.yarnpkg.com/@types/video.js/-/video.js-7.3.29.tgz#f3ed29c10540e908ed3d62efb08a06f9776ebb62"
+  integrity sha512-7xP5O3tQC6dm5xljwwvDvMKTumlu/cag4k5FwezMUazoCAbni0t3NB5ToavQlNAH5OKLLP3/ZEJbPqP6ShocIA==
 
 "@vue/compiler-core@3.2.26":
   version "3.2.26"
@@ -80,6 +123,11 @@
   dependencies:
     "@vue/compiler-dom" "3.2.26"
     "@vue/shared" "3.2.26"
+
+"@vue/devtools-api@^6.0.0-beta.13":
+  version "6.0.0-beta.21.1"
+  resolved "https://registry.yarnpkg.com/@vue/devtools-api/-/devtools-api-6.0.0-beta.21.1.tgz#f1410f53c42aa67fa3b01ca7bdba891f69d7bc97"
+  integrity sha512-FqC4s3pm35qGVeXRGOjTsRzlkJjrBLriDS9YXbflHLsfA9FrcKzIyWnLXoNm+/7930E8rRakXuAc2QkC50swAw==
 
 "@vue/reactivity-transform@3.2.26":
   version "3.2.26"
@@ -326,6 +374,11 @@ escalade@^3.1.1:
   resolved "https://registry.yarnpkg.com/escalade/-/escalade-3.1.1.tgz#d8cfdc7000965c5a0174b4a82eaa5c0552742e40"
   integrity sha512-k0er2gUkLf8O0zKJiAhmkTnJlTvINGv7ygDNPbeIsX/TJjGJZHuh9B2UxbsaEkmlEo9MfhrSzmhIlhRlI2GXnw==
 
+estree-walker@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/estree-walker/-/estree-walker-1.0.1.tgz#31bc5d612c96b704106b477e6dd5d8aa138cb700"
+  integrity sha512-1fMXF3YP4pZZVozF8j/ZLfvnR8NSIljt56UhbZ5PeeDmmGHpgpdwQt7ITlGvYaQukCvuBRMLEiKiYC+oeIg4cg==
+
 estree-walker@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/estree-walker/-/estree-walker-2.0.2.tgz#52f010178c2a4c117a7757cfe942adb7d2da4cac"
@@ -549,7 +602,7 @@ source-map-js@^1.0.1:
   resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-1.0.1.tgz#a1741c131e3c77d048252adfa24e23b908670caf"
   integrity sha512-4+TN2b3tqOCd/kaGRJ/sTYA0tR0mdXx26ipdolxcwtJVqEnqNYvlCAt1q3ypy4QMlYus+Zh34RNtYLoq2oQ4IA==
 
-source-map@^0.6.1:
+source-map@0.6.1, source-map@^0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.6.1.tgz#74722af32e9614e9c287a8d0bbde48b5e2f1a263"
   integrity sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==
@@ -580,6 +633,16 @@ vite@^2.7.10:
     rollup "^2.59.0"
   optionalDependencies:
     fsevents "~2.3.2"
+
+vue-i18n@^9.2.0-beta.26:
+  version "9.2.0-beta.26"
+  resolved "https://registry.yarnpkg.com/vue-i18n/-/vue-i18n-9.2.0-beta.26.tgz#79ff5151837c645c9a91af03724ed28a09a1f3db"
+  integrity sha512-xZgisyirT9hXFyXBL8pO8bYgdG7m98NLAUhbb1O9hMQS1qOXYU902+LIJA5k3BtoeiEIfjkGADHhSAlJTTzc9A==
+  dependencies:
+    "@intlify/core-base" "9.2.0-beta.26"
+    "@intlify/shared" "9.2.0-beta.26"
+    "@intlify/vue-devtools" "9.2.0-beta.26"
+    "@vue/devtools-api" "^6.0.0-beta.13"
 
 vue@^3.2.20:
   version "3.2.26"

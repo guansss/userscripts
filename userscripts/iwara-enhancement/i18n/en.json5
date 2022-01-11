@@ -1,0 +1,31 @@
+{
+  // script meta
+  "name": "Iwara Enhancement",
+  "description": "Multiple UI enhancements for better experience.",
+
+  // settings
+  "s": {
+    "download": {
+      "label": "Download",
+      "note": "If you're using Tampermonkey, you can check the <a href='https://greasyfork.org/scripts/416003-iwara-enhancement'>description</a> for how to improve download experience.",
+      "enabled": {
+        "label": "Enabled",
+      },
+      "filename": {
+        "label": "Filename",
+        "desc1": "Filename template to use when downloading a video.",
+        "desc2": "Each keyword should be surrounded by <code>{'{ }'}</code>.",
+        "preview": "Preview",
+        "key": {
+          "id": "video's ID",
+          "title": "video's title",
+          "author": "author's name",
+          "date": "date time when the download starts",
+          "up_date": "date time when the video was uploaded",
+          "date_ts": "DATE in timestamp format",
+          "up_date_ts": "UP_DATE in timestamp format",
+        },
+      },
+    },
+  },
+}

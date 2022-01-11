@@ -28,9 +28,18 @@ export default defineConfig(async ({ mode }) => {
                 },
             }),
         ],
+        resolve: {
+            alias: {
+                // enable template compiler at runtime
+                vue: 'vue/dist/vue.esm-bundler.js',
+            },
+        },
         css: {
             postcss: {
                 plugins: [autoprefixer(), nested()],
+            },
+            modules: {
+                localsConvention: 'camelCaseOnly',
             },
         },
         server: {
@@ -53,7 +62,19 @@ export default defineConfig(async ({ mode }) => {
         build: {
             rollupOptions: {
                 input: Object.fromEntries(userscripts.map(({ name, entry }) => [name, entry])),
+                external: ['vue', 'vue-i18n'],
+                output: {
+                    globals: {
+                        vue: 'Vue',
+                        'vue-i18n': 'VueI18N',
+                    },
+                    format: 'iife',
+                },
             },
+            target: 'es2017',
+            minify: false,
+            cssCodeSplit: false,
+            manifest: true,
         },
     };
 });
