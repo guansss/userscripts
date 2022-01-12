@@ -6,6 +6,8 @@ const path = require('path');
 
 const distDir = path.resolve(__dirname, '../dist/assets');
 
+const mainFunc = '_script_main';
+
 const scriptGrants = getGMAPIs();
 
 // sorted by preference
@@ -36,14 +38,15 @@ function main() {
 
         let content = fs.readFileSync(js, 'utf8');
 
-        content = generateMetaBlock(name, content);
-        content = extractCSS(name, content);
+        content = generateMetaBlock(content, name);
+        content = extractMainFunc(content);
+        content = repositionCSS(content);
 
         fs.writeFileSync(js, content, 'utf8');
     }
 }
 
-function generateMetaBlock(scriptName, content) {
+function generateMetaBlock(content, scriptName) {
     const meta = {
         ...rootMeta,
         ...require(USERSCRIPTS_ROOT + '/' + scriptName + '/meta.json'),
@@ -82,7 +85,29 @@ function generateMetaBlock(scriptName, content) {
     return metaBlock + content;
 }
 
-function extractCSS(scriptName, content) {
+function extractMainFunc(content) {
+    const iifeStartPattern = '(function';
+    const iifeEndPattern = '})(';
+
+    const start = content.indexOf(iifeStartPattern);
+    const end = content.lastIndexOf(iifeEndPattern);
+
+    if (start === -1 || end === -1) {
+        throw new Error('Could not find IIFE definition.');
+    }
+
+    // prettier-ignore
+    content = content.slice(0, start)
+        + `function ${mainFunc}`
+        + content.slice(start + iifeStartPattern.length, end)
+        + `}\n\n${mainFunc}(`
+        + content.slice(end + iifeEndPattern.length);
+
+    return content;
+}
+
+// moves CSS to the bottom
+function repositionCSS(content) {
     const match = content.match(/var __vite_style__.+innerHTML = (".+");\n.+appendChild\(__vite_style__\);\n/s);
 
     if (!match) {
@@ -98,7 +123,16 @@ function extractCSS(scriptName, content) {
     css = css.replaceAll(/[ ]{5,}/g, '    ');
     css = css.replaceAll(/[ ]+}/g, '}');
 
-    fs.writeFileSync(path.resolve(distDir, scriptName + '.css'), css, 'utf8');
+    const mainInvocation = content.search(new RegExp(`^${mainFunc}\\(`, 'm'));
+
+    if (mainInvocation === -1) {
+        throw new Error('Could not find invocation of main function.');
+    }
+
+    // prettier-ignore
+    content = content.slice(0, mainInvocation)
+        + `GM_addStyle(\`\n${css}\`);\n\n`
+        + content.slice(mainInvocation);
 
     return content;
 }

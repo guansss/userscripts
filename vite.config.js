@@ -88,7 +88,7 @@ export default defineConfig(async ({ mode }) => {
                         'vue-i18n': 'VueI18N',
                     },
                     format: 'iife',
-                    entryFileNames: 'assets/[name].js',
+                    entryFileNames: 'assets/[name].user.js',
                 },
             },
             target: 'es2017',
