@@ -10,7 +10,7 @@ import * as fs from 'fs';
 // https://vitejs.dev/config/
 export default defineConfig(async ({ mode }) => {
     const env = loadEnv(mode, '', '');
-    const userscripts = await getAllUserscripts();
+    const userscripts = getAllUserscripts();
 
     if (!env.SSL_KEY || !env.SSL_CERT) {
         throw new Error('Please specify SSL_KEY and SSL_CERT in .env');
@@ -46,6 +46,7 @@ export default defineConfig(async ({ mode }) => {
             },
             modules: {
                 localsConvention: 'camelCaseOnly',
+                generateScopedName: '[local]_[hash:3]',
             },
         },
         server: {
@@ -87,11 +88,11 @@ export default defineConfig(async ({ mode }) => {
                         'vue-i18n': 'VueI18N',
                     },
                     format: 'iife',
+                    entryFileNames: 'assets/[name].js',
                 },
             },
             target: 'es2017',
             minify: false,
-            cssCodeSplit: false,
             manifest: true,
         },
     };

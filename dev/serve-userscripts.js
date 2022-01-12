@@ -32,7 +32,7 @@ async function getAvailableUserscripts(req, res) {
 }
 
 export async function findUserscripts(url, forceLoad = []) {
-    const userscripts = await getAllUserscripts();
+    const userscripts = getAllUserscripts();
 
     return userscripts.filter(({ name, dir }) => {
         if (forceLoad.includes(name)) {

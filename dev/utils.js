@@ -1,5 +1,4 @@
-const { promisify } = require('util');
-const glob = promisify(require('glob'));
+const glob = require('glob');
 const path = require('path');
 const { matchPattern } = require('browser-extension-url-match');
 
@@ -33,8 +32,8 @@ function getGMAPIs() {
     ];
 }
 
-async function getAllUserscripts() {
-    const dirs = await glob(USERSCRIPTS_ROOT + '/*/');
+function getAllUserscripts() {
+    const dirs = glob.sync(USERSCRIPTS_ROOT + '/*/');
 
     return dirs.map((dir) => {
         const name = path.basename(dir);
