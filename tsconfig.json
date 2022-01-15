@@ -13,8 +13,7 @@
     "noUncheckedIndexedAccess": true,
     "skipLibCheck": true,
     "isolatedModules": true,
-    "lib": ["esnext", "dom"],
-    "types": ["vite/client"]
+    "lib": ["esnext", "dom"]
   },
   "include": ["**/*.ts", "**/*.d.ts"]
 }
