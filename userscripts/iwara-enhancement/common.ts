@@ -16,6 +16,9 @@ ready().then(() => {
 type Events = {
     pageEnter: string;
     pageLeave: string;
+
+    // allow removing listeners during HMR
+    [k: `off:${string}`]: void;
 };
 const emitter = mitt<Events>();
 
@@ -24,7 +27,7 @@ let currentClassName = '';
 emitter.on('pageEnter', (className) => (currentClassName = className));
 
 // page listener for iwara
-export function page(id: string | string[], listener: (id: string) => void) {
+export function page(id: string | string[], key: string, listener: (id: string) => void) {
     const match =
         typeof id === 'string'
             ? (className: string) => (className.includes(id) ? id : undefined)
@@ -46,6 +49,15 @@ export function page(id: string | string[], listener: (id: string) => void) {
     onPageEnter(currentClassName);
 
     emitter.on('pageEnter', onPageEnter);
+
+    if (import.meta.hot) {
+        emitter.on(`off:${key}`, () => emitter.off('pageEnter', onPageEnter));
+    }
+}
+
+// tree-shakable helper for removing listeners during HMR
+export function unpage(key: string) {
+    emitter.emit(`off:${key}`);
 }
 
 function detectPageChange(nodes: NodeList, event: keyof Events) {
@@ -64,7 +76,7 @@ export function getAppDiv() {
     return document.getElementById('app') as HTMLDivElement | null;
 }
 
-if (process.env.NODE_ENV !== 'production') {
+if (DEBUG) {
     emitter.on('pageEnter', (className) => logPageID('enter', className));
     emitter.on('pageLeave', (className) => logPageID('leave', className));
 
@@ -74,8 +86,13 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 if (import.meta.hot) {
-    import.meta.hot.accept(() => {});
-    import.meta.hot.dispose(() => {
+    import.meta.hot.accept(() => {
+        // persist event listeners
+        Object.assign(emitter.all, import.meta.hot!.data.events);
+    });
+    import.meta.hot.dispose((data) => {
+        data.events = emitter.all;
+
         appObserver.disconnect();
 
         emitter.emit('pageLeave', currentClassName);

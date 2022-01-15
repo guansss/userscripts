@@ -9,6 +9,7 @@
   "devDependencies": {
     "@mdi/svg": "^6.2.95",
     "@rollup/plugin-replace": "^3.0.1",
+    "@types/jquery": "^3.5.13",
     "@types/lodash": "^4.14.175",
     "@types/node": "^17.0.8",
     "@types/video.js": "^7.3.29",
@@ -16,6 +17,7 @@
     "browser-extension-url-match": "^0.3.3",
     "cross-env": "^7.0.3",
     "glob": "^7.2.0",
+    "jquery": "^3.6.0",
     "json5": "^2.2.0",
     "lodash": "^4.17.11",
     "mitt": "^3.0.0",

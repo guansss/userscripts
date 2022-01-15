@@ -10,6 +10,7 @@ export const storage = createStorage<{
     dark: boolean;
     like_rates: boolean;
     player_size: number;
+    hide_list_options: boolean;
 }>({
     version: GM_info.script.version,
     lang: navigator.language,
@@ -20,4 +21,5 @@ export const storage = createStorage<{
     dark: false,
     like_rates: true,
     player_size: 100,
+    hide_list_options: false,
 });

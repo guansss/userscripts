@@ -67,11 +67,14 @@ export default defineConfig(async ({ mode }) => {
         define: {
             __BUILD_TIME__: Date.now(),
 
+            DEBUG: mode !== 'production',
+
             ...(mode !== 'production' && {
                 // see above, because the default delimiters in rollup replace plugin is ['\b', '\b(?!\.)']
                 // and cannot be changed due to the bug, occurrences like `GM_info.script` will not be replaced,
                 // that's why we have to put the replacement here
                 GM_info: '__GM.GM_info',
+                unsafeWindow: '__GM.unsafeWindow',
             }),
 
             // disable stupid warnings during dev
@@ -81,11 +84,12 @@ export default defineConfig(async ({ mode }) => {
         build: {
             rollupOptions: {
                 input: Object.fromEntries(userscripts.map(({ name, entry }) => [name, entry])),
-                external: ['vue', 'vue-i18n'],
+                external: ['vue', 'vue-i18n', 'jquery'],
                 output: {
                     globals: {
                         vue: 'Vue',
                         'vue-i18n': 'VueI18N',
+                        jquery: '$',
                     },
                     format: 'iife',
                     entryFileNames: 'assets/[name].user.js',

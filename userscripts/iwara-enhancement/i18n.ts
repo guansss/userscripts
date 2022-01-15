@@ -11,3 +11,9 @@ export const i18n = createI18n({
     silentTranslationWarn: true,
     warnHtmlInMessage: 'off',
 });
+
+// shorthand helper making TypeScript happy
+export function localize(message: string) {
+    // @ts-ignore TS2589: Type instantiation is excessively deep and possibly infinite.
+    return i18n.global.t(message);
+}
