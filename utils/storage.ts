@@ -1,11 +1,20 @@
 export type GMValue = string | number | boolean;
 
-export class Storage<T extends Record<string, GMValue>> {
-    get<K extends keyof T & string>(key: K, defaultVal: T[K]): T[K] {
-        return GM_getValue(key, defaultVal);
-    }
+export type StorageSchema = Record<string, GMValue>;
 
-    set<K extends keyof T & string>(key: K, val: T[K]) {
-        GM_setValue(key, val);
-    }
+export type Storage<S extends StorageSchema> = {
+    get<K extends keyof S & string>(key: K): S[K];
+
+    set<K extends keyof S & string>(key: K, val: S[K]): void;
+};
+
+export function createStorage<S extends StorageSchema>(schema: S): Storage<S> {
+    return {
+        get(key) {
+            return GM_getValue(key, schema[key]);
+        },
+        set(key, val) {
+            GM_setValue(key, val);
+        },
+    };
 }

@@ -2,7 +2,7 @@ import { createI18n } from 'vue-i18n';
 import { storage } from './store';
 
 export const i18n = createI18n({
-    locale: storage.get('lang', navigator.language),
+    locale: storage.get('lang'),
     fallbackLocale: 'en',
     messages: __LOCALES__,
 

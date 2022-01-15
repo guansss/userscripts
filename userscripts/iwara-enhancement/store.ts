@@ -1,6 +1,6 @@
-import { Storage } from '../../utils/storage';
+import { createStorage } from '../../utils/storage';
 
-export const storage = new Storage<{
+export const storage = createStorage<{
     version: string;
     lang: string;
     volume: number;
@@ -10,4 +10,14 @@ export const storage = new Storage<{
     dark: boolean;
     like_rates: boolean;
     player_size: number;
-}>();
+}>({
+    version: GM_info.script.version,
+    lang: navigator.language,
+    volume: 0.5,
+    auto_down_enabled: true,
+    preferred_res: 'Source',
+    filename: '{DATE} {TITLE} - {AUTHOR} ({ID})',
+    dark: false,
+    like_rates: true,
+    player_size: 100,
+});
