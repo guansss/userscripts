@@ -1,4 +1,4 @@
-import { App, createApp, ref, watchEffect } from 'vue';
+import { App, computed, createApp, ref, watchEffect } from 'vue';
 import { useDownloaderSettings } from '../downloader';
 import { i18n } from '../i18n';
 import css from './Settings.module.css';
@@ -22,10 +22,10 @@ const template = `
                 </li>
             </ul>
         </nav>
-        <div v-if='tabs[tabIndex]?.val == "ui"' :class='css.view'>
+        <div v-if='tabVal == "ui"' :class='css.view'>
             <h3 :class='css.sectionHeader'>{{ $t('s.ui.label') }}</h3>
         </div>
-        <div v-else-if='tabs[tabIndex]?.val == "download"' :class='css.view'>
+        <div v-else-if='tabVal == "download"' :class='css.view'>
             <h3 :class='css.sectionHeader'>{{ $t('s.download.label') }}</h3>
 
             <h4 :class='css.fieldLabel'>{{ $t('s.download.auto.label') }}</h4>
@@ -74,6 +74,7 @@ function setup() {
         { name: 's.download.label', val: 'download' },
     ];
     const tabIndex = ref(0);
+    const tabVal = computed(() => tabs[tabIndex.value] && tabs[tabIndex.value]!.val);
     const visible = ref(true);
 
     watchEffect(() => {});
@@ -82,6 +83,7 @@ function setup() {
         css,
         tabs,
         tabIndex,
+        tabVal,
         visible,
         downloadMode: GM_info.downloadMode,
         ...useDownloaderSettings(),
