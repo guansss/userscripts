@@ -1,8 +1,5 @@
 #enh-settings {
-    position: absolute;
-    top: 0;
-    right: 0;
-    color: #DDD;
+    position: relative;
 
     & * {
         box-sizing: border-box;

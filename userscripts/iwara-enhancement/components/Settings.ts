@@ -1,13 +1,16 @@
-import { App, computed, createApp, ref, watchEffect } from 'vue';
+import { App, computed, createApp, ref } from 'vue';
+import { onClickOutside } from '../../../utils/dom';
+import { log } from '../../../utils/log';
 import { useDownloaderSettings } from '../downloader';
 import { i18n } from '../i18n';
+import { page, unpage } from '../page-listener';
 import css from './Settings.module.css';
 
 // language=HTML
 const template = `
-    <div :class='css.switch' @click='visible = !visible'>Settings</div>
+    <div class='text text--text text--bold'>E</div>
 
-    <div v-if='visible' :class='css.settings'>
+    <div v-if='visible' :class='css.settings' @click.stop>
         <header :class='css.header'>
             <h2 :class='css.title'>{{ $t('name') }} v${GM_info.script.version}</h2>
         </header>
@@ -22,10 +25,10 @@ const template = `
                 </li>
             </ul>
         </nav>
-        <div v-if='tabVal == "ui"' :class='css.view'>
+        <div v-if='tabVal === "ui"' :class='css.view'>
             <h3 :class='css.sectionHeader'>{{ $t('s.ui.label') }}</h3>
         </div>
-        <div v-else-if='tabVal == "download"' :class='css.view'>
+        <div v-else-if='tabVal === "download"' :class='css.view'>
             <h3 :class='css.sectionHeader'>{{ $t('s.download.label') }}</h3>
 
             <h4 :class='css.fieldLabel'>{{ $t('s.download.auto.label') }}</h4>
@@ -77,7 +80,13 @@ function setup() {
     const tabVal = computed(() => tabs[tabIndex.value] && tabs[tabIndex.value]!.val);
     const visible = ref(true);
 
-    watchEffect(() => {});
+    settingsContainer!.addEventListener('click', () => {
+        visible.value = !visible.value;
+
+        if (visible.value) {
+            onClickOutside(settingsContainer!, () => (visible.value = false));
+        }
+    });
 
     return {
         css,
@@ -90,30 +99,38 @@ function setup() {
     };
 }
 
-const containerID = 'enh-settings';
-let app: App;
+const settingsContainer = $(`<div id="enh-settings" class='header__link ${css.switch}'></div>`).get(0)!;
+let app: App | undefined;
 
-export async function setupSettings() {
-    const container = document.createElement('DIV');
-    container.id = containerID;
-    document.body.appendChild(container);
+page('', 'settings', () => {
+    const destination = $('.page .header__content:first-of-type .dropdown:last-of-type');
 
-    app = createApp({
-        template,
-        setup,
-    });
+    if (destination.length) {
+        // destination element will be destroyed everytime the page changes,
+        // so we need to insert the container after every page change
+        destination.before(settingsContainer);
 
-    app.use(i18n);
-    app.mount(container);
-}
+        // lazy-init the app
+        if (!app) {
+            app = createApp({
+                template,
+                setup,
+            });
+
+            app.use(i18n);
+            app.mount(settingsContainer);
+
+            log('Settings view initialized');
+        }
+    }
+});
 
 if (import.meta.hot) {
-    import.meta.hot.accept((self) => {
-        self.setupSettings();
-    });
-
+    import.meta.hot.accept(() => {});
     import.meta.hot.dispose(() => {
-        document.getElementById(containerID)?.remove();
+        unpage('settings');
+
         app?.unmount();
+        settingsContainer.remove();
     });
 }

@@ -1,12 +1,10 @@
 import 'jquery';
+import './components/Settings';
 import './hide-list-options';
-import { setupSettings } from './components/Settings';
 
 import './index.css';
 
-async function main() {
-    setupSettings();
-}
+async function main() {}
 
 main();
 

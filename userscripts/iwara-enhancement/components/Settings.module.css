@@ -1,18 +1,16 @@
 .switch {
-    width: 80px;
-    height: 80px;
-    background: #AAA;
-    font-size: 2em;
+    cursor: pointer;
 }
 
 .settings {
     position: absolute;
     z-index: 1000;
-    top: 100px;
+    top: calc(100% + 2px); /* plus 2px border */
     right: 0;
     width: 400px;
-    background: #333;
+    background: var(--body-darker);
     font-size: 14px;
+    cursor: default;
 
     nav {
         padding: 0 16px;
