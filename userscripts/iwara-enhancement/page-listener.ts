@@ -18,10 +18,15 @@ type Events = {
     pageEnter: string;
     pageLeave: string;
 
-    // allow removing listeners during HMR
+    // allow removing listeners for HMR
     [k: `off:${string}`]: void;
 };
 const emitter = mitt<Events>();
+
+if (import.meta.hot && import.meta.hot.data.events) {
+    // restore events after HMR
+    (import.meta.hot.data.events as typeof emitter.all).forEach((v, k) => emitter.all.set(k, v));
+}
 
 let currentClassName = '';
 
@@ -73,7 +78,7 @@ export function page(id: string | string[], key: string, enter: PageListener, le
     }
 }
 
-// tree-shakable helper for removing listeners during HMR
+// tree-shakable helper for other modules to remove listeners before HMR
 export function unpage(key: string) {
     emitter.emit(`off:${key}`);
 }
@@ -91,24 +96,26 @@ function detectPageChange(nodes: NodeList, event: keyof Events) {
 }
 
 if (DEBUG) {
-    emitter.on('pageEnter', (className) => logPageID('enter', className));
-    emitter.on('pageLeave', (className) => logPageID('leave', className));
-
-    function logPageID(action: string, className: string) {
+    const logPageID = (action: string) => (className: string) =>
         ((i: number) => (i === -1 ? undefined : log(action, className.slice(i + 5))))(className.indexOf('page-'));
-    }
+    const logEnter = logPageID('enter');
+    const logLeave = logPageID('leave');
+    emitter.on('pageEnter', logEnter);
+    emitter.on('pageLeave', logLeave);
+    emitter.on('off:logID', () => {
+        emitter.off('pageEnter', logEnter);
+        emitter.off('pageLeave', logLeave);
+    });
 }
 
 if (import.meta.hot) {
-    import.meta.hot.accept(() => {
-        // persist event listeners
-        Object.assign(emitter.all, import.meta.hot!.data.events);
-    });
+    import.meta.hot.accept(() => {});
     import.meta.hot.dispose((data) => {
+        emitter.emit('off:logID');
+
+        // save events before HMR
         data.events = emitter.all;
 
         appObserver.disconnect();
-
-        emitter.emit('pageLeave', currentClassName);
     });
 }
