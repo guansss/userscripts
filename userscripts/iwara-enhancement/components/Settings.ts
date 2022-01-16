@@ -1,6 +1,7 @@
 import { App, computed, createApp, ref } from 'vue';
 import { onClickOutside } from '../../../utils/dom';
 import { log } from '../../../utils/log';
+import { useConfigSettings } from '../config';
 import { useDownloaderSettings } from '../downloader';
 import { i18n } from '../i18n';
 import { page, unpage } from '../page-listener';
@@ -68,6 +69,17 @@ const template = `
             <input type='text' v-model='filenameTemplate'>
             <p>{{ $t('s.download.filename.preview') + ': ' + filenamePreview }}</p>
         </div>
+        <div v-if='tabVal === "script"' :class='css.view'>
+            <h3 :class='css.sectionHeader'>{{ $t('s.script.label') }}</h3>
+
+            <h4 :class='css.fieldLabel'>{{ $t('s.script.language.label') }}</h4>
+            <p>
+                <label v-for='loc in $i18n.availableLocales' :class='css.labelBlock'>
+                    <input type='radio' name='loc' :value='loc' :checked='activeLocale === loc' @change='locale = loc'>
+                    {{ $t('language', loc) }}
+                </label>
+            </p>
+        </div>
     </div>
 `;
 
@@ -75,16 +87,17 @@ function setup() {
     const tabs = [
         { name: 's.ui.label', val: 'ui' },
         { name: 's.download.label', val: 'download' },
+        { name: 's.script.label', val: 'script' },
     ];
     const tabIndex = ref(0);
     const tabVal = computed(() => tabs[tabIndex.value] && tabs[tabIndex.value]!.val);
     const visible = ref(true);
 
-    settingsContainer!.addEventListener('click', () => {
+    settingsContainer.addEventListener('click', () => {
         visible.value = !visible.value;
 
         if (visible.value) {
-            onClickOutside(settingsContainer!, () => (visible.value = false));
+            onClickOutside(settingsContainer, () => (visible.value = false));
         }
     });
 
@@ -96,6 +109,7 @@ function setup() {
         visible,
         downloadMode: GM_info.downloadMode,
         ...useDownloaderSettings(),
+        ...useConfigSettings(),
     };
 }
 

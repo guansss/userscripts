@@ -1,4 +1,6 @@
 {
+  "language": "English",
+
   // script meta
   "name": "Iwara Enhancement",
   "description": "Multiple UI enhancements for better experience.",
@@ -47,6 +49,12 @@
     },
     "ui": {
       "label": "UI",
+    },
+    "script": {
+      "label": "Script",
+      "language": {
+        "label": "Language",
+      },
     },
   },
 }

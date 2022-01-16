@@ -127,7 +127,7 @@
     display: flex;
     padding: 8px 8px 8px 0;
 
-    input {
+    input[type=checkbox] {
         margin-left: auto;
     }
 }
