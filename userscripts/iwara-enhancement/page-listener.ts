@@ -33,9 +33,10 @@ let currentClassName = '';
 emitter.on('pageEnter', (className) => (currentClassName = className));
 
 type PageListener = (id: string) => void;
+type PageEnterListener = (id: string, onLeave: (fn: PageListener) => void) => void;
 
 // page listener for iwara
-export function page(id: string | string[], key: string, enter: PageListener, leave?: PageListener) {
+export function page(id: string | string[], key: string, enter: PageEnterListener) {
     const match =
         typeof id === 'string'
             ? (className: string) => (className.includes(id) ? id : undefined)
@@ -55,26 +56,29 @@ export function page(id: string | string[], key: string, enter: PageListener, le
         };
     }
 
-    const onPageEnter = callIfMatch(enter);
-    const onPageLeave = leave && callIfMatch(leave);
+    const onPageEnter = callIfMatch((matchedID) => {
+        let leave: PageListener | undefined;
+
+        enter(matchedID, (fn) => (leave = fn));
+
+        if (typeof leave === 'function') {
+            const onPageLeave = callIfMatch(leave);
+
+            emitter.on('pageLeave', onPageLeave);
+
+            if (import.meta.hot) {
+                emitter.on(`off:${key}`, () => emitter.off('pageLeave', onPageLeave));
+            }
+        }
+    });
 
     // call immediately and do not proceed if error occurs
     onPageEnter(currentClassName);
 
     emitter.on('pageEnter', onPageEnter);
 
-    if (onPageLeave) {
-        emitter.on('pageLeave', onPageLeave);
-    }
-
     if (import.meta.hot) {
-        emitter.on(`off:${key}`, () => {
-            emitter.off('pageEnter', onPageEnter);
-
-            if (onPageLeave) {
-                emitter.off('pageLeave', onPageLeave);
-            }
-        });
+        emitter.on(`off:${key}`, () => emitter.off('pageEnter', onPageEnter));
     }
 }
 
