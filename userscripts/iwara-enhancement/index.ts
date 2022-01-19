@@ -1,10 +1,12 @@
 import 'jquery';
 import './components/Settings';
 import './hide-list-options';
-
 import './index.css';
+import './process-items';
 
-async function main() {}
+async function main() {
+    document.body.classList.add('enh-body');
+}
 
 main();
 

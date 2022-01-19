@@ -9,6 +9,7 @@ export const storage = createStorage<{
     filename: string;
     dark: boolean;
     like_rates: boolean;
+    like_rate_highlight: number;
     player_size: number;
     hide_list_options: boolean;
 }>({
@@ -20,6 +21,7 @@ export const storage = createStorage<{
     filename: '{DATE} {TITLE} - {AUTHOR} ({ID})',
     dark: false,
     like_rates: true,
+    like_rate_highlight: 4,
     player_size: 100,
     hide_list_options: false,
 });

@@ -1,3 +1,20 @@
+// sometimes I just don't want the script to depend on Lodash...
+export function throttle<T extends (...args: any) => any>(fn: T, timeout: number): (...args: Parameters<T>) => void {
+    let timer = 0;
+
+    return (...args: Parameters<T>) => {
+        if (timer) {
+            return;
+        }
+
+        timer = setTimeout(() => {
+            fn.apply(null, args);
+
+            timer = 0;
+        }, timeout);
+    };
+}
+
 export function repeat(fn: () => boolean | void, interval = 200) {
     if (fn()) {
         return 0;
@@ -15,24 +32,26 @@ export function repeat(fn: () => boolean | void, interval = 200) {
 }
 
 // non-cancelable
-export function repeatUntil<T>(fn: () => T, interval = 200): Promise<T> {
-    return new Promise((resolve, reject) => repeat(() => {
-        try {
-            const result = fn();
+export function repeatUntil<T>(fn: () => T, interval = 0): Promise<T> {
+    return new Promise((resolve, reject) =>
+        repeat(() => {
+            try {
+                const result = fn();
 
-            if (result) {
-                resolve(result);
+                if (result) {
+                    resolve(result);
 
-                // break the repeat() loop
+                    // break the repeat() loop
+                    return true;
+                }
+            } catch (e) {
+                reject(e);
                 return true;
             }
-        } catch (e) {
-            reject(e);
-            return true;
-        }
-    }, interval));
+        }, interval)
+    );
 }
 
 export function delay(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }

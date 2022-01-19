@@ -1,13 +1,12 @@
 import mitt from 'mitt';
+import { hasClass, SimpleMutationObserver } from '../../utils/dom';
 import { ready } from '../../utils/events';
 import { log } from '../../utils/log';
 import { getAppDiv } from './common';
 
-const appObserver = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-        detectPageChange(mutation.addedNodes, 'pageEnter');
-        detectPageChange(mutation.removedNodes, 'pageLeave');
-    }
+const appObserver = new SimpleMutationObserver((mutation) => {
+    detectPageChange(mutation.addedNodes, 'pageEnter');
+    detectPageChange(mutation.removedNodes, 'pageLeave');
 });
 
 ready().then(() => {
@@ -91,8 +90,8 @@ function detectPageChange(nodes: NodeList, event: keyof Events) {
     if (nodes.length) {
         for (const node of nodes as any as Iterable<Node>) {
             // a valid class name will be like "page page-videoList", where "videoList" is the ID
-            if ((node as any).classList && (node as HTMLElement).classList.contains('page')) {
-                emitter.emit(event, (node as HTMLElement).className);
+            if (hasClass(node, 'page')) {
+                emitter.emit(event, node.className);
                 break;
             }
         }

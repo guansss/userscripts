@@ -5,11 +5,12 @@ import { useConfigSettings } from '../config';
 import { useDownloaderSettings } from '../downloader';
 import { i18n } from '../i18n';
 import { page, unpage } from '../page-listener';
+import { useItemSettings } from '../process-items';
 import css from './Settings.module.css';
 
 // language=HTML
 const template = `
-    <div class='text text--text text--bold'>E</div>
+    <div class='text text--text text--bold' xmlns='http://www.w3.org/1999/html'>E</div>
 
     <div v-if='visible' :class='css.settings' @click.stop>
         <header :class='css.header'>
@@ -28,6 +29,21 @@ const template = `
         </nav>
         <div v-if='tabVal === "ui"' :class='css.view'>
             <h3 :class='css.sectionHeader'>{{ $t('s.ui.label') }}</h3>
+
+            <h4 :class='css.fieldLabel'>{{ $t('s.ui.like_rate.label') }}</h4>
+            <p v-html='$t("s.ui.like_rate.desc")'></p>
+            <p>
+                <label :class='css.labelBlock'>
+                    {{ $t('s.enabled') }}
+                    <input type='checkbox' v-model='likeRateEnabled'>
+                </label>
+            </p>
+
+            <h4 :class='css.fieldLabel'>{{ $t('s.ui.highlight.label') }}</h4>
+            <p v-html='$t("s.ui.highlight.desc")'></p>
+            <p>
+                <input type='number' step='0.1' min='0' max='100' :value='highlightThreshold' @change='highlightThreshold = +$event.target.value'>
+            </p>
         </div>
         <div v-else-if='tabVal === "download"' :class='css.view'>
             <h3 :class='css.sectionHeader'>{{ $t('s.download.label') }}</h3>
@@ -35,12 +51,12 @@ const template = `
             <h4 :class='css.fieldLabel'>{{ $t('s.download.auto.label') }}</h4>
             <p v-html='$t("s.download.auto.desc")'></p>
             <p v-if='!downloadMode' v-html='$t("s.download.auto.warn")'></p>
-            <p v-else-if='downloadMode === "browser"' :class='css.warn'>
-            <p v-html='$tm("s.download.auto.warn_tm")[0]'></p>
-            <ol>
-                <li v-for='line in $tm("s.download.auto.warn_tm").slice(1)'><p v-html='line'></p></li>
-            </ol>
-            </p>
+            <section v-else-if='downloadMode === "browser"' :class='css.warn'>
+                <p v-html='$tm("s.download.auto.warn_tm")[0]'></p>
+                <ol>
+                    <li v-for='line in $tm("s.download.auto.warn_tm").slice(1)'><p v-html='line'></p></li>
+                </ol>
+            </section>
             <p>
                 <label :class='[css.labelBlock, { disabled: downloadMode !== "browser" }]'>
                     {{ $t('s.enabled') }}
@@ -91,7 +107,7 @@ function setup() {
     ];
     const tabIndex = ref(0);
     const tabVal = computed(() => tabs[tabIndex.value] && tabs[tabIndex.value]!.val);
-    const visible = ref(true);
+    const visible = ref(false);
 
     settingsContainer.addEventListener('click', () => {
         visible.value = !visible.value;
@@ -110,6 +126,7 @@ function setup() {
         downloadMode: GM_info.downloadMode,
         ...useDownloaderSettings(),
         ...useConfigSettings(),
+        ...useItemSettings(),
     };
 }
 

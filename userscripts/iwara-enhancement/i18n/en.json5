@@ -49,6 +49,14 @@
     },
     "ui": {
       "label": "UI",
+      "like_rate": {
+        "label": "Like rate",
+        "desc": "Displays like rates in video and image list.",
+      },
+      "highlight": {
+        "label": "Highlight threshold",
+        "desc": "Highlights video and image items over a certain like rate.",
+      },
     },
     "script": {
       "label": "Script",

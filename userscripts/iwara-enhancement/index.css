@@ -5,3 +5,22 @@
         box-sizing: border-box;
     }
 }
+
+.enh-like-rate {
+    display: none;
+}
+
+.enh-show-like-rates {
+    .page-videoList__item, .page-imageList__item {
+        .views {
+            .text {
+                display: none;
+            }
+        }
+
+        .enh-like-rate.text {
+            display: block;
+        }
+    }
+}
+
