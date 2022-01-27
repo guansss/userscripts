@@ -1,4 +1,4 @@
-import 'jquery';
+import '../../utils/jquery';
 import './components/Settings';
 import './hide-list-options';
 import './index.css';
