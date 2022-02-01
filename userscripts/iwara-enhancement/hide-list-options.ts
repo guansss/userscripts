@@ -1,11 +1,11 @@
 import { computed, ref, watchEffect } from 'vue';
 import { localize } from './i18n';
-import { page, unpage } from './page-listener';
+import { page, unpage } from './paging';
 import { storage } from './store';
 
 const toggleButtonID = 'enh-hide-options-btn';
 
-page(['videoList', 'imageList'], 'hide_list_options', () => {
+page(['videoList', 'imageList'], 'hide_list_options', (pageID, onLeave) => {
     const hideOptions = ref(storage.get('hide_list_options'));
     const toggleText = computed(() => localize(hideOptions.value ? 'ui.show_list_options' : 'ui.hide_list_options'));
 
@@ -25,12 +25,16 @@ page(['videoList', 'imageList'], 'hide_list_options', () => {
     watchEffect(() => {
         toggleButton.text(toggleText.value);
     });
+
+    if (__DEV__) {
+        onLeave(() => {
+            $('#' + toggleButtonID).remove();
+        });
+    }
 });
 
-if (import.meta.hot) {
-    import.meta.hot.accept(() => {});
-    import.meta.hot.dispose(() => {
+if (__DEV__) {
+    __ON_RELOAD__(() => {
         unpage('hide_list_options');
-        $('#' + toggleButtonID).remove();
     });
 }

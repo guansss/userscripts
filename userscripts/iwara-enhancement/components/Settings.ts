@@ -4,7 +4,7 @@ import { log } from '../../../utils/log';
 import { useConfigSettings } from '../config';
 import { useDownloaderSettings } from '../downloader';
 import { i18n } from '../i18n';
-import { page, unpage } from '../page-listener';
+import { page, unpage } from '../paging';
 import { useItemSettings } from '../process-items';
 import css from './Settings.module.css';
 
@@ -133,7 +133,7 @@ function setup() {
 const settingsContainer = $(`<div id="enh-settings" class='header__link ${css.switch}'></div>`).get(0)!;
 let app: App | undefined;
 
-page('', 'settings', () => {
+page('', 'settings', (pageID, onLeave) => {
     const destination = $('.page .header__content:first-of-type .dropdown:last-of-type');
 
     if (destination.length) {
@@ -153,15 +153,19 @@ page('', 'settings', () => {
 
             log('Settings view initialized');
         }
+    } else {
+        log('Could not insert settings view: container not found.');
+    }
+
+    if (__DEV__) {
+        onLeave(() => {
+            settingsContainer.remove();
+        });
     }
 });
 
-if (import.meta.hot) {
-    import.meta.hot.accept(() => {});
-    import.meta.hot.dispose(() => {
+if (__DEV__) {
+    __ON_RELOAD__(() => {
         unpage('settings');
-
-        app?.unmount();
-        settingsContainer.remove();
     });
 }

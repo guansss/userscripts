@@ -1,6 +1,7 @@
 import mitt from 'mitt';
 import { hasClass, SimpleMutationObserver } from '../../utils/dom';
-import { ready } from '../../utils/events';
+import { once, ready } from '../../utils/events';
+import { onExit } from '../../utils/hmr';
 import { log } from '../../utils/log';
 import { getAppDiv } from './common';
 
@@ -9,9 +10,17 @@ const appObserver = new SimpleMutationObserver((mutation) => {
     detectPageChange(mutation.removedNodes, 'pageLeave');
 });
 
-ready().then(() => {
-    appObserver.observe(getAppDiv()!, { childList: true });
-});
+export function setupPaging() {
+    ready().then(() => {
+        const appDiv = getAppDiv()!;
+
+        dispatchExistingPage(appDiv);
+
+        log('Start observing pages.');
+
+        appObserver.observe(appDiv, { childList: true });
+    });
+}
 
 type Events = {
     pageEnter: string;
@@ -21,11 +30,6 @@ type Events = {
     [k: `off:${string}`]: void;
 };
 const emitter = mitt<Events>();
-
-if (import.meta.hot && import.meta.hot.data.events) {
-    // restore events after HMR
-    (import.meta.hot.data.events as typeof emitter.all).forEach((v, k) => emitter.all.set(k, v));
-}
 
 let currentClassName = '';
 
@@ -61,23 +65,22 @@ export function page(id: string | string[], key: string, enter: PageEnterListene
         enter(matchedID, (fn) => (leave = fn));
 
         if (typeof leave === 'function') {
-            const onPageLeave = callIfMatch(leave);
-
-            emitter.on('pageLeave', onPageLeave);
-
-            if (import.meta.hot) {
-                emitter.on(`off:${key}`, () => emitter.off('pageLeave', onPageLeave));
-            }
+            once(emitter, 'pageLeave', callIfMatch(leave));
         }
     });
-
-    // call immediately and do not proceed if error occurs
-    onPageEnter(currentClassName);
 
     emitter.on('pageEnter', onPageEnter);
 
     if (import.meta.hot) {
         emitter.on(`off:${key}`, () => emitter.off('pageEnter', onPageEnter));
+    }
+}
+
+export function dispatchExistingPage(app: HTMLElement) {
+    const className = $(app).children('.page').attr('class');
+
+    if (className) {
+        emitter.emit('pageEnter', className);
     }
 }
 
@@ -98,26 +101,20 @@ function detectPageChange(nodes: NodeList, event: keyof Events) {
     }
 }
 
-if (DEBUG) {
+if (__DEV__) {
     const logPageID = (action: string) => (className: string) =>
         ((i: number) => (i === -1 ? undefined : log(action, className.slice(i + 5))))(className.indexOf('page-'));
     const logEnter = logPageID('enter');
     const logLeave = logPageID('leave');
     emitter.on('pageEnter', logEnter);
     emitter.on('pageLeave', logLeave);
-    emitter.on('off:logID', () => {
-        emitter.off('pageEnter', logEnter);
-        emitter.off('pageLeave', logLeave);
-    });
 }
 
 if (import.meta.hot) {
-    import.meta.hot.accept(() => {});
-    import.meta.hot.dispose((data) => {
-        emitter.emit('off:logID');
-
-        // save events before HMR
-        data.events = emitter.all;
+    onExit(() => {
+        if (currentClassName) {
+            emitter.emit('pageLeave', currentClassName);
+        }
 
         appObserver.disconnect();
     });

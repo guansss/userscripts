@@ -1,3 +1,5 @@
+import { Emitter } from 'mitt';
+
 let readyPromise: Promise<void>;
 
 export function ready() {
@@ -12,4 +14,19 @@ export function ready() {
     }
 
     return readyPromise;
+}
+
+export function once<T extends Record<string, any>, E extends keyof T>(
+    emitter: Emitter<T>,
+    event: E,
+    listener: (data: T[E]) => void
+): (data: T[E]) => void {
+    const fn = (data: T[E]) => {
+        emitter.off(event, fn);
+        listener(data);
+    };
+
+    emitter.on(event, fn);
+
+    return fn;
 }

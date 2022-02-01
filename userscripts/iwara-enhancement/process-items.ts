@@ -2,7 +2,7 @@ import { ref, watchEffect } from 'vue';
 import { hasClass, SimpleMutationObserver } from '../../utils/dom';
 import { log } from '../../utils/log';
 import { throttle } from '../../utils/timer';
-import { page, unpage } from './page-listener';
+import { page, unpage } from './paging';
 import { storage } from './store';
 
 const likeRateEnabled = ref(storage.get('like_rates'));
@@ -33,7 +33,7 @@ export function useItemSettings() {
     };
 }
 
-page(['videoList', 'imageList'], 'process_item', async (pageID, onLeave) => {
+page(['videoList', 'imageList'], 'process_items', async (pageID, onLeave) => {
     const listContainer = $(`.page-${pageID}>.content .col-12.order-lg-1:first-of-type`).get(0);
 
     if (!listContainer) {
@@ -81,6 +81,10 @@ page(['videoList', 'imageList'], 'process_item', async (pageID, onLeave) => {
     onLeave(() => {
         rowsObserver.disconnect();
         listObserver.disconnect();
+
+        if (__DEV__) {
+            $('.' + likeRateClass).remove();
+        }
     });
 });
 
@@ -130,10 +134,8 @@ function setupLikeRate(item: HTMLElement) {
     }
 }
 
-if (import.meta.hot) {
-    import.meta.hot.accept(() => {});
-    import.meta.hot.dispose(() => {
-        unpage('process_item');
-        $('.' + likeRateClass).remove();
+if (__DEV__) {
+    __ON_RELOAD__(() => {
+        unpage('process_items');
     });
 }
