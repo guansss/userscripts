@@ -46,6 +46,15 @@
         ].map((api) => [api, window[api]])
     );
 
+    // prevent Sentry from tracking the console during dev
+    ['debug', 'info', 'warn', 'error', 'log', 'assert'].forEach((key) => {
+        if (unsafeWindow.console[key].__sentry_original__) {
+            unsafeWindow.console[key] = unsafeWindow.console[key].__sentry_original__;
+        } else {
+            Object.defineProperty(unsafeWindow.console, key, { writable: false });
+        }
+    });
+
     const host = 'https://127.0.0.1:3000';
 
     const viteClientImported = import(host + '/@vite/client');

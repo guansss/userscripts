@@ -1,3 +1,4 @@
+import './ensure-logger';
 import '../../utils/jquery';
 import './components/Settings';
 import './hide-list-options';
