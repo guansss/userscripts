@@ -11,7 +11,8 @@
 }
 
 .enh-show-like-rates {
-    .page-videoList__item, .page-imageList__item {
+    .videoTeaser,
+    .imageTeaser {
         .views {
             .text {
                 display: none;
@@ -23,4 +24,3 @@
         }
     }
 }
-

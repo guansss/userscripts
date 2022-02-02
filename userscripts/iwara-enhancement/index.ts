@@ -3,7 +3,7 @@ import '../../utils/jquery';
 import './components/Settings';
 import './hide-list-options';
 import './index.css';
-import './process-items';
+import './process-teasers';
 import { setupPaging } from './paging';
 import { exit } from '../../utils/hmr';
 

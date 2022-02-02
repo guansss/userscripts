@@ -5,7 +5,7 @@ import { useConfigSettings } from '../config';
 import { useDownloaderSettings } from '../downloader';
 import { i18n } from '../i18n';
 import { page, unpage } from '../paging';
-import { useItemSettings } from '../process-items';
+import { useTeaserSettings } from '../process-teasers';
 import css from './Settings.module.css';
 
 // language=HTML
@@ -126,7 +126,7 @@ function setup() {
         downloadMode: GM_info.downloadMode,
         ...useDownloaderSettings(),
         ...useConfigSettings(),
-        ...useItemSettings(),
+        ...useTeaserSettings(),
     };
 }
 

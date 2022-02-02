@@ -35,23 +35,26 @@ let currentClassName = '';
 
 emitter.on('pageEnter', (className) => (currentClassName = className));
 
-type PageListener = (id: string) => void;
-type PageEnterListener = (id: string, onLeave: (fn: PageListener) => void) => void;
+type IDArg = string | readonly string[];
+type IDMatch<ID extends IDArg> = ID extends string ? ID : ID[number];
+
+type PageListener<ID extends IDArg> = (id: IDMatch<ID>) => void;
+type PageEnterListener<ID extends IDArg> = (id: IDMatch<ID>, onLeave: (fn: PageListener<ID>) => void) => void;
 
 // page listener for iwara
-export function page(id: string | string[], key: string, enter: PageEnterListener) {
+export function page<ID extends IDArg>(id: ID, key: string, enter: PageEnterListener<ID>) {
     const match =
         typeof id === 'string'
             ? (className: string) => (className.includes(id) ? id : undefined)
             : (className: string) => id.find((_id) => className.includes(_id)) || undefined;
 
-    function callIfMatch(listener: PageListener) {
+    function callIfMatch(listener: PageListener<ID>) {
         return (className: string) => {
             const matchedID = match(className);
 
             if (matchedID !== undefined) {
                 try {
-                    listener(matchedID);
+                    listener(matchedID as IDMatch<ID>);
                 } catch (e) {
                     log('Error executing page listener', e);
                 }
@@ -60,7 +63,7 @@ export function page(id: string | string[], key: string, enter: PageEnterListene
     }
 
     const onPageEnter = callIfMatch((matchedID) => {
-        let leave: PageListener | undefined;
+        let leave: PageListener<ID> | undefined;
 
         enter(matchedID, (fn) => (leave = fn));
 
@@ -104,15 +107,14 @@ function detectPageChange(nodes: NodeList, event: keyof Events) {
 if (__DEV__) {
     const logPageID = (action: string) => (className: string) =>
         ((i: number) => (i === -1 ? undefined : log(action, className.slice(i + 5))))(className.indexOf('page-'));
-    const logEnter = logPageID('enter');
-    const logLeave = logPageID('leave');
-    emitter.on('pageEnter', logEnter);
-    emitter.on('pageLeave', logLeave);
+    emitter.on('pageEnter', logPageID('enter'));
+    emitter.on('pageLeave', logPageID('leave'));
 }
 
 if (import.meta.hot) {
     onExit(() => {
         if (currentClassName) {
+            currentClassName = '';
             emitter.emit('pageLeave', currentClassName);
         }
 
