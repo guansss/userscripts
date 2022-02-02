@@ -1,9 +1,9 @@
-let logger = console.log;
+let log: typeof console.log;
+
+setLogger(console.log);
 
 export function setLogger(_logger: typeof console.log) {
-    logger = _logger;
+    log = _logger.bind(console, `[${GM_info.script.name}]`);
 }
 
-export function log(...args: any[]) {
-    logger(`[${GM_info.script.name}]`, ...args);
-}
+export { log };
