@@ -46,13 +46,39 @@
         ].map((api) => [api, window[api]])
     );
 
-    // prevent Sentry from tracking the console during dev
+    // prevent Sentry from tracking the console during dev because it breaks the log trace
     ['debug', 'info', 'warn', 'error', 'log', 'assert'].forEach((key) => {
         if (unsafeWindow.console[key].__sentry_original__) {
             unsafeWindow.console[key] = unsafeWindow.console[key].__sentry_original__;
         } else {
-            Object.defineProperty(unsafeWindow.console, key, { writable: false });
+            const fn = unsafeWindow.console[key];
+            Object.defineProperty(unsafeWindow.console, key, {
+                set() {
+                    // prevent assignment
+                },
+                get() {
+                    return fn;
+                },
+            });
         }
+    });
+
+    // fully disable Sentry, I'm not 100% sure this works
+
+    unsafeWindow.__SENTRY__ = {
+        extensions: {},
+    };
+
+    let hub;
+
+    Object.defineProperty(unsafeWindow.__SENTRY__, 'hub', {
+        set(_hub) {
+            hub = _hub;
+            hub.getClient = () => undefined;
+        },
+        get() {
+            return hub;
+        },
     });
 
     const host = 'https://127.0.0.1:3000';
