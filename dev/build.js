@@ -3,6 +3,7 @@ const rootMeta = require(USERSCRIPTS_ROOT + '/meta.json');
 const glob = require('glob');
 const fs = require('fs');
 const path = require('path');
+const { isString, isArray, isBoolean } = require('lodash');
 
 const distDir = path.resolve(__dirname, '../dist/assets');
 
@@ -61,8 +62,24 @@ function generateMetaBlock(content, scriptName) {
     function putField(field, value) {
         let line = fieldPrefix + field;
 
-        if (typeof value === 'string') {
-            line = line.padEnd(indent, ' ') + value;
+        switch (true) {
+            case isString(value):
+                line = line.padEnd(indent, ' ') + value;
+                break;
+
+            case isArray(value):
+                line = value.map((singleVal) => line.padEnd(indent, ' ') + singleVal);
+                break;
+
+            case isBoolean(value):
+                // ignore false
+                if (!value) {
+                    return;
+                }
+                break;
+
+            default:
+                console.warn('Unknown type of value:', value);
         }
 
         metaBlock += line + '\n';
@@ -80,7 +97,7 @@ function generateMetaBlock(content, scriptName) {
         }
     }
 
-    metaBlock += '// ==/UserScript==\n';
+    metaBlock += '// ==/UserScript==\n\n';
 
     return metaBlock + content;
 }
