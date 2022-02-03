@@ -117,17 +117,19 @@ function setup() {
         }
     });
 
-    return {
-        css,
-        tabs,
-        tabIndex,
-        tabVal,
-        visible,
-        downloadMode: GM_info.downloadMode,
-        ...useDownloaderSettings(),
-        ...useConfigSettings(),
-        ...useTeaserSettings(),
-    };
+    return Object.assign(
+        {
+            css,
+            tabs,
+            tabIndex,
+            tabVal,
+            visible,
+            downloadMode: GM_info.downloadMode,
+        },
+        useDownloaderSettings(),
+        useConfigSettings(),
+        useTeaserSettings()
+    );
 }
 
 const settingsContainer = $(`<div id="enh-settings" class='header__link ${css.switch}'></div>`).get(0)!;
