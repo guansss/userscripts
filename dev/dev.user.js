@@ -82,6 +82,21 @@
         },
     });
 
+    WebSocket.prototype._addEventListener = WebSocket.prototype.addEventListener;
+    WebSocket.prototype.addEventListener = function (type, listener, options) {
+        // stop vite from calling location.reload() when socket closed, which typically happens
+        // when HMR is not set up correctly, and causes vite to reload the page endlessly
+        if (type === 'close' && ('' + listener).includes('[vite] server connection lost. polling for restart')) {
+            this._addEventListener(
+                'close',
+                () => console.warn('Dev serve connection lost, please manually reload the page.'),
+                options
+            );
+            return;
+        }
+        this._addEventListener(type, listener, options);
+    };
+
     const host = 'https://127.0.0.1:3000';
     const loadedScripts = [];
     const allScripts = [];
