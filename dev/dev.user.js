@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name         Dev script
 // @version      0.1
-// @match        *://localhost:8080/*
-// @match        *://staging.iwara.tv/*
+// @match        *://*/*
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_addStyle
 // @grant        GM_getResourceText
 // @grant        GM_download
+// @grant        GM_registerMenuCommand
+// @grant        GM_unregisterMenuCommand
 // @grant        GM_info
 // @grant        unsafeWindow
 // ==/UserScript==
@@ -82,19 +83,102 @@
     });
 
     const host = 'https://127.0.0.1:3000';
+    const loadedScripts = [];
+    const allScripts = [];
 
-    const viteClientImported = import(host + '/@vite/client');
+    fetch(host + '/@userscripts/all')
+        .then((res) => res.json())
+        .then((scripts) => {
+            const forceLoads = getForceLoads();
 
-    const forceLoad = ['iwara-enhancement'].join(',');
+            allScripts.push(...scripts);
+            allScripts.forEach((script) => {
+                if (forceLoads.includes(script.name)) {
+                    loadScript(script);
+                }
+            });
 
-    const scripts = await fetch(host + '/@userscripts/available?forceLoad=' + forceLoad).then((res) => res.json());
+            updateMenu();
+        });
 
-    // wait for HMR setup
-    await viteClientImported;
+    fetch(host + '/@userscripts/match')
+        .then((res) => res.json())
+        .then((scripts) => {
+            scripts.forEach(loadScript);
+            updateMenu();
+        });
 
-    for (const script of scripts) {
+    function getForceLoads() {
+        return GM_getValue('force', {})[location.origin] || [];
+    }
+
+    function saveForceLoads(forceLoads) {
+        GM_setValue('force', {
+            ...GM_getValue('force', {}),
+            [location.origin]: forceLoads,
+        });
+    }
+
+    function loadScript(script) {
+        if (loadedScripts.includes(script)) {
+            return;
+        }
+
         console.log('Loading script:', script.name);
 
+        loadedScripts.push(script);
+
         import(host + '/' + script.url);
+    }
+
+    function updateMenu() {
+        const forceLoads = getForceLoads();
+
+        console.log(allScripts, loadedScripts, forceLoads);
+
+        allScripts.forEach((script) => {
+            let label = '';
+
+            if (loadedScripts.includes(script)) {
+                label += '[x] ';
+            } else {
+                label += '[ ] ';
+            }
+
+            label += script.name;
+
+            if (forceLoads.includes(script.name)) {
+                label += ' (force)';
+            }
+
+            if (script.label !== label) {
+                script.label = label;
+
+                if (script.menuID) {
+                    GM_unregisterMenuCommand(script.menuID);
+                }
+
+                script.menuID = GM_registerMenuCommand(label, createToggler(script));
+            }
+        });
+    }
+
+    function createToggler(script) {
+        return () => {
+            const forceLoads = getForceLoads();
+
+            // toggle the state
+            const shouldForce = !forceLoads.includes(script.name);
+
+            if (shouldForce) {
+                forceLoads.push(script.name);
+                loadScript(script);
+            } else {
+                forceLoads.splice(forceLoads.indexOf(script.name), 1);
+            }
+
+            saveForceLoads(forceLoads);
+            updateMenu();
+        };
     }
 })();

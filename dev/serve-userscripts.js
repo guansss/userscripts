@@ -9,7 +9,8 @@ export default function serveUserscripts() {
     return {
         name: 'serve-userscripts',
         configureServer(server) {
-            server.middlewares.use(namespace + '/available', getAvailableUserscripts);
+            server.middlewares.use(namespace + '/all', (req, res) => send(res, getAllUserscripts()));
+            server.middlewares.use(namespace + '/match', getMatchedScripts);
         },
         transform(code, moduleID) {
             if (code.includes('__LOCALES__')) {
@@ -49,18 +50,17 @@ export default function serveUserscripts() {
     };
 }
 
-async function getAvailableUserscripts(req, res) {
+function getMatchedScripts(req, res) {
     const query = new URLSearchParams(req.originalUrl.slice(req.originalUrl.indexOf('?')));
-    const forceLoad = query.get('forceLoad') && query.get('forceLoad').split(',');
-    const scripts = await findUserscripts(req.originalUrl, forceLoad);
+    const scripts = matchScriptsByURL(req.originalUrl, query.get('forceLoad'));
 
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.end(JSON.stringify(scripts));
+    send(res, scripts);
 }
 
-export async function findUserscripts(url, forceLoad = []) {
-    const userscripts = getAllUserscripts();
+function matchScriptsByURL(url, forceLoad) {
+    const userscripts = getAllScripts();
+
+    forceLoad = forceLoad ? forceLoad.split(',') : [];
 
     return userscripts.filter(({ name, dir }) => {
         if (forceLoad.includes(name)) {
@@ -90,4 +90,10 @@ export async function findUserscripts(url, forceLoad = []) {
             console.error(`Error matching URL for ${name}:`, e);
         }
     });
+}
+
+function send(res, json) {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.end(JSON.stringify(json));
 }
