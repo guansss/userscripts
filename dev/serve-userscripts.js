@@ -52,7 +52,7 @@ export default function serveUserscripts() {
 
 function getMatchedScripts(req, res) {
     const query = new URLSearchParams(req.originalUrl.slice(req.originalUrl.indexOf('?')));
-    const scripts = matchScriptsByURL(req.originalUrl, query.get('forceLoad'));
+    const scripts = matchScriptsByURL(req.headers.referer, query.get('forceLoad'));
 
     send(res, scripts);
 }
