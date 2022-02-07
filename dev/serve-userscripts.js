@@ -58,7 +58,7 @@ function getMatchedScripts(req, res) {
 }
 
 function matchScriptsByURL(url, forceLoad) {
-    const userscripts = getAllScripts();
+    const userscripts = getAllUserscripts();
 
     forceLoad = forceLoad ? forceLoad.split(',') : [];
 
