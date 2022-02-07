@@ -11,6 +11,7 @@
 // @grant        GM_unregisterMenuCommand
 // @grant        GM_info
 // @grant        unsafeWindow
+// @noframes
 // ==/UserScript==
 
 (async function () {
@@ -135,7 +136,7 @@
     }
 
     function loadScript(script) {
-        if (loadedScripts.includes(script)) {
+        if (loadedScripts.find(({ name }) => name === script.name)) {
             return;
         }
 
@@ -149,15 +150,14 @@
     function updateMenu() {
         const forceLoads = getForceLoads();
 
-        console.log(allScripts, loadedScripts, forceLoads);
-
         allScripts.forEach((script) => {
             let label = '';
 
-            if (loadedScripts.includes(script)) {
+            if (loadedScripts.find(({ name }) => name === script.name)) {
                 label += '[x] ';
             } else {
-                label += '[ ] ';
+                // en space
+                label += '[\u2002] ';
             }
 
             label += script.name;
