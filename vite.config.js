@@ -1,16 +1,15 @@
-import { defineConfig, loadEnv } from 'vite';
-import autoprefixer from 'autoprefixer';
-import nested from 'postcss-nested';
-import serveUserscripts from './dev/serve-userscripts';
-import { getAllUserscripts, getGMAPIs } from './dev/utils';
-import replace from '@rollup/plugin-replace';
-import { getLocales } from './dev/i18n';
-import * as fs from 'fs';
+const replace = require('@rollup/plugin-replace');
+const autoprefixer = require('autoprefixer');
+const fs = require('fs');
+const nested = require('postcss-nested');
+const { defineConfig, loadEnv } = require('vite');
+const { getLocales } = require('./dev/i18n');
+const serveUserscripts = require('./dev/serve-userscripts');
+const { getGMAPIs } = require('./dev/utils');
 
 // https://vitejs.dev/config/
-export default defineConfig(async ({ mode }) => {
+module.exports = defineConfig(async ({ mode }) => {
     const env = loadEnv(mode, '', '');
-    const userscripts = getAllUserscripts();
 
     if (!env.SSL_KEY || !env.SSL_CERT) {
         throw new Error('Please specify SSL_KEY and SSL_CERT in .env');
@@ -21,6 +20,7 @@ export default defineConfig(async ({ mode }) => {
             serveUserscripts(),
             replace({
                 delimiters: ['', ''],
+                preventAssignment: true,
 
                 // prepend "__GM." to GM APIs, see "dev/dev.user.js"
                 ...(mode !== 'production' && Object.fromEntries(getGMAPIs().map((api) => [api, '__GM.' + api]))),
@@ -80,7 +80,6 @@ export default defineConfig(async ({ mode }) => {
         },
         build: {
             rollupOptions: {
-                input: Object.fromEntries(userscripts.map(({ name, entry }) => [name, entry])),
                 external: ['vue', 'vue-i18n', 'jquery'],
                 output: {
                     globals: {

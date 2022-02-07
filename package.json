@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node dev/build.js"
+    "build": "node dev/build.js && node dev/postbuild.js"
   },
   "devDependencies": {
     "@mdi/svg": "^6.2.95",

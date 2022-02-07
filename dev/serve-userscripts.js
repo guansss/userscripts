@@ -1,11 +1,11 @@
 // vite plugin
 
-import { getAllUserscripts, urlMatch } from './utils';
-import { getLocaleFiles } from './i18n';
+const { getAllUserscripts, urlMatch } = require('./utils');
+const { getLocaleFiles } = require('./i18n');
 
 const namespace = '/@userscripts';
 
-export default function serveUserscripts() {
+module.exports = function serveUserscripts() {
     return {
         name: 'serve-userscripts',
         configureServer(server) {
@@ -48,7 +48,7 @@ export default function serveUserscripts() {
             });
         },
     };
-}
+};
 
 function getMatchedScripts(req, res) {
     const query = new URLSearchParams(req.originalUrl.slice(req.originalUrl.indexOf('?')));
