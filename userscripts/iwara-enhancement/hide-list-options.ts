@@ -28,7 +28,7 @@ page(['videoList', 'imageList'], 'hide_list_options', (pageID, onLeave) => {
 
     if (__DEV__) {
         onLeave(() => {
-            $('#' + toggleButtonID).remove();
+            toggleButton.remove();
         });
     }
 });

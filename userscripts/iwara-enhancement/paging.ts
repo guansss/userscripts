@@ -11,7 +11,7 @@ const appObserver = new SimpleMutationObserver((mutation) => {
 });
 
 export function setupPaging() {
-    ready().then(() => {
+    ready.then(() => {
         const appDiv = getAppDiv()!;
 
         dispatchExistingPage(appDiv);
