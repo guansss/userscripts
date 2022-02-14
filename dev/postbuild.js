@@ -9,8 +9,6 @@ const distDir = path.resolve(__dirname, '../dist/assets');
 
 const mainFunc = '_script_main';
 
-const scriptGrants = getGMAPIs();
-
 // sorted by preference
 const META_FIELDS = [
     'name:*',
@@ -24,6 +22,7 @@ const META_FIELDS = [
     'match',
     'exclude',
     'run-at',
+    'grant',
     'noframes',
 ];
 
@@ -100,16 +99,16 @@ function generateMetaBlock(content, scriptName) {
             for (const i18nField of i18nFields) {
                 putField(i18nField, meta[i18nField]);
             }
+        } else if (field === 'grant') {
+            for (const api of getGMAPIs()) {
+                if (content.includes(api)) {
+                    putField('grant', api);
+                }
+            }
         } else {
             if (metaFields.includes(field)) {
                 putField(field, meta[field]);
             }
-        }
-    }
-
-    for (const grant of scriptGrants) {
-        if (content.includes(grant)) {
-            putField('grant', grant);
         }
     }
 
