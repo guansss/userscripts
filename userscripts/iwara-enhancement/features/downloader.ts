@@ -1,5 +1,5 @@
 import { computed, ref, watchEffect } from 'vue';
-import { storage } from './store';
+import { storage } from '../core/store';
 
 const resolution = ref(storage.get('preferred_res'));
 let sources: { label: string; src: string };

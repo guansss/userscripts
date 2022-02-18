@@ -1,4 +1,4 @@
-import { createStorage } from '../../utils/storage';
+import { createStorage } from '../../@common/storage';
 
 export const storage = createStorage<{
     version: string;

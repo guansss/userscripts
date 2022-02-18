@@ -1,9 +1,8 @@
 import mitt from 'mitt';
-import { hasClass, SimpleMutationObserver } from '../../utils/dom';
-import { once, ready } from '../../utils/events';
-import { onExit } from '../../utils/hmr';
-import { log } from '../../utils/log';
-import { getAppDiv } from './common';
+import { hasClass, SimpleMutationObserver } from '../../@common/dom';
+import { once, ready } from '../../@common/events';
+import { onExit } from '../../@common/hmr';
+import { log } from '../../@common/log';
 
 const appObserver = new SimpleMutationObserver((mutation) => {
     detectPageChange(mutation.addedNodes, 'pageEnter');
@@ -12,7 +11,12 @@ const appObserver = new SimpleMutationObserver((mutation) => {
 
 export function setupPaging() {
     ready.then(() => {
-        const appDiv = getAppDiv()!;
+        const appDiv = document.getElementById('app') as HTMLElement | null;
+
+        if (!appDiv) {
+            log('Missing app div.');
+            return;
+        }
 
         dispatchExistingPage(appDiv);
 

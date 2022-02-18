@@ -1,11 +1,11 @@
-import './ensure-logger';
-import '../../utils/jquery';
+import './features/ensure-logger';
+import '../@common/jquery';
 import './components/Settings';
-import './hide-list-options';
+import './features/hide-list-options';
 import './index.css';
-import './process-teasers';
-import { setupPaging } from './paging';
-import { exit } from '../../utils/hmr';
+import './features/process-teasers';
+import { setupPaging } from './core/paging';
+import { exit } from '../@common/hmr';
 
 export async function main() {
     document.body.classList.add('enh-body');

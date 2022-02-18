@@ -1,9 +1,9 @@
 import { ref, watchEffect } from 'vue';
-import { hasClass, SimpleMutationObserver } from '../../utils/dom';
-import { log } from '../../utils/log';
-import { throttle } from '../../utils/timer';
-import { page, unpage } from './paging';
-import { storage } from './store';
+import { hasClass, SimpleMutationObserver } from '../../@common/dom';
+import { log } from '../../@common/log';
+import { throttle } from '../../@common/timer';
+import { page, unpage } from '../core/paging';
+import { storage } from '../core/store';
 
 const likeRateEnabled = ref(storage.get('like_rates'));
 const highlightThreshold = ref(storage.get('like_rate_highlight'));

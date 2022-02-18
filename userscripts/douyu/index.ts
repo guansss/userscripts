@@ -1,4 +1,4 @@
-import { ready } from '../../utils/events';
+import { ready } from '../@common/events';
 
 ready.then(() => {
     document.addEventListener('mouseleave', onLeave);

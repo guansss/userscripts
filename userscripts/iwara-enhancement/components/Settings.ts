@@ -1,11 +1,11 @@
 import { App, computed, createApp, ref } from 'vue';
-import { onClickOutside } from '../../../utils/dom';
-import { log } from '../../../utils/log';
-import { useConfigSettings } from '../config';
-import { useDownloaderSettings } from '../downloader';
-import { i18n } from '../i18n';
-import { page, unpage } from '../paging';
-import { useTeaserSettings } from '../process-teasers';
+import { onClickOutside } from '../../@common/dom';
+import { log } from '../../@common/log';
+import { useConfigSettings } from '../core/config';
+import { useDownloaderSettings } from '../features/downloader';
+import { i18n } from '../core/i18n';
+import { page, unpage } from '../core/paging';
+import { useTeaserSettings } from '../features/process-teasers';
 import css from './Settings.module.css';
 
 // language=HTML

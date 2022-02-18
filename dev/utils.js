@@ -35,16 +35,18 @@ function getGMAPIs() {
 function getAllUserscripts() {
     const dirs = glob.sync(USERSCRIPTS_ROOT + '/*/');
 
-    return dirs.map((dir) => {
-        const name = path.basename(dir);
+    return dirs
+        .filter((dir) => !path.basename(dir).startsWith('@'))
+        .map((dir) => {
+            const name = path.basename(dir);
 
-        return {
-            dir,
-            name,
-            entry: dir + 'index.ts',
-            url: `userscripts/${name}/index.ts`,
-        };
-    });
+            return {
+                dir,
+                name,
+                entry: dir + 'index.ts',
+                url: `userscripts/${name}/index.ts`,
+            };
+        });
 }
 
 function getUserscriptDir(filePath) {
