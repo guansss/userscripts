@@ -2,12 +2,20 @@
 
 const { getAllUserscripts, urlMatch } = require('./utils');
 const { getLocaleFiles } = require('./i18n');
+const { transformChunk } = require('./transform-output');
 
 const namespace = '/@userscripts';
 
 module.exports = function serveUserscripts() {
+    let config;
+    let isBuild = false;
+
     return {
         name: 'serve-userscripts',
+        configResolved(resolvedConfig) {
+            config = resolvedConfig;
+            isBuild = config.command !== 'serve';
+        },
         configureServer(server) {
             server.middlewares.use(namespace + '/all', (req, res) => send(res, getAllUserscripts()));
             server.middlewares.use(namespace + '/match', getMatchedScripts);
@@ -46,6 +54,16 @@ module.exports = function serveUserscripts() {
                     });
                 }
             });
+        },
+        generateBundle(options, bundle) {
+            for (const info of Object.values(bundle)) {
+                if (info.type === 'chunk') {
+                    transformChunk({
+                        config,
+                        chunk: info,
+                    });
+                }
+            }
         },
     };
 };

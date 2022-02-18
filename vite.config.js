@@ -15,6 +15,27 @@ module.exports = defineConfig(async ({ mode }) => {
         throw new Error('Please specify SSL_KEY and SSL_CERT in .env');
     }
 
+    const packageJSON = require('./package.json');
+    const dependencies = Object.assign({}, packageJSON.dependencies, packageJSON.devDependencies);
+
+    function cdn(dep, file) {
+        let version = dependencies[dep];
+
+        if (!version) {
+            throw new Error(`Could not find version of dependency: ${dep}`);
+        }
+
+        if (version.startsWith('^')) {
+            version = version.slice(1).split('.')[0];
+        } else if (version.startsWith('~')) {
+            version = version.slice(1).split('.').slice(0, 2).join('.');
+        }
+
+        return {
+            ['__' + dep]: `https://cdn.jsdelivr.net/npm/${dep}@${version}/${file}`,
+        };
+    }
+
     return {
         plugins: [
             serveUserscripts(),
@@ -84,8 +105,14 @@ module.exports = defineConfig(async ({ mode }) => {
                 output: {
                     globals: {
                         vue: 'Vue',
-                        'vue-i18n': 'VueI18N',
+                        'vue-i18n': 'VueI18n',
                         jquery: '$',
+
+                        // a quick way to define CDN links near to the globals definitions...
+                        // will be consumed by dev/transform-output.js
+                        ...cdn('vue', 'dist/vue.global.prod.js'),
+                        ...cdn('vue-i18n', 'dist/vue-i18n.global.prod.js'),
+                        ...cdn('jquery', 'dist/jquery.min.js'),
                     },
                     format: 'iife',
                     entryFileNames: 'assets/[name].user.js',

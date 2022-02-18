@@ -1,11 +1,7 @@
 const { USERSCRIPTS_ROOT, getGMAPIs } = require('./utils');
 const rootMeta = require(USERSCRIPTS_ROOT + '/meta.json');
-const glob = require('glob');
-const fs = require('fs');
 const path = require('path');
 const { isString, isArray, isBoolean } = require('lodash');
-
-const distDir = path.resolve(__dirname, '../dist/assets');
 
 const mainFunc = '_script_main';
 
@@ -19,6 +15,7 @@ const META_FIELDS = [
     'source',
     'supportURL',
     'updateURL',
+    'require',
     'match',
     'exclude',
     'run-at',
@@ -26,31 +23,24 @@ const META_FIELDS = [
     'noframes',
 ];
 
-function main() {
-    console.log(' ');
+exports.transformChunk = function ({ chunk, config }) {
+    const scriptName = path.dirname(path.relative(USERSCRIPTS_ROOT, chunk.facadeModuleId));
 
-    const jsFiles = glob.sync(distDir + '/*.js');
+    let content = chunk.code;
 
-    for (const js of jsFiles) {
-        const filename = path.basename(js);
-        const name = filename.slice(0, filename.indexOf('.'));
+    content = extractMainFunc(content);
+    content = moveCSSToBottom(content);
 
-        console.log('[Postbuild] Processing ' + filename);
+    // metadata should be generated lastly because other functions may insert GM APIs requiring @grant to the content
+    content = generateMetaBlock(content, { scriptName, chunk, config });
 
-        let content = fs.readFileSync(js, 'utf8');
+    chunk.code = content;
+};
 
-        content = generateMetaBlock(content, name);
-        content = extractMainFunc(content);
-        content = repositionCSS(content);
-
-        fs.writeFileSync(js, content, 'utf8');
-    }
-}
-
-function generateMetaBlock(content, scriptName) {
+function generateMetaBlock(content, { scriptName, chunk, config }) {
     const meta = {
         ...rootMeta,
-        ...require(USERSCRIPTS_ROOT + '/' + scriptName + '/meta.json'),
+        ...require(path.join(USERSCRIPTS_ROOT, scriptName, 'meta.json')),
     };
 
     let metaBlock = '// ==UserScript==\n';
@@ -105,6 +95,16 @@ function generateMetaBlock(content, scriptName) {
                     putField('grant', api);
                 }
             }
+        } else if (field === 'require') {
+            for (const external of chunk.imports) {
+                const cdn = config.build.rollupOptions.output.globals['__' + external];
+
+                if (!cdn) {
+                    throw new Error(`Missing CDN link for external dependency "${external}".`);
+                }
+
+                putField('require', cdn);
+            }
         } else {
             if (metaFields.includes(field)) {
                 putField(field, meta[field]);
@@ -138,8 +138,7 @@ function extractMainFunc(content) {
     return content;
 }
 
-// moves CSS to the bottom
-function repositionCSS(content) {
+function moveCSSToBottom(content) {
     const match = content.match(/var __vite_style__.+innerHTML = (".+");\n.+appendChild\(__vite_style__\);\n/s);
 
     if (!match) {
@@ -168,5 +167,3 @@ function repositionCSS(content) {
 
     return content;
 }
-
-main();
