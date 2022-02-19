@@ -33,7 +33,7 @@ export function useTeaserSettings() {
     };
 }
 
-page(['home', 'videoList', 'imageList'] as const, 'process_teasers', async (pageID, onLeave) => {
+page(['home', 'videoList', 'imageList'] as const, __MODULE_ID__, async (pageID, onLeave) => {
     const rowObserver = new SimpleMutationObserver((mutation) => mutation.addedNodes.forEach(detectRow));
     const teaserObserver = new SimpleMutationObserver((mutation) => mutation.addedNodes.forEach(detectTeaser));
 
@@ -154,6 +154,6 @@ function isTeaser<E extends HTMLElement = HTMLElement>(node: Node): node is E {
 
 if (__DEV__) {
     __ON_RELOAD__(() => {
-        unpage('process_teasers');
+        unpage(__MODULE_ID__);
     });
 }

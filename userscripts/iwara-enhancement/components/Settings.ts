@@ -135,7 +135,7 @@ function setup() {
 const settingsContainer = $(`<div id="enh-settings" class='header__link ${css.switch}'></div>`).get(0)!;
 let app: App | undefined;
 
-page('', 'settings', (pageID, onLeave) => {
+page('', __MODULE_ID__, (pageID, onLeave) => {
     const destination = $('.page .header__content:first-of-type .dropdown:last-of-type');
 
     if (destination.length) {
@@ -175,6 +175,6 @@ page('', 'settings', (pageID, onLeave) => {
 
 if (__DEV__) {
     __ON_RELOAD__(() => {
-        unpage('settings');
+        unpage(__MODULE_ID__);
     });
 }

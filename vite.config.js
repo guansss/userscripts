@@ -55,7 +55,10 @@ module.exports = defineConfig(async ({ mode }) => {
 
                     return `JSON.parse(${JSON.stringify(JSON.stringify(locales))})`;
                 },
-
+                __MODULE_ID__(moduleID) {
+                    // do not inject module ID in production
+                    return isDev ? moduleID : '';
+                },
                 '__ON_RELOAD__('(moduleID) {
                     // events are defined in dev/serve-userscripts.js
                     return `import.meta.hot.on('hmr:${moduleID}', `;

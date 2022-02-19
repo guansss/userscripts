@@ -5,7 +5,7 @@ import { storage } from '../core/store';
 
 const toggleButtonID = 'enh-hide-options-btn';
 
-page(['videoList', 'imageList'], 'hide_list_options', (pageID, onLeave) => {
+page(['videoList', 'imageList'], __MODULE_ID__, (pageID, onLeave) => {
     const hideOptions = ref(storage.get('hide_list_options'));
     const toggleText = computed(() => localize(hideOptions.value ? 'ui.show_list_options' : 'ui.hide_list_options'));
 
@@ -35,6 +35,6 @@ page(['videoList', 'imageList'], 'hide_list_options', (pageID, onLeave) => {
 
 if (__DEV__) {
     __ON_RELOAD__(() => {
-        unpage('hide_list_options');
+        unpage(__MODULE_ID__);
     });
 }
