@@ -9,6 +9,7 @@ const { getGMAPIs } = require('./dev/utils');
 
 // https://vitejs.dev/config/
 module.exports = defineConfig(async ({ mode }) => {
+    const isDev = mode === 'development';
     const env = loadEnv(mode, '', '');
 
     if (!env.SSL_KEY || !env.SSL_CERT) {
@@ -37,6 +38,9 @@ module.exports = defineConfig(async ({ mode }) => {
     }
 
     return {
+        // we'll be using tsc during build
+        esbuild: isDev,
+
         plugins: [
             serveUserscripts(),
             replace({
@@ -44,7 +48,7 @@ module.exports = defineConfig(async ({ mode }) => {
                 preventAssignment: true,
 
                 // prepend "__GM." to GM APIs, see "dev/dev.user.js"
-                ...(mode !== 'production' && Object.fromEntries(getGMAPIs().map((api) => [api, '__GM.' + api]))),
+                ...(isDev && Object.fromEntries(getGMAPIs().map((api) => [api, '__GM.' + api]))),
 
                 __LOCALES__(moduleID) {
                     const locales = getLocales(moduleID);
@@ -91,7 +95,7 @@ module.exports = defineConfig(async ({ mode }) => {
         define: {
             __BUILD_TIME__: Date.now(),
 
-            __DEV__: mode !== 'production',
+            __DEV__: isDev,
 
             // disable warnings during dev
             __VUE_OPTIONS_API__: true,
@@ -118,7 +122,6 @@ module.exports = defineConfig(async ({ mode }) => {
                     entryFileNames: 'assets/[name].user.js',
                 },
             },
-            target: 'es2017',
             minify: false,
             manifest: true,
         },

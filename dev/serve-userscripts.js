@@ -1,14 +1,20 @@
-// vite plugin
-
-const { getAllUserscripts, urlMatch } = require('./utils');
+const path = require('path');
+const ts = require('typescript');
+const { createFilter } = require('@rollup/pluginutils');
+const { getAllUserscripts, urlMatch, cleanUrl } = require('./utils');
 const { getLocaleFiles } = require('./i18n');
 const { transformChunk } = require('./transform-output');
 
 const namespace = '/@userscripts';
 
+// vite plugin
 module.exports = function serveUserscripts() {
     let config;
     let isBuild = false;
+
+    const tsConfig = require(path.resolve(__dirname, '../tsconfig.json'));
+
+    const filter = createFilter(/\.([tj]sx?)$/);
 
     return {
         name: 'serve-userscripts',
@@ -21,10 +27,30 @@ module.exports = function serveUserscripts() {
             server.middlewares.use(namespace + '/match', getMatchedScripts);
         },
         transform(code, moduleID) {
+            if (!filter(moduleID) && !filter(cleanUrl(moduleID))) {
+                return;
+            }
+
             if (code.includes('__LOCALES__')) {
                 for (const localeFile of getLocaleFiles(moduleID)) {
                     this.addWatchFile(localeFile);
                 }
+            }
+
+            if (isBuild) {
+                // preserve blank lines: https://github.com/microsoft/TypeScript/issues/843#issuecomment-625530359
+                code = code.replace(/\n *?\r?\n/g, '\n/** THIS_IS_A_NEWLINE **/\n');
+
+                const result = ts.transpileModule(code, { compilerOptions: tsConfig.compilerOptions });
+
+                if (result.diagnostics && result.diagnostics.length) {
+                    printDiagnostics(result.diagnostics);
+                    throw new Error('Exiting due to TS diagnostics.');
+                }
+
+                code = result.outputText.replace(/^\s*?\/\*\* THIS_IS_A_NEWLINE \*\*\//gm, '');
+
+                return { code };
             }
         },
         handleHotUpdate({ server, modules }) {
@@ -54,6 +80,10 @@ module.exports = function serveUserscripts() {
                     });
                 }
             });
+        },
+        renderChunk(code, chunk, opts) {
+            // disable esbuild since we've already compiled the code in transform()
+            opts.__vite_skip_esbuild__ = true;
         },
         generateBundle(options, bundle) {
             for (const info of Object.values(bundle)) {
@@ -114,4 +144,16 @@ function send(res, json) {
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.end(JSON.stringify(json));
+}
+
+function printDiagnostics(diagnostics) {
+    diagnostics.forEach((diagnostic) => {
+        if (diagnostic.file) {
+            let { line, character } = ts.getLineAndCharacterOfPosition(diagnostic.file, diagnostic.start);
+            let message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
+            console.log(`${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
+        } else {
+            console.log(ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'));
+        }
+    });
 }

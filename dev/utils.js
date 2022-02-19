@@ -63,6 +63,14 @@ function getUserscriptDir(filePath) {
     return filePath.slice(0, slashIndex);
 }
 
+const queryRE = /\?.*$/s;
+const hashRE = /#.*$/s;
+
+// source code from vite
+function cleanUrl(url) {
+    return url.replace(hashRE, '').replace(queryRE, '');
+}
+
 function urlMatch(pattern, url) {
     const matcher = matchPattern(pattern);
 
@@ -77,6 +85,7 @@ module.exports = {
     USERSCRIPTS_ROOT,
     getAllUserscripts,
     getUserscriptDir,
+    cleanUrl,
     urlMatch,
     getGMAPIs,
 };

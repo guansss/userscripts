@@ -139,7 +139,7 @@ function extractMainFunc(content) {
 }
 
 function moveCSSToBottom(content) {
-    const match = content.match(/var __vite_style__.+innerHTML = (".+");\n.+appendChild\(__vite_style__\);\n/s);
+    const match = content.match(/var __vite_style__.+?innerHTML = (".+");.+?\(__vite_style__\);/);
 
     if (!match) {
         return content;
