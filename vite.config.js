@@ -104,6 +104,7 @@ module.exports = defineConfig(async ({ mode }) => {
             __VUE_I18N_LEGACY_API__: true,
         },
         build: {
+            outDir: 'dist',
             rollupOptions: {
                 external: ['vue', 'vue-i18n', 'jquery'],
                 output: {
