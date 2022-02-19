@@ -10,23 +10,23 @@ const highlightThreshold = ref(storage.get('like_rate_highlight'));
 
 const likeRateClass = 'enh-like-rate';
 
+watchEffect(() => {
+    storage.set('like_rates', likeRateEnabled.value);
+
+    if (likeRateEnabled.value) {
+        document.body.classList.add('enh-show-like-rates');
+    } else {
+        document.body.classList.remove('enh-show-like-rates');
+    }
+});
+
+watchEffect(() => {
+    storage.set('like_rate_highlight', highlightThreshold.value);
+
+    $('.videoTeaser, .imageTeaser').each((i, teaser) => processTeaser(teaser));
+});
+
 export function useTeaserSettings() {
-    watchEffect(() => {
-        storage.set('like_rates', likeRateEnabled.value);
-
-        if (likeRateEnabled.value) {
-            document.body.classList.add('enh-show-like-rates');
-        } else {
-            document.body.classList.remove('enh-show-like-rates');
-        }
-    });
-
-    watchEffect(() => {
-        storage.set('like_rate_highlight', highlightThreshold.value);
-
-        $('.videoTeaser, .imageTeaser').each((i, teaser) => processTeaser(teaser));
-    });
-
     return {
         likeRateEnabled,
         highlightThreshold,
