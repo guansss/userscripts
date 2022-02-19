@@ -151,6 +151,13 @@ page('', 'settings', (pageID, onLeave) => {
             });
 
             app.use(i18n);
+
+            if (import.meta.env.PROD) {
+                // pending fix https://github.com/vuejs/core/pull/5197
+                // @ts-ignore
+                unsafeWindow.Vue = Vue;
+            }
+
             app.mount(settingsContainer);
 
             log('Settings view initialized');
