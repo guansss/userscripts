@@ -85,15 +85,17 @@ module.exports = function serveUserscripts() {
             // disable esbuild since we've already compiled the code in transform()
             opts.__vite_skip_esbuild__ = true;
         },
-        generateBundle(options, bundle) {
-            for (const info of Object.values(bundle)) {
-                if (info.type === 'chunk') {
-                    transformChunk({
-                        config,
-                        chunk: info,
-                    });
-                }
-            }
+        async generateBundle(options, bundle) {
+            await Promise.all(
+                Object.values(bundle).map(async (info) => {
+                    if (info.type === 'chunk') {
+                        await transformChunk({
+                            config,
+                            chunk: info,
+                        });
+                    }
+                })
+            );
         },
     };
 };

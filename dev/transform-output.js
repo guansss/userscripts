@@ -1,7 +1,10 @@
 const { USERSCRIPTS_ROOT, getGMAPIs } = require('./utils');
 const rootMeta = require(USERSCRIPTS_ROOT + '/meta.json');
-const path = require('path');
 const { isString, isArray, isBoolean } = require('lodash');
+const path = require('path');
+const prettier = require('prettier');
+
+const prettierConfigAsync = prettier.resolveConfig(__dirname);
 
 const mainFunc = '_script_main';
 
@@ -23,7 +26,7 @@ const META_FIELDS = [
     'noframes',
 ];
 
-exports.transformChunk = function ({ chunk, config }) {
+exports.transformChunk = async function ({ chunk, config }) {
     const scriptName = path.dirname(path.relative(USERSCRIPTS_ROOT, chunk.facadeModuleId));
 
     let content = chunk.code;
@@ -33,6 +36,11 @@ exports.transformChunk = function ({ chunk, config }) {
 
     // metadata should be generated lastly because other functions may insert GM APIs requiring @grant to the content
     content = generateMetaBlock(content, { scriptName, chunk, config });
+
+    content = prettier.format(content, {
+        ...(await prettierConfigAsync),
+        parser: 'babel',
+    });
 
     chunk.code = content;
 };
