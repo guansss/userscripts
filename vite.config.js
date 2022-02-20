@@ -57,7 +57,7 @@ module.exports = defineConfig(async ({ mode }) => {
                 },
                 __MODULE_ID__(moduleID) {
                     // do not inject module ID in production
-                    return isDev ? moduleID : '';
+                    return JSON.stringify(isDev ? moduleID : '');
                 },
                 '__ON_RELOAD__('(moduleID) {
                     // events are defined in dev/serve-userscripts.js
