@@ -3,34 +3,37 @@
 
 declare const unsafeWindow: Window;
 
-declare function GM_setValue(name: string, value: any): void
+declare function GM_setValue(name: string, value: any): void;
 
-declare function GM_getValue<T>(name: string, defaultValue?: T): T
+declare function GM_getValue<T>(name: string, defaultValue?: T): T;
 
-declare function GM_addStyle(css: string): HTMLStyleElement
+declare function GM_addStyle(css: string): HTMLStyleElement;
 
-declare function GM_getResourceText(name: string): string
+declare function GM_getResourceText(name: string): string;
 
 declare const GM_info: {
     script: {
-        name: string
-        version: string
-    }
-    downloadMode: 'native' | 'browser' | 'disabled'
+        name: string;
+        version: string;
+    };
+    downloadMode: 'native' | 'browser' | 'disabled';
 };
 
 declare function GM_download(details: {
-    url: string,
-    name?: string
-    headers?: any
-    saveAs?: boolean
-    onerror?(error: 'not_enabled' | 'not_forceLoaded' | 'not_permitted' | 'not_supported' | 'not_succeeded', details: { current?: string }): void
-    onload?(): void
-    onprogress?(): void
-    ontimeout?(): void
+    url: string;
+    name?: string;
+    headers?: any;
+    saveAs?: boolean;
+    onerror?(e: {
+        error: 'not_enabled' | 'not_forceLoaded' | 'not_permitted' | 'not_supported' | 'not_succeeded';
+        details: { current?: string };
+    }): void;
+    onload?(): void;
+    onprogress?(): void;
+    ontimeout?(): void;
 }): {
-    abort(): void
-}
+    abort(): void;
+};
 
 declare type GM_xmlhttpRequestParams = {
     // one of GET, HEAD, POST
@@ -124,9 +127,9 @@ declare type GM_xmlhttpRequestParams = {
 
         // the response data as plain string
         responseText: string;
-    }): void
-}
+    }): void;
+};
 
 declare function GM_xmlhttpRequest(details: GM_xmlhttpRequestParams): {
-    abort(): void
-}
+    abort(): void;
+};

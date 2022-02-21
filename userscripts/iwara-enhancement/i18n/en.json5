@@ -39,6 +39,7 @@
         "key": {
           "id": "video's ID",
           "title": "video's title",
+          "res": "video's resolution",
           "author": "author's name",
           "date": "date time when the download starts",
           "up_date": "date time when the video was uploaded",

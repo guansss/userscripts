@@ -1,13 +1,8 @@
 import mitt from 'mitt';
 import { hasClass, SimpleMutationObserver } from '../../@common/dom';
 import { once, ready } from '../../@common/events';
-import { onExit } from '../../@common/hmr';
+import { onInvalidate } from '../../@common/hmr';
 import { log } from '../../@common/log';
-
-const appObserver = new SimpleMutationObserver((mutation) => {
-    detectPageChange(mutation.addedNodes, 'pageEnter');
-    detectPageChange(mutation.removedNodes, 'pageLeave');
-});
 
 export function setupPaging() {
     ready.then(() => {
@@ -18,11 +13,24 @@ export function setupPaging() {
             return;
         }
 
-        dispatchExistingPage(appDiv);
-
         log('Start observing pages.');
 
-        appObserver.observe(appDiv, { childList: true });
+        const appObserver = new SimpleMutationObserver((mutation) => {
+            detectPageChange(mutation.addedNodes, 'pageEnter');
+            detectPageChange(mutation.removedNodes, 'pageLeave');
+        });
+        appObserver.observe(appDiv, { childList: true, immediate: true });
+
+        if (__DEV__) {
+            onInvalidate(() => {
+                if (currentClassName) {
+                    emitter.emit('pageLeave', currentClassName);
+                    currentClassName = '';
+                }
+
+                appObserver.disconnect();
+            });
+        }
     });
 }
 
@@ -83,14 +91,6 @@ export function page<ID extends IDArg>(id: ID, key: string, enter: PageEnterList
     }
 }
 
-export function dispatchExistingPage(app: HTMLElement) {
-    const className = $(app).children('.page').attr('class');
-
-    if (className) {
-        emitter.emit('pageEnter', className);
-    }
-}
-
 // tree-shakable helper for other modules to remove listeners before HMR
 export function unpage(key: string) {
     emitter.emit(`off:${key}`);
@@ -113,15 +113,4 @@ if (__DEV__) {
         ((i: number) => (i === -1 ? undefined : log(action, className.slice(i + 5))))(className.indexOf('page-'));
     emitter.on('pageEnter', logPageID('enter'));
     emitter.on('pageLeave', logPageID('leave'));
-}
-
-if (import.meta.hot) {
-    onExit(() => {
-        if (currentClassName) {
-            currentClassName = '';
-            emitter.emit('pageLeave', currentClassName);
-        }
-
-        appObserver.disconnect();
-    });
 }

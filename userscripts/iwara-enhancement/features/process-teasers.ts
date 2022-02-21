@@ -58,18 +58,12 @@ page(['home', 'videoList', 'imageList'] as const, __MODULE_ID__, async (pageID, 
             return;
         }
 
-        rowObserver.observe(rowContainer, { childList: true });
-
-        // treat all existing rows as inserted
-        Array.prototype.forEach.call(rowContainer.children, detectRow);
+        rowObserver.observe(rowContainer, { childList: true, immediate: true });
     }
 
     function detectRow(row: Node) {
         if (hasClass(row, 'row')) {
-            // treat all existing nodes as inserted since the entire row is inserted
-            Array.prototype.forEach.call(row.children, detectTeaser);
-
-            teaserObserver.observe(row, { childList: true });
+            teaserObserver.observe(row, { childList: true, immediate: true });
         }
     }
 

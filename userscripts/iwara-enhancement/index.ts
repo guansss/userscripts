@@ -5,7 +5,7 @@ import './features/hide-list-options';
 import './index.css';
 import './features/process-teasers';
 import { setupPaging } from './core/paging';
-import { exit } from '../@common/hmr';
+import { invalidate } from '../@common/hmr';
 
 export async function main() {
     document.body.classList.add('enh-body');
@@ -22,6 +22,6 @@ if (import.meta.hot) {
     // because vite sometimes mysteriously invokes the dispose hook for multiple times
     import.meta.hot.on('vite:beforeUpdate', () => {
         // call all onExit() hooks
-        exit();
+        invalidate();
     });
 }

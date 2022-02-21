@@ -51,7 +51,7 @@ const template = `
             <h4 :class='css.fieldLabel'>{{ $t('s.download.auto.label') }}</h4>
             <p v-html='$t("s.download.auto.desc")'></p>
             <p v-if='!downloadMode' v-html='$t("s.download.auto.warn")'></p>
-            <section v-else-if='downloadMode === "browser"' :class='css.warn'>
+            <section v-else-if='downloadMode !== "browser"' :class='css.warn'>
                 <p v-html='$tm("s.download.auto.warn_tm")[0]'></p>
                 <ol>
                     <li v-for='line in $tm("s.download.auto.warn_tm").slice(1)'><p v-html='line'></p></li>

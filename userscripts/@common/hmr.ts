@@ -1,11 +1,12 @@
-export type OnExitCallback = () => void;
+export type OnInvalidateCallback = () => void;
 
-const onExitCallbacks: OnExitCallback[] = [];
+const onInvalidateCallbacks: OnInvalidateCallback[] = [];
 
-export function onExit(fx: OnExitCallback) {
-    onExitCallbacks.push(fx);
+export function onInvalidate(cb: OnInvalidateCallback) {
+    onInvalidateCallbacks.push(cb);
 }
 
-export function exit() {
-    onExitCallbacks.forEach((cb) => cb());
+export function invalidate() {
+    onInvalidateCallbacks.forEach((cb) => cb());
+    onInvalidateCallbacks.length = 0;
 }

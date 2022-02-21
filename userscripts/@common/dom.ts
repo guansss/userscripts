@@ -13,12 +13,27 @@ export function onClickOutside(el: HTMLElement, callback: (e: MouseEvent) => voi
  * MutationObserver that calls callback with just a single mutation.
  */
 export class SimpleMutationObserver extends MutationObserver {
-    constructor(callback: (mutation: MutationRecord) => any) {
-        super((mutations) => {
-            for (const mutation of mutations) {
-                callback(mutation);
-            }
-        });
+    // since calling `new NodeList()` is illegal, this is the only way to create an empty NodeList
+    static emptyNodeList = document.querySelectorAll('#__absolutely_nonexisting');
+
+    constructor(public callback: (mutation: MutationRecord) => any) {
+        super((mutations) => mutations.forEach((mutation) => this.callback(mutation)));
+    }
+
+    /**
+     * @param options.immediate - When observing "childList", immediately trigger a mutation with existing nodes.
+     */
+    override observe(target: Node, options?: MutationObserverInit & { immediate?: boolean }): void {
+        super.observe(target, options);
+
+        if (options && options.immediate && options.childList && target.childNodes.length) {
+            this.callback({
+                target,
+                type: 'childList',
+                addedNodes: target.childNodes,
+                removedNodes: SimpleMutationObserver.emptyNodeList,
+            } as any as MutationRecord);
+        }
     }
 }
 
