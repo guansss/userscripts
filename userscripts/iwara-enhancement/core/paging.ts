@@ -75,13 +75,9 @@ export function page<ID extends IDArg>(id: ID, key: string, enter: PageEnterList
     }
 
     const onPageEnter = callIfMatch((matchedID) => {
-        let leave: PageListener<ID> | undefined;
-
-        enter(matchedID, (fn) => (leave = fn));
-
-        if (typeof leave === 'function') {
-            once(emitter, 'pageLeave', callIfMatch(leave));
-        }
+        enter(matchedID, (onLeave) => {
+            once(emitter, 'pageLeave', callIfMatch(onLeave));
+        });
     });
 
     emitter.on('pageEnter', onPageEnter);
