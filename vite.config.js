@@ -12,8 +12,8 @@ module.exports = defineConfig(async ({ mode }) => {
     const isDev = mode === 'development';
     const env = loadEnv(mode, '', '');
 
-    if (!env.SSL_KEY || !env.SSL_CERT) {
-        throw new Error('Please specify SSL_KEY and SSL_CERT in .env');
+    if (isDev && (!env.SSL_KEY || !env.SSL_CERT)) {
+        throw new Error('Environment variables SSL_KEY and SSL_CERT are required.');
     }
 
     const packageJSON = require('./package.json');
@@ -83,8 +83,8 @@ module.exports = defineConfig(async ({ mode }) => {
         server: {
             port: 3000,
             https: {
-                key: fs.readFileSync(env.SSL_KEY),
-                cert: fs.readFileSync(env.SSL_CERT),
+                key: env.SSL_KEY ? fs.readFileSync(env.SSL_KEY) : undefined,
+                cert: env.SSL_CERT ? fs.readFileSync(env.SSL_CERT) : undefined,
             },
             hmr: {
                 // must be specified because we're running HMR on online sites
