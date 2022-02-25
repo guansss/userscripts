@@ -54,8 +54,9 @@ function generateMetaBlock(content, { scriptName, chunk, config }) {
     let metaBlock = '// ==UserScript==\n';
     const fieldPrefix = '// @';
 
-    const maxFieldLength = Math.max(...Object.keys(meta).map((field) => field.length));
-    const indent = fieldPrefix.length + Math.max('grant'.length, maxFieldLength) + 2;
+    const metaFields = Object.keys(meta);
+    const maxFieldLength = Math.max(...['grant', 'require', ...metaFields].map((field) => field.length));
+    const indent = fieldPrefix.length + maxFieldLength + 2;
 
     function putField(field, value) {
         let line = fieldPrefix + field;
@@ -82,8 +83,6 @@ function generateMetaBlock(content, { scriptName, chunk, config }) {
 
         metaBlock += line + '\n';
     }
-
-    const metaFields = Object.keys(meta);
 
     for (const field of META_FIELDS) {
         if (field.includes(':*')) {
