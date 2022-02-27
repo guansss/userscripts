@@ -1,3 +1,12 @@
+export function inIframe() {
+    // https://stackoverflow.com/a/326076/13237325
+    try {
+        return window.self !== window.top;
+    } catch (e) {
+        return true;
+    }
+}
+
 export function onClickOutside(el: HTMLElement, callback: (e: MouseEvent) => void) {
     document.addEventListener('click', handler);
 
