@@ -2,6 +2,14 @@
 
 My userscript project. The workflow was somewhat inspired by [rollup-userscript-template](https://github.com/cvzi/rollup-userscript-template).
 
+## Scripts
+
+| Name              | Description                                                                                                          | Links                                                                                                                                                        |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Iwara Enhancement | UI/functionality enhancements for Iwara.                                                                             | [SleazyFork](https://sleazyfork.org/scripts/416003-iwara-enhancement) [GitHub Installation](https://guansss.github.io/userscripts/iwara-enhancement.user.js) |
+| Easy Volume       | Lengthen volume bars to control them more precisely. Currently only supports `bilibili.com` and `live.bilibili.com`. | [GitHub Installation](https://guansss.github.io/userscripts/easy-volume.user.js)                                                                             |
+| Douyu Script      | 在斗鱼直播的网页全屏或者多屏其中之一全屏时，防止鼠标离开页面导致离开前选中的弹幕停止不动                             | [GitHub Installation](https://guansss.github.io/userscripts/douyu.user.js)                                                                                   |
+
 ## Setup
 
 ### SSL Certificate
