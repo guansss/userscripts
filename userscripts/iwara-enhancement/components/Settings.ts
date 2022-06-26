@@ -2,15 +2,16 @@ import { App, computed, createApp, ref } from 'vue';
 import { onClickOutside } from '../../@common/dom';
 import { log } from '../../@common/log';
 import { useConfigSettings } from '../core/config';
-import { useDownloaderSettings } from '../features/downloader';
 import { i18n } from '../core/i18n';
 import { page, unpage } from '../core/paging';
+import { useDownloaderSettings } from '../features/downloader';
 import { useTeaserSettings } from '../features/process-teasers';
 import css from './Settings.module.css';
 
+// recommended vscode plugin for syntax highlighting: https://marketplace.visualstudio.com/items?itemName=Tobermory.es6-string-html
 // language=HTML
-const template = `
-    <div class='text text--text text--bold' xmlns='http://www.w3.org/1999/html'>E</div>
+const template = /* html */ `
+    <div class='text text--text text--bold'>E</div>
 
     <div v-if='visible' :class='css.settings' @click.stop>
         <header :class='css.header'>
@@ -39,10 +40,14 @@ const template = `
                 </label>
             </p>
 
-            <h4 :class='css.fieldLabel'>{{ $t('s.ui.highlight.label') }}</h4>
-            <p v-html='$t("s.ui.highlight.desc")'></p>
+            <h4 :class='css.fieldLabel'>{{ $t('s.ui.highlight_threshold.label') }}</h4>
+            <p v-html='$t("s.ui.highlight_threshold.desc")'></p>
             <p>
                 <input type='number' step='0.1' min='0' max='100' :value='highlightThreshold' @change='highlightThreshold = +$event.target.value'>
+            </p>
+            <h4 :class='css.fieldLabel'>{{ $t('s.ui.highlight_bg.label') }}</h4>
+            <p>
+                <input type='text' v-model='highlightBackground'>
             </p>
         </div>
         <div v-else-if='tabVal === "download"' :class='css.view'>

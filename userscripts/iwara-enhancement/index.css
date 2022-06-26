@@ -1,3 +1,7 @@
+.enh-body {
+    --ehg-hl-bg: #00b9ff4d;
+}
+
 #enh-settings {
     position: relative;
 
@@ -23,4 +27,8 @@
             display: block;
         }
     }
+}
+
+.enh-highlight {
+    background: var(--ehg-hl-bg);
 }

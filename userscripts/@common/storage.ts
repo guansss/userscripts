@@ -1,4 +1,4 @@
-export type GMValue = string | number | boolean;
+export type GMValue = string | number | boolean | undefined;
 
 export type StorageSchema = Record<string, GMValue>;
 

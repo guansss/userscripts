@@ -7,6 +7,7 @@ import { storage } from '../core/store';
 
 const likeRateEnabled = ref(storage.get('like_rates'));
 const highlightThreshold = ref(storage.get('like_rate_highlight'));
+const highlightBackground = ref(storage.get('like_rate_highlight_bg'));
 
 const likeRateClass = 'enh-like-rate';
 
@@ -23,13 +24,22 @@ watchEffect(() => {
 watchEffect(() => {
     storage.set('like_rate_highlight', highlightThreshold.value);
 
-    $('.videoTeaser, .imageTeaser').each((i, teaser) => processTeaser(teaser));
+    $('.videoTeaser, .imageTeaser')
+        .parent()
+        .each((i, teaser) => processTeaser(teaser));
+});
+
+watchEffect(() => {
+    storage.set('like_rate_highlight_bg', highlightBackground.value);
+
+    document.body.style.setProperty('--ehg-hl-bg', highlightBackground.value);
 });
 
 export function useTeaserSettings() {
     return {
         likeRateEnabled,
         highlightThreshold,
+        highlightBackground,
     };
 }
 

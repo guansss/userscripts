@@ -1,43 +1,63 @@
 {
-  "language": "中文",
+    language: '中文',
 
-  "name": "Iwara增强",
-  "description": "多种增强体验的界面优化",
+    name: 'Iwara增强',
+    description: '多种增强体验的界面优化',
 
-  "s": {
-    "enabled": "启用",
-    "download": {
-      "label": "下载",
-      "auto": {
-        "label": "一键下载",
-        "desc": "点击下载按钮时自动开始下载",
-        "warn": "该功能仅在 Tampermonkey 中可用",
-        "warn_tm": [
-          "该功能需要启用 Tampermonkey 的<b>浏览器 API</b>下载模式，请按照以下步骤启用：",
-          "进入 Tampermonkey 的设置面板，选择<b>设置</b>标签页",
-          "在<b>通用</b>里，设置<b>配置模式</b>为<b>高级<b>（或者<b>初学者</b>）",
-          "在<b>下载 BETA</b>里，设置<b>下载模式</b>为<b>浏览器 API</b>",
-          "如果请求权限的话，选择同意",
-          "刷新当前页面",
-        ]
-      },
-      "resolution": {
-        "label": "优先下载的分辨率",
-      },
-      "filename": {
-        "label": "文件名",
-        "desc": "下载视频时使用的文件名模板<br>每个关键词必须使用 <b>{'{ }'}</b> 来包围",
-        "preview": "预览",
-        "key": {
-          "id": "视频 ID",
-          "title": "视频标题",
-          "author": "作者名",
-          "date": "下载开始时的日期和时间",
-          "up_date": "视频发布时的日期和时间",
-          "date_ts": "DATE 的时间戳格式",
-          "up_date_ts": "UP_DATE 的时间戳格式",
+    s: {
+        enabled: '启用',
+        download: {
+            label: '下载',
+            auto: {
+                label: '一键下载',
+                desc: '点击下载按钮时自动开始下载',
+                warn: '该功能仅在 Tampermonkey 中可用',
+                warn_tm: [
+                    '该功能需要启用 Tampermonkey 的<b>浏览器 API</b>下载模式，请按照以下步骤启用：',
+                    '进入 Tampermonkey 的设置面板，选择<b>设置</b>标签页',
+                    '在<b>通用</b>里，设置<b>配置模式</b>为<b>高级<b>（或者<b>初学者</b>）',
+                    '在<b>下载 BETA</b>里，设置<b>下载模式</b>为<b>浏览器 API</b>',
+                    '如果请求权限的话，选择同意',
+                    '刷新当前页面',
+                ],
+            },
+            resolution: {
+                label: '优先下载的分辨率',
+            },
+            filename: {
+                label: '文件名',
+                desc: "下载视频时使用的文件名模板<br>每个关键词必须使用 <b>{'{ }'}</b> 来包围",
+                preview: '预览',
+                key: {
+                    id: '视频 ID',
+                    title: '视频标题',
+                    author: '作者名',
+                    date: '下载开始时的日期和时间',
+                    up_date: '视频发布时的日期和时间',
+                    date_ts: 'DATE 的时间戳格式',
+                    up_date_ts: 'UP_DATE 的时间戳格式',
+                },
+            },
         },
-      },
+        ui: {
+            label: '界面',
+            like_rate: {
+                label: '喜爱率',
+                desc: '在视频和图片列表里显示喜爱率',
+            },
+            highlight_threshold: {
+                label: '高亮分界点',
+                desc: '喜爱率高于此值的视频和图片将会被高亮',
+            },
+            highlight_bg: {
+                label: '高亮背景 (RRGGBBAA)',
+            },
+        },
+        script: {
+            label: '脚本',
+            language: {
+                label: '语言',
+            },
+        },
     },
-  },
 }
