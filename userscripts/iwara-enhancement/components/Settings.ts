@@ -63,7 +63,7 @@ const template = /* html */ `
                 </ol>
             </section>
             <p>
-                <label :class='[css.labelBlock, { disabled: downloadMode !== "browser" }]'>
+                <label :class='[css.labelBlock, { [css.disabled]: downloadMode !== "browser" }]'>
                     {{ $t('s.enabled') }}
                     <input type='checkbox' :disabled='downloadMode !== "browser"' v-model='autoDownEnabled'>
                 </label>

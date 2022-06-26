@@ -60,7 +60,7 @@ const hasFreshSources = ref(false);
 const filename = computed(() => {
     try {
         if (!source.value) {
-            throw 'No sources found';
+            throw 'Please open a video';
         }
 
         return resolveFilename(filenameTemplate.value, source.value);

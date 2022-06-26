@@ -25,6 +25,7 @@
                     "Navigate to Tampermonkey's settings panel and then the <b>Settings</b> tab.",
                     'In <b>General</b> section, set <b>Config Mode</b> to <b>Advanced</b> (or <b>Beginner</b>).',
                     'In <b>Downloads BETA</b> section, set <b>Download Mode</b> to <b>Browser API</b>.',
+                    'In <b>Downloads BETA</b> section, click <b>Save</b>.',
                     'Grant permission if requested.',
                     'Refresh this page.',
                 ],
