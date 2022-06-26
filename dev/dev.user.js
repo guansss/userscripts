@@ -61,8 +61,11 @@
         ].map((api) => [api, window[api]])
     );
 
+    // for some reason we have to do this or else all the GM APIs above will be undefined
+    window.GM_log;
+
     // prevent Sentry from tracking the console during dev because it breaks the log trace
-    ['debug', 'info', 'warn', 'error', 'log', 'assert'].forEach((key) => {
+    ['debug', 'info', 'warn', 'error', 'log'].forEach((key) => {
         if (unsafeWindow.console[key].__sentry_original__) {
             unsafeWindow.console[key] = unsafeWindow.console[key].__sentry_original__;
         } else {
