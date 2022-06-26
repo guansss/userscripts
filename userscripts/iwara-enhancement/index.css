@@ -1,5 +1,5 @@
 .enh-body {
-    --ehg-hl-bg: #00b9ff4d;
+    --ehg-hl-op: 0.2;
 }
 
 #enh-settings {
@@ -30,5 +30,15 @@
 }
 
 .enh-highlight {
-    background: var(--ehg-hl-bg);
+    &:before {
+        content: '';
+        position: absolute;
+        z-index: -1;
+        top: -15px;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--primary);
+        opacity: var(--ehg-hl-op);
+    }
 }

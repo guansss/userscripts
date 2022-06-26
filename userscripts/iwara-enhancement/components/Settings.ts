@@ -29,9 +29,9 @@ const template = /* html */ `
             </ul>
         </nav>
         <div v-if='tabVal === "ui"' :class='css.view'>
-            <h3 :class='css.sectionHeader'>{{ $t('s.ui.label') }}</h3>
+            <h2 :class='css.sectionHeader'>{{ $t('s.ui.label') }}</h2>
 
-            <h4 :class='css.fieldLabel'>{{ $t('s.ui.like_rate.label') }}</h4>
+            <h3 :class='css.fieldLabel'>{{ $t('s.ui.like_rate.label') }}</h3>
             <p v-html='$t("s.ui.like_rate.desc")'></p>
             <p>
                 <label :class='css.labelBlock'>
@@ -40,20 +40,20 @@ const template = /* html */ `
                 </label>
             </p>
 
-            <h4 :class='css.fieldLabel'>{{ $t('s.ui.highlight_threshold.label') }}</h4>
+            <h3 :class='css.fieldLabel'>{{ $t('s.ui.highlight_threshold.label') }}</h3>
             <p v-html='$t("s.ui.highlight_threshold.desc")'></p>
             <p>
                 <input type='number' step='0.1' min='0' max='100' :value='highlightThreshold' @change='highlightThreshold = +$event.target.value'>
             </p>
-            <h4 :class='css.fieldLabel'>{{ $t('s.ui.highlight_bg.label') }}</h4>
+            <h3 :class='css.fieldLabel'>{{ $t('s.ui.highlight_bg.label') }}</h3>
             <p>
-                <input type='text' v-model='highlightBackground'>
+                <input type="range" min="0" max="1" step="0.01" v-model='highlightOpacity'>
             </p>
         </div>
         <div v-else-if='tabVal === "download"' :class='css.view'>
-            <h3 :class='css.sectionHeader'>{{ $t('s.download.label') }}</h3>
+            <h2 :class='css.sectionHeader'>{{ $t('s.download.label') }}</h2>
 
-            <h4 :class='css.fieldLabel'>{{ $t('s.download.auto.label') }}</h4>
+            <h3 :class='css.fieldLabel'>{{ $t('s.download.auto.label') }}</h3>
             <p v-html='$t("s.download.auto.desc")'></p>
             <p v-if='!downloadMode' v-html='$t("s.download.auto.warn")'></p>
             <section v-else-if='downloadMode !== "browser"' :class='css.warn'>
@@ -69,7 +69,7 @@ const template = /* html */ `
                 </label>
             </p>
 
-            <h4 :class='css.fieldLabel'>{{ $t('s.download.resolution.label') }}</h4>
+            <h3 :class='css.fieldLabel'>{{ $t('s.download.resolution.label') }}</h3>
             <p>
                 <label v-for='res in RESOLUTIONS' :class='css.labelInline'>
                     <input type='radio' name='res' :value='res' v-model='resolution'>
@@ -77,7 +77,7 @@ const template = /* html */ `
                 </label>
             </p>
 
-            <h4 :class='css.fieldLabel'>{{ $t('s.download.filename.label') }}</h4>
+            <h3 :class='css.fieldLabel'>{{ $t('s.download.filename.label') }}</h3>
             <p v-html='$t("s.download.filename.desc")'></p>
             <div :class='css.keywords'>
                 <table :class='css.keywordTable'>
@@ -91,9 +91,9 @@ const template = /* html */ `
             <p>{{ $t('s.download.filename.preview') + ': ' + filenamePreview }}</p>
         </div>
         <div v-if='tabVal === "script"' :class='css.view'>
-            <h3 :class='css.sectionHeader'>{{ $t('s.script.label') }}</h3>
+            <h2 :class='css.sectionHeader'>{{ $t('s.script.label') }}</h2>
 
-            <h4 :class='css.fieldLabel'>{{ $t('s.script.language.label') }}</h4>
+            <h3 :class='css.fieldLabel'>{{ $t('s.script.language.label') }}</h3>
             <p>
                 <label v-for='loc in $i18n.availableLocales' :class='css.labelBlock'>
                     <input type='radio' name='loc' :value='loc' :checked='activeLocale === loc' @change='locale = loc'>

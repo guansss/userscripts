@@ -1,6 +1,6 @@
 import { computed, ref, watchEffect } from 'vue';
 import { i18n, matchLocale } from './i18n';
-import { storage } from './store';
+import { storage } from './storage';
 
 const locale = ref(storage.get('locale'));
 

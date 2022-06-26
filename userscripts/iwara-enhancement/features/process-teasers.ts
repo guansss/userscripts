@@ -3,11 +3,11 @@ import { hasClass, SimpleMutationObserver } from '../../@common/dom';
 import { log } from '../../@common/log';
 import { throttle } from '../../@common/timer';
 import { page, unpage } from '../core/paging';
-import { storage } from '../core/store';
+import { storage } from '../core/storage';
 
 const likeRateEnabled = ref(storage.get('like_rates'));
 const highlightThreshold = ref(storage.get('like_rate_highlight'));
-const highlightBackground = ref(storage.get('like_rate_highlight_bg'));
+const highlightOpacity = ref(storage.get('like_rate_highlight_opacity'));
 
 const likeRateClass = 'enh-like-rate';
 
@@ -30,16 +30,16 @@ watchEffect(() => {
 });
 
 watchEffect(() => {
-    storage.set('like_rate_highlight_bg', highlightBackground.value);
+    storage.set('like_rate_highlight_opacity', highlightOpacity.value);
 
-    document.body.style.setProperty('--ehg-hl-bg', highlightBackground.value);
+    document.body.style.setProperty('--ehg-hl-op', highlightOpacity.value + '');
 });
 
 export function useTeaserSettings() {
     return {
         likeRateEnabled,
         highlightThreshold,
-        highlightBackground,
+        highlightOpacity,
     };
 }
 

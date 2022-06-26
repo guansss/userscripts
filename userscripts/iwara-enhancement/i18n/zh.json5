@@ -51,7 +51,7 @@
                 desc: '喜爱率高于此值的视频和图片将会被高亮',
             },
             highlight_bg: {
-                label: '高亮背景 (RRGGBBAA)',
+                label: '高亮透明度',
             },
         },
         script: {

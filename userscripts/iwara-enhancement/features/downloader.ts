@@ -5,7 +5,7 @@ import { getReactEventHandlers } from '../../@common/react';
 import { formatDate } from '../../@common/string';
 import { delay } from '../../@common/timer';
 import { page, unpage } from '../core/paging';
-import { storage } from '../core/store';
+import { storage } from '../core/storage';
 
 // a partial structure of the video data defined in iwara's video page,
 // including only the properties we need

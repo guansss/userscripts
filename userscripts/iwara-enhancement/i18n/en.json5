@@ -60,7 +60,7 @@
                 desc: 'Highlights video and image items over certain like rate.',
             },
             highlight_bg: {
-                label: 'Highlight background (RRGGBBAA)',
+                label: 'Highlight opacity',
             },
         },
         script: {

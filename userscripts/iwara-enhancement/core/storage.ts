@@ -10,7 +10,7 @@ export const storage = createStorage<{
     dark: boolean;
     like_rates: boolean;
     like_rate_highlight: number;
-    like_rate_highlight_bg: string;
+    like_rate_highlight_opacity: number;
     player_size: number;
     hide_list_options: boolean;
 }>({
@@ -23,7 +23,7 @@ export const storage = createStorage<{
     dark: false,
     like_rates: true,
     like_rate_highlight: 4,
-    like_rate_highlight_bg: '#00b9ff4d',
+    like_rate_highlight_opacity: 0.2,
     player_size: 100,
     hide_list_options: false,
 });

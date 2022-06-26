@@ -1,5 +1,5 @@
 import { createI18n } from 'vue-i18n';
-import { storage } from './store';
+import { storage } from './storage';
 
 export const i18n = createI18n({
     locale: storage.get('locale'),

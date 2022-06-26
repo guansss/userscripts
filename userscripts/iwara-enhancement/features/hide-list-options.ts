@@ -1,7 +1,7 @@
 import { computed, ref, watchEffect } from 'vue';
 import { localize } from '../core/i18n';
 import { page, unpage } from '../core/paging';
-import { storage } from '../core/store';
+import { storage } from '../core/storage';
 
 const toggleButtonID = 'enh-hide-options-btn';
 

@@ -8,13 +8,15 @@
     top: calc(100% + 2px); /* plus 2px border */
     right: 0;
     width: 400px;
-    background: var(--body-darker);
+    background: var(--body);
     font-size: 14px;
+    border: 2px solid var(--primary);
+    border-top: none;
     cursor: default;
 
     nav {
         padding: 0 16px;
-        border-bottom: 1px solid #444;
+        border-bottom: 1px solid var(--enh-body-highlight);
 
         ul {
             margin: 0;
@@ -29,12 +31,11 @@
             cursor: pointer;
 
             &:hover {
-                background: #3a3a3a;
+                background: var(--enh-body-focus);
             }
 
             &.active {
-                background-color: #444;
-                color: #fff;
+                background: var(--enh-body-highlight);
             }
         }
     }
@@ -56,8 +57,8 @@
     table {
         margin: 16px 0;
         width: 100%;
-        background: #3a3a3a;
-        border: 1px solid #555;
+        background: var(--enh-body-focus);
+        border: 1px solid var(--enh-body-highlight);
         border-collapse: collapse;
 
         th {
@@ -67,7 +68,7 @@
         th,
         td {
             padding: 4px 8px;
-            border: 1px solid #555;
+            border: 1px solid var(--enh-body-highlight);
         }
     }
 
@@ -75,7 +76,7 @@
         cursor: pointer;
 
         &:hover {
-            background-color: #444;
+            background: var(--enh-body-focus);
         }
 
         input {
@@ -95,14 +96,15 @@
         margin-bottom: 16px;
         width: 100%;
         padding: 8px;
-        background: #444;
-        color: #fff;
-        border: 2px solid #555;
+        background: var(--enh-body-focus);
+        color: var(--text);
+        border: 2px solid var(--enh-body-highlight);
         border-radius: 3px;
+        outline: none !important;
 
         &:hover,
         &:focus {
-            background: #4a4a4a;
+            background: var(--enh-body-highlight);
         }
     }
 }
@@ -120,17 +122,15 @@
 
 .section-header {
     margin-bottom: 16px;
-    color: #fff;
 }
 
 .field-label {
     position: relative;
     margin: 16px 0;
     padding-top: 16px;
-    color: #fff;
 
     &:not(:first-of-type) {
-        border-top: 1px solid #444;
+        border-top: 1px solid var(--enh-body-highlight);
     }
 }
 
