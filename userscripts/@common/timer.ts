@@ -1,7 +1,7 @@
 import { onInvalidate } from './hmr';
 import { log } from './log';
 
-interface CancelablePromise<T> extends Promise<T> {
+export interface CancelablePromise<T> extends Promise<T> {
     /**
      * When canceled, the Promise will not resolve or reject (if this method is correctly implemented...).
      */
@@ -49,7 +49,7 @@ export function repeat(fn: () => boolean | void, interval = 200) {
  * Periodically calls given function until the return value is truthy.
  * @returns A CancelablePromise that resolves with the function's return value when truthy.
  */
-export function until<T>(fn: () => T, interval = 0): Promise<NonNullable<T>> {
+export function until<T>(fn: () => T, interval = 0): CancelablePromise<NonNullable<T>> {
     let cancelled = false;
 
     const promise = new Promise<NonNullable<T>>((resolve, reject) =>
@@ -74,11 +74,9 @@ export function until<T>(fn: () => T, interval = 0): Promise<NonNullable<T>> {
         }, interval)
     );
 
-    if (__DEV__) {
-        (promise as CancelablePromise<any>).cancel = () => (cancelled = true);
-    }
+    (promise as CancelablePromise<any>).cancel = () => (cancelled = true);
 
-    return promise;
+    return promise as CancelablePromise<NonNullable<T>>;
 }
 
 export function delay(ms: number) {

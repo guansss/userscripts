@@ -1,0 +1,8 @@
+{
+  "version": "0.1",
+  "name": "GitHub Default Issues Filter",
+  "name:zh-CN": "GitHub 默认 Issues 过滤器",
+  "match": ["*://github.com/*"],
+  "run-at": "document-start",
+  "noframes": true
+}
