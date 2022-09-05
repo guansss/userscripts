@@ -118,9 +118,12 @@
     const loadedScripts = [];
     const allScripts = [];
 
-    fetch(host + '/@userscripts/all')
-        .then((res) => res.json())
-        .then((scripts) => {
+    GM_xmlhttpRequest({
+        url: host + '/@userscripts/all',
+        responseType: 'json',
+        headers: { referer: location.href },
+        onload: (details) => {
+            const scripts = details.response;
             const forceLoads = getForceLoads();
 
             allScripts.push(...scripts);
@@ -131,14 +134,19 @@
             });
 
             updateMenu();
-        });
+        },
+    });
 
-    fetch(host + '/@userscripts/match')
-        .then((res) => res.json())
-        .then((scripts) => {
+    GM_xmlhttpRequest({
+        url: host + '/@userscripts/match',
+        responseType: 'json',
+        headers: { referer: location.href },
+        onload: (details) => {
+            const scripts = details.response;
             scripts.forEach(loadScript);
             updateMenu();
-        });
+        },
+    });
 
     function getForceLoads() {
         return GM_getValue('force', {})[location.origin] || [];

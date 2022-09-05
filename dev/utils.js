@@ -50,7 +50,7 @@ function getAllUserscripts() {
 }
 
 function getUserscriptDir(filePath) {
-    if (filePath.length <= USERSCRIPTS_ROOT) {
+    if (filePath.length <= USERSCRIPTS_ROOT.length) {
         throw new TypeError('Invalid path: ' + filePath);
     }
 
