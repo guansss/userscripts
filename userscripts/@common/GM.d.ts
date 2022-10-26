@@ -11,6 +11,14 @@ declare function GM_addStyle(css: string): HTMLStyleElement;
 
 declare function GM_getResourceText(name: string): string;
 
+declare function GM_registerMenuCommand(
+    name: string,
+    fn: (e: MouseEvent | KeyboardEvent) => void,
+    accessKey?: string
+): number;
+
+declare function GM_unregisterMenuCommand(menuCmdId: number): void;
+
 declare const GM_info: {
     script: {
         name: string;
