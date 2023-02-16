@@ -51,9 +51,11 @@ Sometimes you may want to run a script on a website that doesn't match, e.g. deb
 
 ## Development
 
-Run this command to start dev server and serve all the scripts.
-
 ```sh
+# install dependencies
+pnpm i
+
+# start dev server and serve all the scripts
 pnpm dev
 ```
 

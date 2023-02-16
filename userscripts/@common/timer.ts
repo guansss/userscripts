@@ -3,7 +3,7 @@ import { log } from './log';
 
 export interface CancelablePromise<T> extends Promise<T> {
     /**
-     * When canceled, the Promise will not resolve or reject (if this method is correctly implemented...).
+     * When canceled, the Promise will never resolve/reject (if this method is correctly implemented...).
      */
     cancel(): void;
 }
