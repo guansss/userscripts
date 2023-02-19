@@ -25,8 +25,14 @@ export class SimpleMutationObserver extends MutationObserver {
     // since calling `new NodeList()` is illegal, this is the only way to create an empty NodeList
     static emptyNodeList = document.querySelectorAll('#__absolutely_nonexisting');
 
-    constructor(public callback: (mutation: MutationRecord) => any) {
-        super((mutations) => mutations.forEach((mutation) => this.callback(mutation)));
+    constructor(public callback: (mutation: MutationRecord) => boolean | void) {
+        super((mutations) => {
+            for (const mutation of mutations) {
+                if (this.callback(mutation)) {
+                    break;
+                }
+            }
+        });
     }
 
     /**
