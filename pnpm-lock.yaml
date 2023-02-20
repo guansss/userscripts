@@ -21,10 +21,14 @@ specifiers:
   mitt: ^3.0.0
   postcss-nested: ^5.0.6
   prettier: ^2.4.1
-  typescript: ^4.8.2
+  toastify-js: ^1.12.0
+  typescript: ^4.4.3
   vite: ^2.7.10
   vue: ^3.2.20
   vue-i18n: ^9.2.0-beta.26
+
+dependencies:
+  toastify-js: 1.12.0
 
 devDependencies:
   '@mdi/svg': 6.7.96
@@ -985,6 +989,10 @@ packages:
     resolution: {integrity: sha512-/OaKK0xYrs3DmxRYqL/yDc+FxFUVYhDlXMhRmv3z915w2HF1tnN1omB354j8VUGO/hbRzyD6Y3sA7v7GS/ceog==}
     engines: {node: '>=4'}
     dev: true
+
+  /toastify-js/1.12.0:
+    resolution: {integrity: sha512-HeMHCO9yLPvP9k0apGSdPUWrUbLnxUKNFzgUoZp1PHCLploIX/4DSQ7V8H25ef+h4iO9n0he7ImfcndnN6nDrQ==}
+    dev: false
 
   /trim-repeated/1.0.0:
     resolution: {integrity: sha512-pkonvlKk8/ZuR0D5tLW8ljt5I8kmxp2XKymhepUeOdCEfKpZaktSArkLHZt76OB1ZvO9bssUsDty4SWhLvZpLg==}

@@ -1,21 +1,20 @@
 import { SimpleMutationObserver } from '../@common/dom';
 import { onInvalidate } from '../@common/hmr';
+import { log } from '../@common/log';
 import { until } from '../@common/timer';
 import html from './image-viewer.html?raw';
 
-export async function imageViewer() {
-    console.log('imageViewer');
-
-    const gallery = await until(
-        () => document.getElementsByTagName('gradio-app')[0]?.shadowRoot?.getElementById('txt2img_gallery'),
-        200
-    );
+export async function imageViewer($root: JQuery<ShadowRoot>) {
+    const gallery = await until(() => $root.find('#txt2img_gallery')[0], 200);
+    const modal = await until(() => $root.find('#lightboxModal')[0], 200);
 
     const childWindow = window.open('about:blank', 'sd-image-viewer', 'width=800,height=600');
 
     if (!childWindow) {
-        throw new Error('Could not open child window');
+        throw new Error('Failed to open child window.');
     }
+
+    log('Connected to child window', childWindow);
 
     childWindow.document.open();
     childWindow.document.write(html);
@@ -35,12 +34,15 @@ export async function imageViewer() {
             return true;
         }
     });
-    imgObserver.observe(gallery, {
+
+    const options = {
         attributes: true,
         attributeFilter: ['src'],
         subtree: true,
         immediate: true,
-    });
+    };
+    imgObserver.observe(gallery, options);
+    imgObserver.observe(modal, options);
 
     if (__DEV__) {
         onInvalidate(() => {

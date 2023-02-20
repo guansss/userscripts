@@ -33,7 +33,7 @@ module.exports = defineConfig(async ({ mode }) => {
         }
 
         return {
-            ['__' + dep]: `https://cdn.jsdelivr.net/npm/${dep}@${version}/${file}`,
+            ['__' + dep]: `https://cdn.jsdelivr.net/npm/${dep}@${version}${file ? '/' + file : ''}`,
         };
     }
 
@@ -115,12 +115,14 @@ module.exports = defineConfig(async ({ mode }) => {
                         vue: 'Vue',
                         'vue-i18n': 'VueI18n',
                         jquery: '$',
+                        Toastify: 'toastify-js',
 
                         // a quick way to define CDN links near to the globals definitions...
                         // will be consumed by dev/transform-output.js
                         ...cdn('vue', 'dist/vue.global.prod.js'),
                         ...cdn('vue-i18n', 'dist/vue-i18n.global.prod.js'),
                         ...cdn('jquery', 'dist/jquery.min.js'),
+                        ...cdn('toastify-js', ''),
                     },
                     format: 'iife',
                     entryFileNames: 'assets/[name].user.js',

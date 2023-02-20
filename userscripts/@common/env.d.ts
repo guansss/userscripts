@@ -16,3 +16,16 @@ declare namespace NodeJS {
     type Timeout = number;
     type Timer = number;
 }
+
+// https://github.com/apvarun/toastify-js#api
+declare module 'toastify-js' {
+    interface Toastify {
+        (options: Record<string, any>): Toastify;
+
+        showToast(): void;
+        hideToast(): void;
+    }
+
+    const Toastify: Toastify;
+    export default Toastify;
+}
