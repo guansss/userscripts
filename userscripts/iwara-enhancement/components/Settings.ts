@@ -1,12 +1,12 @@
-import { App, computed, createApp, ref } from 'vue';
-import { onClickOutside } from '../../@common/dom';
-import { log } from '../../@common/log';
-import { useConfigSettings } from '../core/config';
-import { i18n } from '../core/i18n';
-import { page, unpage } from '../core/paging';
-import { useDownloaderSettings } from '../features/downloader';
-import { useTeaserSettings } from '../features/process-teasers';
-import css from './Settings.module.css';
+import { App, computed, createApp, ref } from "vue"
+import { onClickOutside } from "../../@common/dom"
+import { log } from "../../@common/log"
+import { useConfigSettings } from "../core/config"
+import { i18n } from "../core/i18n"
+import { page, unpage } from "../core/paging"
+import { useDownloaderSettings } from "../features/downloader"
+import { useTeaserSettings } from "../features/process-teasers"
+import css from "./Settings.module.css"
 
 // recommended vscode plugin for syntax highlighting: https://marketplace.visualstudio.com/items?itemName=Tobermory.es6-string-html
 // language=HTML
@@ -102,82 +102,84 @@ const template = /* html */ `
             </p>
         </div>
     </div>
-`;
+`
 
 function setup() {
-    const tabs = [
-        { name: 's.ui.label', val: 'ui' },
-        { name: 's.download.label', val: 'download' },
-        { name: 's.script.label', val: 'script' },
-    ];
-    const tabIndex = ref(0);
-    const tabVal = computed(() => tabs[tabIndex.value] && tabs[tabIndex.value]!.val);
-    const visible = ref(false);
+  const tabs = [
+    { name: "s.ui.label", val: "ui" },
+    { name: "s.download.label", val: "download" },
+    { name: "s.script.label", val: "script" },
+  ]
+  const tabIndex = ref(0)
+  const tabVal = computed(() => tabs[tabIndex.value] && tabs[tabIndex.value]!.val)
+  const visible = ref(false)
 
-    settingsContainer.addEventListener('click', () => {
-        visible.value = !visible.value;
+  settingsContainer.addEventListener("click", () => {
+    visible.value = !visible.value
 
-        if (visible.value) {
-            onClickOutside(settingsContainer, () => (visible.value = false));
-        }
-    });
+    if (visible.value) {
+      onClickOutside(settingsContainer, () => (visible.value = false))
+    }
+  })
 
-    return {
-        css,
-        tabs,
-        tabIndex,
-        tabVal,
-        visible,
-        downloadMode: GM_info.downloadMode,
-        ...useDownloaderSettings(),
-        ...useConfigSettings(),
-        ...useTeaserSettings(),
-    };
+  return {
+    css,
+    tabs,
+    tabIndex,
+    tabVal,
+    visible,
+    downloadMode: GM_info.downloadMode,
+    ...useDownloaderSettings(),
+    ...useConfigSettings(),
+    ...useTeaserSettings(),
+  }
 }
 
-const settingsContainer = $(`<div id="enh-settings" class='header__link ${css.switch}'></div>`).get(0)!;
-let app: App | undefined;
+const settingsContainer = $(`<div id="enh-settings" class='header__link ${css.switch}'></div>`).get(
+  0
+)!
+let app: App | undefined
 
-page('', __MODULE_ID__, (pageID, onLeave) => {
-    const destination = $('.page .header__content:first-of-type .dropdown:last-of-type');
+page("", __MODULE_ID__, (pageID, onLeave) => {
+  const destination = $(".page .header__content:first-of-type .dropdown:last-of-type")
 
-    if (destination.length) {
-        // destination element will be destroyed everytime the page changes,
-        // so we need to insert the container after every page change
-        destination.before(settingsContainer);
+  if (destination.length) {
+    // destination element will be destroyed everytime the page changes,
+    // so we need to insert the container after every page change
+    destination.before(settingsContainer)
 
-        // lazy-init the app
-        if (!app) {
-            app = createApp({
-                template,
-                setup,
-            });
+    // lazy-init the app
+    if (!app) {
+      app = createApp({
+        template,
+        setup,
+      })
 
-            app.use(i18n);
+      app.use(i18n)
 
-            if (import.meta.env.PROD) {
-                // pending fix https://github.com/vuejs/core/pull/5197
-                // @ts-ignore
-                unsafeWindow.Vue = Vue;
-            }
+      if (import.meta.env.PROD) {
+        // pending fix https://github.com/vuejs/core/pull/5197
+        // @ts-ignore
+        unsafeWindow.Vue = Vue
+      }
 
-            app.mount(settingsContainer);
+      app.mount(settingsContainer)
 
-            log('Settings view initialized');
-        }
-    } else {
-        log('Could not insert settings view: container not found.');
+      log("Settings view initialized")
     }
+  } else {
+    log("Could not insert settings view: container not found.")
+  }
 
-    if (__DEV__) {
-        onLeave(() => {
-            settingsContainer.remove();
-        });
-    }
-});
+  if (__DEV__) {
+    onLeave(() => {
+      settingsContainer.remove()
+    })
+  }
+})
 
 if (__DEV__) {
-    __ON_RELOAD__(() => {
-        unpage(__MODULE_ID__);
-    });
+  __ON_RELOAD__(() => {
+    unpage(__MODULE_ID__)
+  })
 }

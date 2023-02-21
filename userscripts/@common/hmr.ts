@@ -1,12 +1,12 @@
-export type OnInvalidateCallback = () => void;
+export type OnInvalidateCallback = () => void
 
-const onInvalidateCallbacks: OnInvalidateCallback[] = [];
+const onInvalidateCallbacks: OnInvalidateCallback[] = []
 
 export function onInvalidate(cb: OnInvalidateCallback) {
-    onInvalidateCallbacks.push(cb);
+  onInvalidateCallbacks.push(cb)
 }
 
 export function invalidate() {
-    onInvalidateCallbacks.forEach((cb) => cb());
-    onInvalidateCallbacks.length = 0;
+  onInvalidateCallbacks.forEach((cb) => cb())
+  onInvalidateCallbacks.length = 0
 }

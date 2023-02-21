@@ -1,40 +1,42 @@
-import { computed, ref, watchEffect } from 'vue';
-import { localize } from '../core/i18n';
-import { page, unpage } from '../core/paging';
-import { storage } from '../core/storage';
+import { computed, ref, watchEffect } from "vue"
+import { localize } from "../core/i18n"
+import { page, unpage } from "../core/paging"
+import { storage } from "../core/storage"
 
-const toggleButtonID = 'enh-hide-options-btn';
+const toggleButtonID = "enh-hide-options-btn"
 
-page(['videoList', 'imageList'], __MODULE_ID__, (pageID, onLeave) => {
-    const hideOptions = ref(storage.get('hide_list_options'));
-    const toggleText = computed(() => localize(hideOptions.value ? 'ui.show_list_options' : 'ui.hide_list_options'));
+page(["videoList", "imageList"], __MODULE_ID__, (pageID, onLeave) => {
+  const hideOptions = ref(storage.get("hide_list_options"))
+  const toggleText = computed(() =>
+    localize(hideOptions.value ? "ui.show_list_options" : "ui.hide_list_options")
+  )
 
-    const optionsContainer = $('.sortFilter').eq(0).closest('.col-lg-3');
+  const optionsContainer = $(".sortFilter").eq(0).closest(".col-lg-3")
 
-    const toggleButton = $(
-        `<button id="${toggleButtonID}" class="button button--primary button--ghost d-lg-none" type="button"></button>`
-    )
-        .insertBefore(optionsContainer)
-        .on('click', () => (hideOptions.value = !hideOptions.value));
+  const toggleButton = $(
+    `<button id="${toggleButtonID}" class="button button--primary button--ghost d-lg-none" type="button"></button>`
+  )
+    .insertBefore(optionsContainer)
+    .on("click", () => (hideOptions.value = !hideOptions.value))
 
-    watchEffect(() => {
-        storage.set('hide_list_options', hideOptions.value);
-        optionsContainer.toggleClass('d-none', hideOptions.value);
-    });
+  watchEffect(() => {
+    storage.set("hide_list_options", hideOptions.value)
+    optionsContainer.toggleClass("d-none", hideOptions.value)
+  })
 
-    watchEffect(() => {
-        toggleButton.text(toggleText.value);
-    });
+  watchEffect(() => {
+    toggleButton.text(toggleText.value)
+  })
 
-    if (__DEV__) {
-        onLeave(() => {
-            toggleButton.remove();
-        });
-    }
-});
+  if (__DEV__) {
+    onLeave(() => {
+      toggleButton.remove()
+    })
+  }
+})
 
 if (__DEV__) {
-    __ON_RELOAD__(() => {
-        unpage(__MODULE_ID__);
-    });
+  __ON_RELOAD__(() => {
+    unpage(__MODULE_ID__)
+  })
 }

@@ -1,3 +1,3 @@
-import { inIframe } from '../@common/dom';
+import { inIframe } from "../@common/dom"
 
-export const isInIframe = inIframe();
+export const isInIframe = inIframe()

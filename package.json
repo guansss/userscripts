@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite",
     "build": "node dev/build.js",
-    "deploy": "gh-pages -d dist/assets"
+    "deploy": "gh-pages -d dist/assets",
+    "lint:fix": "prettier --write \"**/*.{js,ts}\""
   },
   "devDependencies": {
     "@mdi/svg": "^6.2.95",

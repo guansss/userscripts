@@ -1,31 +1,31 @@
 /// <reference types="vite/client" />
 
-declare const __DEV__: boolean;
+declare const __DEV__: boolean
 
-declare const __LOCALES__: Record<string, Record<string, any>>;
+declare const __LOCALES__: Record<string, Record<string, any>>
 
 // the ID of current module, usually its absolute path
-declare const __MODULE_ID__: string;
+declare const __MODULE_ID__: string
 
 // called when the module itself is about to be hot reloaded
-declare function __ON_RELOAD__(callback: () => void);
+declare function __ON_RELOAD__(callback: () => void)
 
 // an elegant fix for incorrect typing of setTimeout() and setInterval()
 // https://stackoverflow.com/a/68296856
 declare namespace NodeJS {
-    type Timeout = number;
-    type Timer = number;
+  type Timeout = number
+  type Timer = number
 }
 
 // https://github.com/apvarun/toastify-js#api
-declare module 'toastify-js' {
-    interface Toastify {
-        (options: Record<string, any>): Toastify;
+declare module "toastify-js" {
+  interface Toastify {
+    (options: Record<string, any>): Toastify
 
-        showToast(): void;
-        hideToast(): void;
-    }
+    showToast(): void
+    hideToast(): void
+  }
 
-    const Toastify: Toastify;
-    export default Toastify;
+  const Toastify: Toastify
+  export default Toastify
 }
