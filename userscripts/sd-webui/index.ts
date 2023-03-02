@@ -31,4 +31,4 @@ async function main() {
   }
 }
 
-DEV_ONLY(enableHMR(module))
+DEV_ONLY(() => enableHMR(module))

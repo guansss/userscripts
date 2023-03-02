@@ -96,13 +96,11 @@ function detectPageChange(nodes: NodeList, event: keyof Events) {
   }
 }
 
-DEV_ONLY(
-  (() => {
-    const logPageID = (action: string) => (className: string) =>
-      ((i: number) => (i === -1 ? undefined : log(action, className.slice(i + 5))))(
-        className.indexOf("page-")
-      )
-    emitter.on("pageEnter", logPageID("enter"))
-    emitter.on("pageLeave", logPageID("leave"))
-  })()
-)
+DEV_ONLY(() => {
+  const logPageID = (action: string) => (className: string) =>
+    ((i: number) => (i === -1 ? undefined : log(action, className.slice(i + 5))))(
+      className.indexOf("page-")
+    )
+  emitter.on("pageEnter", logPageID("enter"))
+  emitter.on("pageLeave", logPageID("leave"))
+})

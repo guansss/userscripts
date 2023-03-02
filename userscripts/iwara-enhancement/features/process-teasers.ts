@@ -93,7 +93,7 @@ page(["home", "videoList", "imageList"] as const, async (pageID, onLeave) => {
     rowObserver.disconnect()
     teaserObserver.disconnect()
 
-    DEV_ONLY($("." + likeRateClass).remove())
+    DEV_ONLY(() => $("." + likeRateClass).remove())
   })
 })
 

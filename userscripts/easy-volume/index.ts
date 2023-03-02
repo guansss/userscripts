@@ -22,7 +22,7 @@ async function main() {
       if (scheme.css) {
         const styleEl = GM_addStyle(scheme.css)
 
-        DEV_ONLY(log("CSS Injected", styleEl))
+        DEV_ONLY(() => log("CSS Injected", styleEl))
         ON_RELOAD(() => styleEl.remove())
       }
 
@@ -39,4 +39,4 @@ async function main() {
 // then we need to manually log the error
 main().catch(log)
 
-DEV_ONLY(enableHMR(module))
+DEV_ONLY(() => enableHMR(module))

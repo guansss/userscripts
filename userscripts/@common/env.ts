@@ -1,14 +1,16 @@
-/** When called, the entire call expression will be removed in production. */
-export function DEV_ONLY(...args: unknown[]) {}
-
-// writing `const devOnlyContext = {}` here will cause tree shaking to fail
-// because webpack keeps thinking it has a side effect, mysteriously
-const devOnlyContext: Record<string, any> = {}
-
-/** When called, the entire call expression will be removed in production. */
-export function WITH_DEV_ONLY(fn: (devOnlyContext: Record<string, any>) => void) {
-  fn(devOnlyContext)
+/**
+ * When called, the entire call expression will be removed in production.
+ * @see /dev/babel-plugin.ts
+ */
+export function DEV_ONLY(callback: () => void) {
+  callback()
 }
 
-/** Equivalent to `import.meta.webpackHot.dispose()`. Will be removed in production. */
+/**
+ * Used to clear side effects on HMR. Equivalent to:
+ * ```js
+ * DEV_ONLY(()=> import.meta.webpackHot.dispose(callback))
+ * ```
+ * @see /dev/babel-plugin.ts
+ */
 export function ON_RELOAD(callback: () => void) {}

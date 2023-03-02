@@ -8,7 +8,7 @@ declare global {
   }
 }
 
-DEV_ONLY((window.Toastify = _Toastify))
+DEV_ONLY(() => (window.Toastify = _Toastify))
 
 let hasErrored = false
 

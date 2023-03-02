@@ -10,4 +10,4 @@ function main() {
   replacer()
 }
 
-DEV_ONLY(enableHMR(module))
+DEV_ONLY(() => enableHMR(module))

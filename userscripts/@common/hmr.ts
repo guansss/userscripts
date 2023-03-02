@@ -1,4 +1,8 @@
 export function enableHMR(module: NodeModule) {
+  if (!module.hot) {
+    throw new Error("HMR is not enabled")
+  }
+
   const handler = (status: webpack.HotUpdateStatus) => {
     if (status === "prepare") {
       module.hot.removeStatusHandler(handler)

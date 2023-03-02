@@ -116,7 +116,9 @@ page("video", (pageID, onLeave) => {
         if (autoEnabled && autoEnabled.value) {
           convertDownloadDropdown(node, true, source.value)
 
-          DEV_ONLY(onLeave(() => convertDownloadDropdown(node, false, undefined)))
+          DEV_ONLY(() => {
+            onLeave(() => convertDownloadDropdown(node, false, undefined))
+          })
         }
       }
     })

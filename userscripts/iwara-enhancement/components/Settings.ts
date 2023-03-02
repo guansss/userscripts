@@ -172,9 +172,7 @@ page("", (pageID, onLeave) => {
     log("Could not insert settings view: container not found.")
   }
 
-  DEV_ONLY(
-    onLeave(() => {
-      settingsContainer.remove()
-    })
-  )
+  DEV_ONLY(() => {
+    onLeave(() => settingsContainer.remove())
+  })
 })

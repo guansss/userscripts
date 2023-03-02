@@ -29,9 +29,7 @@ page(["videoList", "imageList"], (pageID, onLeave) => {
     toggleButton.text(toggleText.value)
   })
 
-  DEV_ONLY(
-    onLeave(() => {
-      toggleButton.remove()
-    })
-  )
+  DEV_ONLY(() => {
+    onLeave(() => toggleButton.remove())
+  })
 })
