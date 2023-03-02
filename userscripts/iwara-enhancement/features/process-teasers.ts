@@ -1,8 +1,9 @@
 import { ref, watchEffect } from "vue"
 import { hasClass, SimpleMutationObserver } from "../../@common/dom"
+import { DEV_ONLY } from "../../@common/env"
 import { log } from "../../@common/log"
 import { throttle } from "../../@common/timer"
-import { page, unpage } from "../core/paging"
+import { page } from "../core/paging"
 import { storage } from "../core/storage"
 
 const likeRateEnabled = ref(storage.get("like_rates"))
@@ -43,7 +44,7 @@ export function useTeaserSettings() {
   }
 }
 
-page(["home", "videoList", "imageList"] as const, __MODULE_ID__, async (pageID, onLeave) => {
+page(["home", "videoList", "imageList"] as const, async (pageID, onLeave) => {
   const rowObserver = new SimpleMutationObserver((mutation) =>
     mutation.addedNodes.forEach(detectRow)
   )
@@ -92,9 +93,7 @@ page(["home", "videoList", "imageList"] as const, __MODULE_ID__, async (pageID, 
     rowObserver.disconnect()
     teaserObserver.disconnect()
 
-    if (__DEV__) {
-      $("." + likeRateClass).remove()
-    }
+    DEV_ONLY($("." + likeRateClass).remove())
   })
 })
 
@@ -161,10 +160,4 @@ function isTeaser<E extends HTMLElement = HTMLElement>(node: Node): node is E {
     !!node.firstChild &&
     (hasClass(node.firstChild, "videoTeaser") || hasClass(node.firstChild, "imageTeaser"))
   )
-}
-
-if (__DEV__) {
-  __ON_RELOAD__(() => {
-    unpage(__MODULE_ID__)
-  })
 }

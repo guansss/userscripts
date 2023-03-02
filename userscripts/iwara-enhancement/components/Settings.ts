@@ -1,9 +1,10 @@
 import { App, computed, createApp, ref } from "vue"
 import { onClickOutside } from "../../@common/dom"
+import { DEV_ONLY } from "../../@common/env"
 import { log } from "../../@common/log"
 import { useConfigSettings } from "../core/config"
 import { i18n } from "../core/i18n"
-import { page, unpage } from "../core/paging"
+import { page } from "../core/paging"
 import { useDownloaderSettings } from "../features/downloader"
 import { useTeaserSettings } from "../features/process-teasers"
 import css from "./Settings.module.css"
@@ -140,7 +141,7 @@ const settingsContainer = $(`<div id="enh-settings" class='header__link ${css.sw
 )!
 let app: App | undefined
 
-page("", __MODULE_ID__, (pageID, onLeave) => {
+page("", (pageID, onLeave) => {
   const destination = $(".page .header__content:first-of-type .dropdown:last-of-type")
 
   if (destination.length) {
@@ -157,7 +158,7 @@ page("", __MODULE_ID__, (pageID, onLeave) => {
 
       app.use(i18n)
 
-      if (import.meta.env.PROD) {
+      if (!DEV) {
         // pending fix https://github.com/vuejs/core/pull/5197
         // @ts-ignore
         unsafeWindow.Vue = Vue
@@ -171,15 +172,9 @@ page("", __MODULE_ID__, (pageID, onLeave) => {
     log("Could not insert settings view: container not found.")
   }
 
-  if (__DEV__) {
+  DEV_ONLY(
     onLeave(() => {
       settingsContainer.remove()
     })
-  }
+  )
 })
-
-if (__DEV__) {
-  __ON_RELOAD__(() => {
-    unpage(__MODULE_ID__)
-  })
-}

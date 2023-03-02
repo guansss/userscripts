@@ -1,3 +1,4 @@
+import { ON_RELOAD } from "../@common/env"
 import { ready } from "../@common/events"
 
 ready.then(() => {
@@ -14,9 +15,13 @@ function onLeave(e: MouseEvent) {
   }
 }
 
-if (import.meta.hot) {
-  import.meta.hot.accept()
-  import.meta.hot.on("vite:beforeUpdate", () => {
-    document.removeEventListener("mouseleave", onLeave)
-  })
-}
+//asdasd
+console.log(`
+aaaaaaaaaaaaaa
+==================
+bbbbbbbbbbbbb
+`)
+
+ON_RELOAD(() => {
+  document.removeEventListener("mouseleave", onLeave)
+})

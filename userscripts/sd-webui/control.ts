@@ -1,4 +1,4 @@
-import { onInvalidate } from "../@common/hmr"
+import { ON_RELOAD } from "../@common/env"
 import { log } from "../@common/log"
 import { until } from "../@common/timer"
 import { toast, toastWarn } from "../@common/toast"
@@ -31,11 +31,9 @@ export async function control($root: JQuery<ShadowRoot>) {
 
   document.addEventListener("keydown", onKeydown, { passive: true })
 
-  if (__DEV__) {
-    onInvalidate(() => {
-      document.removeEventListener("keydown", onKeydown)
-    })
-  }
+  ON_RELOAD(() => {
+    document.removeEventListener("keydown", onKeydown)
+  })
 }
 
 function isVisible(element: HTMLElement) {

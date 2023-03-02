@@ -1,10 +1,11 @@
 import { computed, reactive, ref, watchEffect } from "vue"
 import { hasClass, SimpleMutationObserver } from "../../@common/dom"
+import { DEV_ONLY } from "../../@common/env"
 import { log } from "../../@common/log"
 import { getReactEventHandlers } from "../../@common/react"
 import { formatDate } from "../../@common/string"
 import { delay } from "../../@common/timer"
-import { page, unpage } from "../core/paging"
+import { page } from "../core/paging"
 import { storage } from "../core/storage"
 
 // a partial structure of the video data defined in iwara's video page,
@@ -98,7 +99,7 @@ export function useDownloaderSettings() {
   }
 }
 
-page("video", __MODULE_ID__, (pageID, onLeave) => {
+page("video", (pageID, onLeave) => {
   const videoActions = $(".page-video__actions").get(0)
 
   if (!videoActions) {
@@ -115,9 +116,7 @@ page("video", __MODULE_ID__, (pageID, onLeave) => {
         if (autoEnabled && autoEnabled.value) {
           convertDownloadDropdown(node, true, source.value)
 
-          if (__DEV__) {
-            onLeave(() => convertDownloadDropdown(node, false, undefined))
-          }
+          DEV_ONLY(onLeave(() => convertDownloadDropdown(node, false, undefined)))
         }
       }
     })
@@ -128,9 +127,7 @@ page("video", __MODULE_ID__, (pageID, onLeave) => {
     // prevent unexpected downloads
     hasFreshSources.value = false
 
-    if (__DEV__) {
-      actionsObserver.disconnect()
-    }
+    actionsObserver.disconnect()
   })
 })
 
@@ -224,7 +221,7 @@ function download(downloadDropdown: HTMLElement) {
 
     log("Downloading:", filename, source.value.url)
 
-    if (__DEV__) {
+    if (DEV) {
       delay(2000).then(() => downloadEnded("onload"))
       // delay(2000).then(() => downloadEnded('ontimeout'));
       return
@@ -297,10 +294,4 @@ function printDownloadMessage(msg: string) {
   $(".page-video__bottom")
     .css("flex-wrap", "wrap")
     .append(`<div style="flex: 100% 0 0">${msg}</div>`)
-}
-
-if (__DEV__) {
-  __ON_RELOAD__(() => {
-    unpage(__MODULE_ID__)
-  })
 }

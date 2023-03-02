@@ -1,4 +1,5 @@
-import { invalidate, onInvalidate } from "../@common/hmr"
+import { DEV_ONLY, ON_RELOAD } from "../@common/env"
+import { enableHMR } from "../@common/hmr"
 import { log } from "../@common/log"
 import { schemes } from "./scheme"
 import "./schemes/bilibili"
@@ -21,11 +22,8 @@ async function main() {
       if (scheme.css) {
         const styleEl = GM_addStyle(scheme.css)
 
-        if (__DEV__) {
-          log("CSS Injected", styleEl)
-
-          onInvalidate(() => styleEl.remove())
-        }
+        DEV_ONLY(log("CSS Injected", styleEl))
+        ON_RELOAD(() => styleEl.remove())
       }
 
       if (scheme.run) {
@@ -41,7 +39,4 @@ async function main() {
 // then we need to manually log the error
 main().catch(log)
 
-if (import.meta.hot) {
-  import.meta.hot.accept()
-  import.meta.hot.dispose(invalidate)
-}
+DEV_ONLY(enableHMR(module))

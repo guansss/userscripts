@@ -1,5 +1,6 @@
+import { DEV_ONLY } from "../@common/env"
 import { ready } from "../@common/events"
-import { invalidate } from "../@common/hmr"
+import { enableHMR } from "../@common/hmr"
 import "../@common/jquery"
 import { formatError } from "../@common/string"
 import { until } from "../@common/timer"
@@ -30,9 +31,4 @@ async function main() {
   }
 }
 
-if (import.meta.hot) {
-  import.meta.hot.accept()
-  import.meta.hot.on("vite:beforeUpdate", () => {
-    invalidate()
-  })
-}
+DEV_ONLY(enableHMR(module))

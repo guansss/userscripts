@@ -1,5 +1,4 @@
 import { watchEffect } from "vue"
-import { log } from "../../@common/log"
 import { adjustHexColor } from "../../@common/string"
 import { state } from "../core/state"
 

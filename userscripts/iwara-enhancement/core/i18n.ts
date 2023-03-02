@@ -1,10 +1,11 @@
 import { createI18n } from "vue-i18n"
+import locales from "../i18n"
 import { storage } from "./storage"
 
 export const i18n = createI18n({
   locale: storage.get("locale"),
   fallbackLocale: "en",
-  messages: __LOCALES__,
+  messages: locales,
 
   // disable warnings - I know what I'm doing!!
   silentFallbackWarn: true,
@@ -13,7 +14,7 @@ export const i18n = createI18n({
 })
 
 export function matchLocale(locale: string): string {
-  return i18n.global.availableLocales.includes(locale)
+  return i18n.global.availableLocales.includes(locale as any)
     ? locale
     : i18n.global.availableLocales.find((loc: string) => locale.startsWith(loc)) || "en"
 }

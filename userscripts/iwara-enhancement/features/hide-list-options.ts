@@ -1,11 +1,12 @@
 import { computed, ref, watchEffect } from "vue"
+import { DEV_ONLY } from "../../@common/env"
 import { localize } from "../core/i18n"
-import { page, unpage } from "../core/paging"
+import { page } from "../core/paging"
 import { storage } from "../core/storage"
 
 const toggleButtonID = "enh-hide-options-btn"
 
-page(["videoList", "imageList"], __MODULE_ID__, (pageID, onLeave) => {
+page(["videoList", "imageList"], (pageID, onLeave) => {
   const hideOptions = ref(storage.get("hide_list_options"))
   const toggleText = computed(() =>
     localize(hideOptions.value ? "ui.show_list_options" : "ui.hide_list_options")
@@ -28,15 +29,9 @@ page(["videoList", "imageList"], __MODULE_ID__, (pageID, onLeave) => {
     toggleButton.text(toggleText.value)
   })
 
-  if (__DEV__) {
+  DEV_ONLY(
     onLeave(() => {
       toggleButton.remove()
     })
-  }
+  )
 })
-
-if (__DEV__) {
-  __ON_RELOAD__(() => {
-    unpage(__MODULE_ID__)
-  })
-}

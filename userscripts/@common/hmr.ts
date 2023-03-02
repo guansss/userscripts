@@ -1,12 +1,29 @@
-export type OnInvalidateCallback = () => void
+export function enableHMR(module: NodeModule) {
+  const handler = (status: webpack.HotUpdateStatus) => {
+    if (status === "prepare") {
+      module.hot.removeStatusHandler(handler)
 
-const onInvalidateCallbacks: OnInvalidateCallback[] = []
+      const deps = new Set<NodeModule>()
 
-export function onInvalidate(cb: OnInvalidateCallback) {
-  onInvalidateCallbacks.push(cb)
-}
+      const collectDeps = (mod: NodeModule | undefined) => {
+        if (mod && !deps.has(mod)) {
+          deps.add(mod)
+          mod.children.forEach(collectDeps)
+        }
+      }
 
-export function invalidate() {
-  onInvalidateCallbacks.forEach((cb) => cb())
-  onInvalidateCallbacks.length = 0
+      collectDeps(module)
+
+      deps.forEach((mod) => {
+        const isSelf = mod.id === module.id
+
+        if (!isSelf) {
+          mod?.hot.invalidate()
+        }
+      })
+    }
+  }
+
+  module.hot.addStatusHandler(handler)
+  module.hot.accept()
 }

@@ -1,4 +1,6 @@
+import { DEV_ONLY } from "../@common/env"
 import { ready } from "../@common/events"
+import { enableHMR } from "../@common/hmr"
 import "../@common/jquery"
 import { replacer } from "./replacer"
 
@@ -8,7 +10,4 @@ function main() {
   replacer()
 }
 
-if (import.meta.hot) {
-  import.meta.hot.accept()
-  import.meta.hot.on("vite:beforeUpdate", () => {})
-}
+DEV_ONLY(enableHMR(module))

@@ -1,8 +1,8 @@
 import { SimpleMutationObserver } from "../@common/dom"
-import { onInvalidate } from "../@common/hmr"
+import { ON_RELOAD } from "../@common/env"
 import { log } from "../@common/log"
 import { until } from "../@common/timer"
-import html from "./image-viewer.html?raw"
+import html from "./image-viewer.html?raw&literal"
 
 export async function imageViewer($root: JQuery<ShadowRoot>) {
   const gallery = await until(() => $root.find("#txt2img_gallery")[0], 200)
@@ -46,9 +46,7 @@ export async function imageViewer($root: JQuery<ShadowRoot>) {
   imgObserver.observe(gallery, options)
   imgObserver.observe(modal, options)
 
-  if (__DEV__) {
-    onInvalidate(() => {
-      imgObserver.disconnect()
-    })
-  }
+  ON_RELOAD(() => {
+    imgObserver.disconnect()
+  })
 }

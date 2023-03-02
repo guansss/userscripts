@@ -1,6 +1,14 @@
-import Toastify from "toastify-js"
+import _Toastify from "toastify-js"
 import "toastify-js/src/toastify.css"
-import { onInvalidate } from "./hmr"
+import { DEV_ONLY, ON_RELOAD } from "./env"
+
+declare global {
+  interface Window {
+    Toastify: typeof _Toastify
+  }
+}
+
+DEV_ONLY((window.Toastify = _Toastify))
 
 let hasErrored = false
 
@@ -17,7 +25,7 @@ function ensureOptions(options: Options | string): Options {
 export function toast(options: Options | string) {
   options = ensureOptions(options)
 
-  const toast = Toastify({
+  const toast = window.Toastify({
     duration: 2000,
     close: true,
     ...options,
@@ -30,11 +38,9 @@ export function toast(options: Options | string) {
 
   toast.showToast()
 
-  if (__DEV__) {
-    onInvalidate(() => {
-      toast.hideToast()
-    })
-  }
+  ON_RELOAD(() => {
+    toast.hideToast()
+  })
 }
 
 export function toastWarn(options: Options | string) {
@@ -68,9 +74,7 @@ export function toastError(options: Options | string) {
     },
   })
 
-  if (__DEV__) {
-    onInvalidate(() => {
-      hasErrored = false
-    })
-  }
+  ON_RELOAD(() => {
+    hasErrored = false
+  })
 }

@@ -1,6 +1,7 @@
-const glob = require("glob")
-const path = require("path")
-const { matchPattern } = require("browser-extension-url-match")
+import { matchPattern } from "browser-extension-url-match"
+import glob from "glob"
+import { isNil } from "lodash"
+import path from "path"
 
 const USERSCRIPTS_ROOT = path.resolve(__dirname, "../userscripts")
 
@@ -32,7 +33,38 @@ function getGMAPIs() {
   ]
 }
 
-function getAllUserscripts() {
+export interface UserscriptInfo {
+  dir: string
+  name: string
+  entry: string
+  url: string
+}
+
+export function parentUntil<T>(
+  target: T | null | undefined,
+  getParent: (target: T) => T | null | undefined,
+  callback: (target: T) => void | boolean
+): T | null | undefined {
+  const visited = new Set<T>()
+
+  let current = target
+  let result = null
+
+  while (!isNil(current) && !visited.has(current)) {
+    visited.add(current)
+
+    if (callback(current)) {
+      result = current
+      return result
+    }
+
+    current = getParent(current)
+  }
+
+  return result
+}
+
+export function getAllUserscripts(): UserscriptInfo[] {
   const dirs = glob.sync(USERSCRIPTS_ROOT + "/*/")
 
   return dirs
@@ -47,6 +79,23 @@ function getAllUserscripts() {
         url: `userscripts/${name}/index.ts`,
       }
     })
+}
+
+export async function filterAsync<T>(
+  arr: T[],
+  callback: (item: T) => Promise<boolean>
+): Promise<T[]> {
+  const filtered: T[] = []
+
+  await Promise.all(
+    arr.map(async (item) => {
+      if (await callback(item)) {
+        filtered.push(item)
+      }
+    })
+  )
+
+  return filtered
 }
 
 function getUserscriptDir(filePath) {
@@ -71,7 +120,7 @@ function cleanUrl(url) {
   return url.replace(hashRE, "").replace(queryRE, "")
 }
 
-function urlMatch(pattern, url) {
+export function urlMatch(pattern: string, url: string) {
   const matcher = matchPattern(pattern)
 
   if (!matcher.valid) {
@@ -79,13 +128,4 @@ function urlMatch(pattern, url) {
   }
 
   return matcher.match(url)
-}
-
-module.exports = {
-  USERSCRIPTS_ROOT,
-  getAllUserscripts,
-  getUserscriptDir,
-  cleanUrl,
-  urlMatch,
-  getGMAPIs,
 }

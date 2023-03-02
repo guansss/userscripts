@@ -1,4 +1,5 @@
-import { invalidate } from "../@common/hmr"
+import { DEV_ONLY } from "../@common/env"
+import { enableHMR } from "../@common/hmr"
 import "../@common/jquery"
 import "./components/Settings"
 import { setupPaging } from "./core/paging"
@@ -16,13 +17,4 @@ export async function main() {
 
 main()
 
-if (import.meta.hot) {
-  import.meta.hot.accept()
-
-  // listen for beforeUpdate event instead of using dispose()
-  // because vite sometimes mysteriously invokes the dispose hook for multiple times
-  import.meta.hot.on("vite:beforeUpdate", () => {
-    // call all onExit() hooks
-    invalidate()
-  })
-}
+DEV_ONLY(enableHMR(module))

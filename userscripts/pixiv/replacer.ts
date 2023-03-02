@@ -1,3 +1,4 @@
+import { ON_RELOAD } from "../@common/env"
 import { log } from "../@common/log"
 import { until } from "../@common/timer"
 
@@ -53,9 +54,7 @@ function replace(text: string) {
   return text
 }
 
-if (__DEV__) {
-  __ON_RELOAD__(() => {
-    button.remove()
-    input.remove()
-  })
-}
+ON_RELOAD(() => {
+  button.remove()
+  input.remove()
+})

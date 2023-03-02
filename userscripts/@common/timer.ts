@@ -1,4 +1,4 @@
-import { onInvalidate } from "./hmr"
+import { ON_RELOAD } from "./env"
 import { log } from "./log"
 
 export interface CancelablePromise<T> extends Promise<T> {
@@ -90,11 +90,11 @@ export function delay(ms: number) {
  * @returns A Promise that resolves/rejects with given Promise, and rejects on HMR during dev.
  */
 export function alive<T>(promise: Promise<T>): Promise<T> {
-  return __DEV__
+  return DEV
     ? new Promise((resolve, reject) => {
         promise.then(resolve, reject)
 
-        onInvalidate(() => {
+        ON_RELOAD(() => {
           ;(promise as CancelablePromise<any>).cancel?.()
           reject(new Error("Module reloaded."))
         })

@@ -1,7 +1,7 @@
 import { SimpleMutationObserver } from "../../@common/dom"
-import { onInvalidate } from "../../@common/hmr"
-import { alive, until as until } from "../../@common/timer"
-import { markAbove, register, unregister } from "../scheme"
+import { ON_RELOAD } from "../../@common/env"
+import { alive, until } from "../../@common/timer"
+import { register } from "../scheme"
 import { isInIframe } from "../utils"
 
 const panelHeight = 250
@@ -70,13 +70,6 @@ register({
     })
     observer.observe(volumeThumb, { attributes: true, attributeFilter: ["style"] })
 
-    if (__DEV__) {
-      onInvalidate(() => observer.disconnect())
-    }
+    ON_RELOAD(() => observer.disconnect())
   },
 })
-
-if (__DEV__) {
-  markAbove(__MODULE_ID__)
-  __ON_RELOAD__(() => unregister(__MODULE_ID__))
-}

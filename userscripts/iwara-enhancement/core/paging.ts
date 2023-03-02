@@ -1,7 +1,7 @@
 import mitt from "mitt"
 import { hasClass, SimpleMutationObserver } from "../../@common/dom"
+import { DEV_ONLY, ON_RELOAD } from "../../@common/env"
 import { once, ready } from "../../@common/events"
-import { onInvalidate } from "../../@common/hmr"
 import { log } from "../../@common/log"
 
 export function setupPaging() {
@@ -21,16 +21,14 @@ export function setupPaging() {
     })
     appObserver.observe(appDiv, { childList: true, immediate: true })
 
-    if (__DEV__) {
-      onInvalidate(() => {
-        if (currentClassName) {
-          emitter.emit("pageLeave", currentClassName)
-          currentClassName = ""
-        }
+    ON_RELOAD(() => {
+      if (currentClassName) {
+        emitter.emit("pageLeave", currentClassName)
+        currentClassName = ""
+      }
 
-        appObserver.disconnect()
-      })
-    }
+      appObserver.disconnect()
+    })
   })
 }
 
@@ -57,7 +55,7 @@ type PageEnterListener<ID extends IDArg> = (
 ) => void
 
 // page listener for iwara
-export function page<ID extends IDArg>(id: ID, key: string, enter: PageEnterListener<ID>) {
+export function page<ID extends IDArg>(id: ID, enter: PageEnterListener<ID>) {
   const match =
     typeof id === "string"
       ? (className: string) => (className.includes(id) ? id : undefined)
@@ -84,15 +82,6 @@ export function page<ID extends IDArg>(id: ID, key: string, enter: PageEnterList
   })
 
   emitter.on("pageEnter", onPageEnter)
-
-  if (import.meta.hot) {
-    emitter.on(`off:${key}`, () => emitter.off("pageEnter", onPageEnter))
-  }
-}
-
-// tree-shakable helper for other modules to remove listeners before HMR
-export function unpage(key: string) {
-  emitter.emit(`off:${key}`)
 }
 
 function detectPageChange(nodes: NodeList, event: keyof Events) {
@@ -107,11 +96,13 @@ function detectPageChange(nodes: NodeList, event: keyof Events) {
   }
 }
 
-if (__DEV__) {
-  const logPageID = (action: string) => (className: string) =>
-    ((i: number) => (i === -1 ? undefined : log(action, className.slice(i + 5))))(
-      className.indexOf("page-")
-    )
-  emitter.on("pageEnter", logPageID("enter"))
-  emitter.on("pageLeave", logPageID("leave"))
-}
+DEV_ONLY(
+  (() => {
+    const logPageID = (action: string) => (className: string) =>
+      ((i: number) => (i === -1 ? undefined : log(action, className.slice(i + 5))))(
+        className.indexOf("page-")
+      )
+    emitter.on("pageEnter", logPageID("enter"))
+    emitter.on("pageLeave", logPageID("leave"))
+  })()
+)

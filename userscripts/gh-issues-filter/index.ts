@@ -51,5 +51,3 @@ hookMethod(history, "pushState", handleStateChange)
 hookMethod(history, "replaceState", handleStateChange)
 
 ready.then(() => check(location.href))
-
-export {}
