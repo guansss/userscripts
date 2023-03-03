@@ -1,7 +1,8 @@
 import { compact } from "lodash"
 import { ExpressRequestHandler } from "webpack-dev-server"
 import { ScriptMeta } from "../userscripts/@common/meta"
-import { filterAsync, getAllUserscripts, urlMatch, UserscriptInfo } from "./utils"
+import { getAllUserscripts, urlMatch } from "./utils"
+import { filterAsync, UserscriptInfo } from "./utils-shared"
 
 export const serveUserscripts: ExpressRequestHandler = async (req, res, next) => {
   if (req.path === "/@userscripts/all") {
@@ -28,7 +29,7 @@ async function matchScriptsByURL(url: string, forceLoad?: string): Promise<Users
     }
 
     try {
-      const meta: ScriptMeta = await import(dir + "/meta.ts")
+      const meta: ScriptMeta = (await import(dir + "/meta.ts")).default
 
       // check fields: match, include, exclude,
       // each of which can be: undefined, string, array of string

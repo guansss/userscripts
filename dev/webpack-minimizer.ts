@@ -2,7 +2,7 @@ import { identity } from "lodash"
 import prettier from "prettier"
 import TerserPlugin from "terser-webpack-plugin"
 import { Compiler } from "webpack"
-import { parentUntil } from "./utils"
+import { isPatched, markAsPatched, parentUntil } from "./utils-shared"
 
 const prettierConfigAsync = prettier.resolveConfig(__dirname)
 
@@ -177,14 +177,4 @@ export class WebpackMinimizer extends TerserPlugin {
       }
     }
   }
-}
-
-const patchedFlag = "__patched__"
-
-function markAsPatched(obj: any) {
-  obj[patchedFlag] = true
-}
-
-function isPatched(obj: any) {
-  return patchedFlag in obj
 }

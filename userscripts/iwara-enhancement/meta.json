@@ -1,9 +1,0 @@
-{
-  "version": "0.11",
-  "name": "Iwara Enhancement",
-  "name:zh-CN": "Iwara增强",
-  "updateURL": "https://sleazyfork.org/scripts/416003-iwara-enhancement/code/Iwara%20Enhancement.user.js",
-  "match": ["*://staging.iwara.tv/*"],
-  "run-at": "document-start",
-  "noframes": true
-}

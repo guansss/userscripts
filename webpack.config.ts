@@ -7,7 +7,7 @@ import postcssPresetEnv from "postcss-preset-env"
 import { Configuration, DefinePlugin } from "webpack"
 import { BabelPlugin } from "./dev/babel-plugin"
 import { serveUserscripts } from "./dev/middlewares"
-import { getAllUserscripts } from "./dev/utils"
+import { getAllUserscripts, USERSCRIPTS_ROOT } from "./dev/utils"
 import { WebpackMinimizer } from "./dev/webpack-minimizer"
 import { WebpackPlugin } from "./dev/webpack-plugin"
 
@@ -15,14 +15,24 @@ export default (_env: unknown, { mode }: { mode: string }) => {
   const isDev = mode !== "production"
 
   return {
-    mode: mode as any,
-    entry: Object.fromEntries(getAllUserscripts().map((s) => [s.name, s.entry])),
+    mode: mode === "production" ? "production" : "development",
+    entry: {
+      "dev-impl": "./dev/client/dev-impl.user.ts",
+      ...Object.fromEntries(getAllUserscripts().map((s) => [s.name, s.entry])),
+    },
     plugins: [
       WebpackPlugin,
       new MiniCssExtractPlugin(),
       new DefinePlugin({
         BUILD_TIME: Date.now(),
         DEV: isDev,
+
+        SCRIPT_ID: isDev
+          ? DefinePlugin.runtimeValue(({ module }) => {
+              const dirname = path.relative(USERSCRIPTS_ROOT, module.resource).split(path.sep)[0]
+              return JSON.stringify(dirname)
+            })
+          : '""',
 
         // disable warnings during dev
         __VUE_OPTIONS_API__: true,
@@ -32,8 +42,19 @@ export default (_env: unknown, { mode }: { mode: string }) => {
       }),
     ],
     devServer: {
+      port: 9527,
       // we don't want the page to reload, even if hot reloading fails
       hot: "only",
+
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+
+      webSocketServer: "sockjs",
+      client: {
+        webSocketTransport: "sockjs",
+        webSocketURL: "ws://127.0.0.1:9527/ws",
+      },
 
       setupMiddlewares: (middlewares) => {
         middlewares.unshift(serveUserscripts)
@@ -57,7 +78,6 @@ export default (_env: unknown, { mode }: { mode: string }) => {
       // outputModule: true,
     },
     optimization: {
-      // minimize: false,
       minimizer: [new WebpackMinimizer()],
     },
     resolve: {

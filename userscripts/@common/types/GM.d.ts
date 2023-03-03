@@ -43,9 +43,9 @@ declare function GM_download(details: {
   abort(): void
 }
 
-declare type GM_xmlhttpRequestParams = {
+declare interface GM_xmlhttpRequestParams {
   // one of GET, HEAD, POST
-  method: "GET" | "HEAD" | "POST"
+  method?: "GET" | "HEAD" | "POST"
 
   // the destination URL
   url: string
@@ -105,39 +105,49 @@ declare type GM_xmlhttpRequestParams = {
   onprogress?(): void
 
   // callback to be executed if the request's ready state changed
-  onreadystatechange?(): void
+  onreadystatechange?(response: GM_xmlhttpRequestResponse): void
 
   // callback to be executed if the request failed due to a timeout
   ontimeout?(): void
 
   // callback to be executed if the request was loaded.
-  onload?(details: {
-    // the final URL after all redirects from where the data was loaded
-    finalUrl: string
+  onload?(response: GM_xmlhttpRequestResponse): void
+}
 
-    // the ready state
-    readyState: number
+declare interface GM_xmlhttpRequestResponse {
+  // the final URL after all redirects from where the data was loaded
+  finalUrl: string
 
-    // the request status
-    status: number
+  // the ready state
+  readyState: number
 
-    // the request status text
-    statusText: string
+  // the request status
+  status: number
 
-    // the request response headers
-    responseHeaders: Record<string, string>
+  // the request status text
+  statusText: string
 
-    // the response data as object if details.responseType was set
-    response: any
+  // the request response headers
+  responseHeaders: string
 
-    // the response data as XML document
-    responseXML: any
+  // the response data as object if details.responseType was set
+  response: any
 
-    // the response data as plain string
-    responseText: string
-  }): void
+  // the response data as XML document
+  responseXML: any
+
+  // the response data as plain string
+  responseText: string
 }
 
 declare function GM_xmlhttpRequest(details: GM_xmlhttpRequestParams): {
   abort(): void
 }
+
+declare function GM_addElement(tag_name: string, attributes: Record<string, string>): HTMLElement
+
+declare function GM_addElement(
+  parent_node: HTMLElement,
+  tag_name: string,
+  attributes: Record<string, string>
+): HTMLElement

@@ -4,8 +4,8 @@ declare const DEV: boolean
 
 declare const __LOCALES__: Record<string, Record<string, any>>
 
-// the ID of current module, usually its absolute path
-declare const __MODULE_ID__: string
+// the ID (folder name) of the script that is accessing this variable
+declare const SCRIPT_ID: string
 
 // an elegant fix for incorrect typing of setTimeout() and setInterval()
 // https://stackoverflow.com/a/68296856

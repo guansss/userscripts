@@ -1,4 +1,10 @@
-export function enableHMR(module: NodeModule) {
+interface WebpackModule extends Omit<NodeModule, "children"> {
+  children: (string | number)[]
+}
+
+export function enableHMR(_module: NodeModule) {
+  const module = _module as unknown as WebpackModule
+
   if (!module.hot) {
     throw new Error("HMR is not enabled")
   }
@@ -7,12 +13,14 @@ export function enableHMR(module: NodeModule) {
     if (status === "prepare") {
       module.hot.removeStatusHandler(handler)
 
-      const deps = new Set<NodeModule>()
+      const getModule = (id: string | number) => require.cache[id] as WebpackModule | undefined
 
-      const collectDeps = (mod: NodeModule | undefined) => {
+      const deps = new Set<WebpackModule>()
+
+      const collectDeps = (mod: WebpackModule | undefined) => {
         if (mod && !deps.has(mod)) {
           deps.add(mod)
-          mod.children.forEach(collectDeps)
+          mod.children?.forEach((id) => collectDeps(getModule(id)))
         }
       }
 
@@ -22,7 +30,7 @@ export function enableHMR(module: NodeModule) {
         const isSelf = mod.id === module.id
 
         if (!isSelf) {
-          mod?.hot.invalidate()
+          mod?.hot?.invalidate()
         }
       })
     }

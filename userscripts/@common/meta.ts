@@ -1,80 +1,83 @@
-import { SetRequired } from "type-fest/source/set-required"
+import { Simplify } from "type-fest"
 
 /**
  * @see https://www.tampermonkey.net/documentation.php
  */
 
-export const META_FIELDS = [
+export type ScriptMeta = Simplify<
+  Partial<ScriptMetaBase> & {
+    [K in (typeof META_FIELDS_REQUIRED)[number]]: ScriptMetaBase[K]
+  }
+>
+
+type ScriptMetaBase = Simplify<
+  {
+    [K in (typeof META_FIELDS_WITH_LOCALIZATION)[number]]:
+      | string
+      | {
+          default: string
+          [key: string]: string
+        }
+  } & {
+    [K in (typeof META_FIELDS_BOOLEAN)[number]]: boolean
+  } & {
+    [K in (typeof META_FIELDS_ARRAY)[number]]: string | string[]
+  } & {
+    [K in (typeof META_FIELDS_STRING)[number]]: string
+  }
+>
+
+export const META_FIELDS_WITH_LOCALIZATION = [
+  //
   "name",
+  "description",
+] as const
+
+export const META_FIELDS_BOOLEAN = [
+  //
+  "noframes",
+] as const
+
+export const META_FIELDS_ARRAY = [
+  "grant",
+  "require",
+  "resource",
+  "include",
+  "match",
+  "exclude",
+  "connect",
+  "webRequest",
+] as const
+
+export const META_FIELDS_STRING = [
   "namespace",
   "copyright",
   "version",
-  "description",
   "icon",
   "iconURL",
   "defaulticon",
   "icon64",
   "icon64URL",
-  "grant",
   "author",
   "homepage",
   "homepageURL",
   "website",
   "source",
   "antifeature",
-  "require",
-  "resource",
-  "include",
-  "match",
-  "exclude",
   "runAt",
-  '"run-at',
+  "run-at",
   "sandbox",
-  "connect",
-  "noframes",
   "updateURL",
   "downloadURL",
   "supportURL",
-  "webRequest",
   "unwrap",
 ] as const
 
-export interface ScriptMeta
-  extends SetRequired<Partial<Record<MetaFields, string | string[]>>, "name" | "version"> {}
+export const META_FIELDS = [
+  ...META_FIELDS_WITH_LOCALIZATION,
+  ...META_FIELDS_BOOLEAN,
+  ...META_FIELDS_ARRAY,
+  ...META_FIELDS_STRING,
+] as const
 
-type MetaFields =
-  | WithLocalization<"name" | "description">
-  | "name"
-  | "namespace"
-  | "copyright"
-  | "version"
-  | "description"
-  | "icon"
-  | "iconURL"
-  | "defaulticon"
-  | "icon64"
-  | "icon64URL"
-  | "grant"
-  | "author"
-  | "homepage"
-  | "homepageURL"
-  | "website"
-  | "source"
-  | "antifeature"
-  | "require"
-  | "resource"
-  | "include"
-  | "match"
-  | "exclude"
-  | "runAt"
-  | '"run-at'
-  | "sandbox"
-  | "connect"
-  | "noframes"
-  | "updateURL"
-  | "downloadURL"
-  | "supportURL"
-  | "webRequest"
-  | "unwrap"
-
-type WithLocalization<T extends string> = `${T}:${string}`
+const META_FIELDS_REQUIRED = ["name", "version"] as const
