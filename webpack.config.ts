@@ -17,8 +17,8 @@ export default (_env: unknown, { mode }: { mode: string }) => {
   return {
     mode: mode === "production" ? "production" : "development",
     entry: {
-      "dev-impl": "./dev/client/dev-impl.user.ts",
       ...Object.fromEntries(getAllUserscripts().map((s) => [s.name, s.entry])),
+      ...(isDev && { "dev-impl": "./dev/client/dev-impl.user.ts" }),
     },
     plugins: [
       WebpackPlugin,
