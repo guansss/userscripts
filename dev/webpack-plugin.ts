@@ -14,22 +14,50 @@ export function WebpackPlugin(compiler: Compiler) {
         stage: Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_INLINE,
       },
       (assets) => {
-        for (const [file, source] of Object.entries(assets)) {
-          // TODO: more generic way to process the name
-          if (file.endsWith(".user.js")) {
-            const name = file.replace(".user.js", "")
+        for (const chunk of compilation.chunks) {
+          const files = Array.from(chunk.files)
+          const jsFiles = files.filter((file) => file.endsWith(".js"))
+          const cssFiles = files.filter((file) => file.endsWith(".css"))
 
-            const cssFile = `${name}.css`
+          if (!jsFiles.length || !cssFiles.length) {
+            continue
+          }
+
+          if (jsFiles.length > 1) {
+            logger.warn(`multiple js files in chunk ${chunk.name}:`, jsFiles)
+            continue
+          }
+
+          const jsFile = jsFiles[0]!
+          const jsSource = assets[jsFile]
+
+          if (!jsSource) {
+            logger.warn("js file not found:", jsFile)
+            continue
+          }
+
+          const concatenatedCss = new ConcatSource()
+
+          for (const cssFile of cssFiles) {
             const cssAsset = assets[cssFile]
 
             if (cssAsset) {
-              const css = cssAsset.source().toString("utf-8")
-              const newSource = new ConcatSource(source, `\nGM_addStyle(\`\n${css}\`)\n`)
+              logger.info("inlining CSS:", cssFile)
 
-              compilation.updateAsset(file, newSource)
+              concatenatedCss.add(cssAsset)
               compilation.deleteAsset(cssFile)
+            } else {
+              logger.warn("css file not found:", cssFile)
             }
           }
+
+          const newJsSource = new ConcatSource(
+            jsSource,
+            "\nGM_addStyle(`\n",
+            concatenatedCss,
+            "`)\n"
+          )
+          compilation.updateAsset(jsFile, newJsSource)
         }
       }
     )
