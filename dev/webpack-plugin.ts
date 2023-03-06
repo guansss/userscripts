@@ -1,12 +1,38 @@
-import { Compiler, NormalModule, sources } from "webpack"
+import { Compilation, Compiler, NormalModule, sources } from "webpack"
 
-const { RawSource } = sources
+const { RawSource, ConcatSource } = sources
 
 export function WebpackPlugin(compiler: Compiler) {
   const isDev = compiler.options.mode !== "production"
 
   compiler.hooks.compilation.tap(WebpackPlugin.name, (compilation, { normalModuleFactory }) => {
     const logger = compilation.getLogger(WebpackPlugin.name)
+
+    compilation.hooks.processAssets.tap(
+      {
+        name: WebpackPlugin.name,
+        stage: Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_INLINE,
+      },
+      (assets) => {
+        for (const [file, source] of Object.entries(assets)) {
+          // TODO: more generic way to process the name
+          if (file.endsWith(".user.js")) {
+            const name = file.replace(".user.js", "")
+
+            const cssFile = `${name}.css`
+            const cssAsset = assets[cssFile]
+
+            if (cssAsset) {
+              const css = cssAsset.source().toString("utf-8")
+              const newSource = new ConcatSource(source, `\nGM_addStyle(\`\n${css}\`)\n`)
+
+              compilation.updateAsset(file, newSource)
+              compilation.deleteAsset(cssFile)
+            }
+          }
+        }
+      }
+    )
 
     if (!isDev) {
       normalModuleFactory.hooks.generator

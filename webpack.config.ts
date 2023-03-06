@@ -120,7 +120,8 @@ export default (_env: unknown, { mode }: { mode: string }) => {
               loader: "css-loader",
               options: {
                 modules: {
-                  exportLocalsConvention: "camelCaseOnly",
+                  auto: true,
+                  localIdentName: "[name]__[local]--[hash:base64:4]",
                 },
               },
             },
