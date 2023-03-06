@@ -1,5 +1,7 @@
 # userscripts
 
+:warning: I'm migrating this to webpack, the readme is outdated.
+
 My userscript project. The workflow was somewhat inspired by [rollup-userscript-template](https://github.com/cvzi/rollup-userscript-template).
 
 ## Scripts
