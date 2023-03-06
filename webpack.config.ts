@@ -63,10 +63,12 @@ export default (_env: unknown, { mode }: { mode: string }) => {
       },
     },
     externals: {
-      vue: "Vue",
-      "vue-i18n": "VueI18n",
-      jquery: "$",
-      "toastify-js": "Toastify",
+      ...(!isDev && {
+        vue: "Vue",
+        "vue-i18n": "VueI18n",
+        jquery: "$",
+        "toastify-js": "Toastify",
+      }),
     },
     externalsType: "var",
     output: {
