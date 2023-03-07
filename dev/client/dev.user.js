@@ -2,6 +2,7 @@
 // @name         Dev script
 // @version      0.1
 // @match        *://*/*
+// @connect      *
 // @grant        unsafeWindow
 // @grant        GM_addStyle
 // @grant        GM_addElement
@@ -28,7 +29,7 @@
 // ==/UserScript==
 
 ;(async function () {
-  ;("use strict")
+  "use strict"
 
   const host = "http://127.0.0.1:9527"
   const scriptUrl = host + "/dev-impl.user.js"

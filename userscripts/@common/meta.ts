@@ -1,4 +1,4 @@
-import { Simplify } from "type-fest"
+import type { Simplify } from "type-fest"
 
 /**
  * @see https://www.tampermonkey.net/documentation.php

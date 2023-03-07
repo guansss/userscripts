@@ -21,7 +21,7 @@ export default (_env: unknown, { mode }: { mode: string }) => {
       ...(isDev && { "dev-impl": "./dev/client/dev-impl.user.ts" }),
     },
     plugins: [
-      WebpackPlugin,
+      WebpackPlugin(),
       new MiniCssExtractPlugin(),
       new DefinePlugin({
         BUILD_TIME: Date.now(),

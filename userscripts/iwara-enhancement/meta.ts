@@ -1,6 +1,8 @@
 import { ScriptMeta } from "../@common/meta"
+import rootMeta from "../meta"
 
 export default {
+  ...rootMeta,
   version: "0.11",
   name: {
     default: "Iwara Enhancement",

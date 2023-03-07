@@ -1,7 +1,11 @@
 import { matchPattern } from "browser-extension-url-match"
+import { access } from "fs/promises"
 import glob from "glob"
+import { isArray, isBoolean, isNil, isString } from "lodash"
 import path from "path"
-import { UserscriptInfo } from "./utils-shared"
+import { includes } from "../userscripts/@common/array"
+import { META_FIELDS, META_FIELDS_WITH_LOCALIZATION, ScriptMeta } from "../userscripts/@common/meta"
+import { getGMAPIs, UserscriptInfo } from "./utils-shared"
 
 export const USERSCRIPTS_ROOT = path.resolve(__dirname, "../userscripts")
 
@@ -20,6 +24,100 @@ export function getAllUserscripts(): UserscriptInfo[] {
         url: `userscripts/${name}/index.ts`,
       }
     })
+}
+
+export async function loadMeta(dir: string, file?: string): Promise<ScriptMeta> {
+  if (file) {
+    if (/\.[tj]s$/.test(file) || /\.json$/.test(file)) {
+      return loadAsModule(file)
+    }
+    throw new TypeError("Unsupported meta file: " + file)
+  }
+
+  return Promise.resolve()
+    .then(() => loadAsModule("meta.ts"))
+    .catch(() => loadAsModule("meta.js"))
+    .catch(() => loadAsModule("meta.json"))
+
+  function loadAsModule(file: string) {
+    const absPath = path.resolve(dir, file)
+
+    return access(absPath).then(() => {
+      const content = require(absPath)
+
+      if ("default" in content && Object.keys(content).length === 1) {
+        return content.default as ScriptMeta
+      }
+
+      return content as ScriptMeta
+    })
+  }
+}
+
+export function generateMetaBlock(
+  source: string,
+  meta: ScriptMeta,
+  { requires }: { requires: string[] }
+) {
+  let metaBlock = "// ==UserScript==\n"
+  const fieldPrefix = "// @"
+
+  const metaFields = Object.keys(meta)
+  const maxFieldLength = Math.max(
+    ...["grant", "require", ...metaFields].map((field) => field.length)
+  )
+  const indentSize = fieldPrefix.length + maxFieldLength + 2
+  const indentEnd = (str: string) => str.padEnd(indentSize, " ")
+
+  function putField(field: string, value: string | string[] | boolean) {
+    let line = fieldPrefix + field
+
+    if (isString(value)) {
+      line = indentEnd(line) + value
+    } else if (isArray(value)) {
+      line = value.map((v) => indentEnd(line) + v).join("\n")
+    } else if (isBoolean(value)) {
+      // ignore false value
+      if (!value) {
+        return
+      }
+    } else {
+      console.warn("Unknown type of value:", value)
+    }
+
+    metaBlock += line + "\n"
+  }
+
+  for (const field of META_FIELDS) {
+    if (includes(META_FIELDS_WITH_LOCALIZATION, field)) {
+      const value = meta[field]
+
+      if (isString(value)) {
+        putField(field, value)
+      } else {
+        for (const lang in value) {
+          putField(field + (lang === "default" ? "" : ":" + lang), value[lang])
+        }
+      }
+    } else if (field === "grant") {
+      // for grant, we simply check if the GM_* exists in the source code
+      for (const api of getGMAPIs()) {
+        if (source.includes(api)) {
+          putField("grant", api)
+        }
+      }
+    } else if (field === "require") {
+      putField("require", requires)
+    } else {
+      if (!isNil(meta[field])) {
+        putField(field, meta[field]!)
+      }
+    }
+  }
+
+  metaBlock += "// ==/UserScript=="
+
+  return metaBlock
 }
 
 function getUserscriptDir(filePath) {
