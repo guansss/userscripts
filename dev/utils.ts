@@ -92,11 +92,13 @@ export function generateMetaBlock(
     if (includes(META_FIELDS_WITH_LOCALIZATION, field)) {
       const value = meta[field]
 
-      if (isString(value)) {
-        putField(field, value)
-      } else {
-        for (const lang in value) {
-          putField(field + (lang === "default" ? "" : ":" + lang), value[lang])
+      if (value) {
+        if (isString(value)) {
+          putField(field, value)
+        } else {
+          for (const lang in value) {
+            putField(field + (lang === "default" ? "" : ":" + lang), value[lang]!)
+          }
         }
       }
     } else if (field === "grant") {
@@ -118,28 +120,6 @@ export function generateMetaBlock(
   metaBlock += "// ==/UserScript=="
 
   return metaBlock
-}
-
-function getUserscriptDir(filePath) {
-  if (filePath.length <= USERSCRIPTS_ROOT.length) {
-    throw new TypeError("Invalid path: " + filePath)
-  }
-
-  const slashIndex = filePath.indexOf("/", USERSCRIPTS_ROOT.length + 2)
-
-  if (slashIndex === -1) {
-    return filePath
-  }
-
-  return filePath.slice(0, slashIndex)
-}
-
-const queryRE = /\?.*$/s
-const hashRE = /#.*$/s
-
-// source code from vite
-function cleanUrl(url) {
-  return url.replace(hashRE, "").replace(queryRE, "")
 }
 
 export function urlMatch(pattern: string, url: string) {
