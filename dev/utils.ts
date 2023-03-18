@@ -108,6 +108,9 @@ export function generateMetaBlock(
           putField("grant", api)
         }
       }
+      if (!isNil(meta[field])) {
+        putField(field, meta[field]!)
+      }
     } else if (field === "require") {
       putField("require", requires)
     } else {

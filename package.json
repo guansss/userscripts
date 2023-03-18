@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "webpack serve",
     "build": "webpack --mode=production",
-    "deploy": "gh-pages -d dist/assets",
+    "deploy": "gh-pages -d dist",
     "lint:fix": "prettier --write \"**/*.{js,ts}\""
   },
   "dependencies": {

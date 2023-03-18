@@ -118,7 +118,7 @@ export default (_env: unknown, { mode }: { mode: string }) => {
         {
           test: /\.css$/i,
           use: [
-            "style-loader",
+            isDev ? "style-loader" : MiniCssExtractPlugin.loader,
             {
               loader: "css-loader",
               options: {
