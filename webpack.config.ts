@@ -84,6 +84,9 @@ export default (_env: unknown, { mode }: { mode: string }) => {
     },
     resolve: {
       extensions: [".ts", ".tsx", ".js"],
+      alias: {
+        vue: "vue/dist/vue.esm-bundler.js",
+      },
     },
     module: {
       rules: [
@@ -115,13 +118,14 @@ export default (_env: unknown, { mode }: { mode: string }) => {
         {
           test: /\.css$/i,
           use: [
-            MiniCssExtractPlugin.loader,
+            "style-loader",
             {
               loader: "css-loader",
               options: {
                 modules: {
                   auto: true,
                   localIdentName: "[name]__[local]--[hash:base64:4]",
+                  exportLocalsConvention: "camelCaseOnly",
                 },
               },
             },
