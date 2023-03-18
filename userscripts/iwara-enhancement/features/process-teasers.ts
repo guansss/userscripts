@@ -2,7 +2,7 @@ import { ref, watchEffect } from "vue"
 import { hasClass, SimpleMutationObserver } from "../../@common/dom"
 import { DEV_ONLY } from "../../@common/env"
 import { log } from "../../@common/log"
-import { throttle } from "../../@common/timer"
+import { throttle, until } from "../../@common/timer"
 import { page } from "../core/paging"
 import { storage } from "../core/storage"
 
@@ -44,20 +44,21 @@ export function useTeaserSettings() {
   }
 }
 
-page(["home", "videoList", "imageList"] as const, async (pageID, onLeave) => {
-  const rowObserver = new SimpleMutationObserver((mutation) =>
-    mutation.addedNodes.forEach(detectRow)
-  )
+page(["home", "videoList", "imageList", "subscriptions"] as const, async (pageID, onLeave) => {
   const teaserObserver = new SimpleMutationObserver((mutation) =>
     mutation.addedNodes.forEach(detectTeaser)
   )
 
+  onLeave(() => {
+    teaserObserver.disconnect()
+
+    DEV_ONLY(() => $("." + likeRateClass).remove())
+  })
+
   const teaserBatcher = new TeaserBatcher()
 
   if (pageID === "home") {
-    const rows = $(".page-start__videos > .row, .page-start__images > .row").filter(function () {
-      return this.classList.length === 1
-    })
+    const rows = $(".videoTeaser, .imageTeaser").closest(".row")
 
     if (!rows.length) {
       log("Could not find teaser rows.")
@@ -66,35 +67,23 @@ page(["home", "videoList", "imageList"] as const, async (pageID, onLeave) => {
 
     rows.each((i, row) => detectRow(row))
   } else {
-    const rowContainer = $(`.page-${pageID}>.content .col-12.order-lg-1:first-of-type`).get(0)
+    const rowPromise = until(() => $(".videoTeaser, .imageTeaser").closest(".row")[0], 200)
 
-    if (!rowContainer) {
-      log("Could not find teaser row container.")
-      return
-    }
+    onLeave(() => rowPromise.cancel())
 
-    rowObserver.observe(rowContainer, { childList: true, immediate: true })
+    detectRow(await rowPromise)
   }
 
   function detectRow(row: Node) {
-    if (hasClass(row, "row")) {
-      teaserObserver.observe(row, { childList: true, immediate: true })
-    }
+    teaserObserver.observe(row, { childList: true, immediate: true })
   }
 
   function detectTeaser(teaser: Node) {
     if (isTeaser(teaser)) {
       teaserBatcher.add(teaser)
-      teaserBatcher.flush(processTeaser)
+      teaserBatcher.run(processTeaser)
     }
   }
-
-  onLeave(() => {
-    rowObserver.disconnect()
-    teaserObserver.disconnect()
-
-    DEV_ONLY(() => $("." + likeRateClass).remove())
-  })
 })
 
 class TeaserBatcher {
@@ -104,7 +93,7 @@ class TeaserBatcher {
     this.teasers.push(teaser)
   }
 
-  flush = throttle((callback: (teaser: HTMLElement) => void) => {
+  run = throttle((callback: (teaser: HTMLElement) => void) => {
     let lastError: any
 
     try {
