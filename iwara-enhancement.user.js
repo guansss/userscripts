@@ -13,7 +13,7 @@
 // @require     https://unpkg.com/vue-i18n@^9.2.0-beta.26
 // @match       *://*.iwara.tv/*
 // @namespace   https://github.com/guansss
-// @version     0.11
+// @version     1.0
 // @author      guansss
 // @source      https://github.com/guansss/userscripts
 // @runAt       document-start
