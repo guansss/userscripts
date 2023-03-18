@@ -1,161 +1,161 @@
 .switch {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .settings {
-    position: absolute;
-    z-index: 1000;
-    top: calc(100% + 2px); /* plus 2px border */
-    right: 0;
-    width: 400px;
-    background: var(--body);
-    font-size: 14px;
-    border: 2px solid var(--primary);
-    border-top: none;
-    cursor: default;
+  position: absolute;
+  z-index: 1000;
+  top: calc(100% + 2px); /* plus 2px border */
+  right: 0;
+  width: 400px;
+  background: var(--body);
+  font-size: 14px;
+  border: 2px solid var(--primary);
+  border-top: none;
+  cursor: default;
 
-    nav {
-        padding: 0 16px;
-        border-bottom: 1px solid var(--enh-body-highlight);
+  & nav {
+    padding: 0 16px;
+    border-bottom: 1px solid var(--enh-body-highlight);
 
-        ul {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-wrap: wrap;
-        }
-
-        li {
-            padding: 8px 16px;
-            list-style-type: none;
-            cursor: pointer;
-
-            &:hover {
-                background: var(--enh-body-focus);
-            }
-
-            &.active {
-                background: var(--enh-body-highlight);
-            }
-        }
+    & ul {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
     }
 
-    p,
-    section {
-        margin-bottom: 8px;
-    }
+    & li {
+      padding: 8px 16px;
+      list-style-type: none;
+      cursor: pointer;
 
-    a {
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-    ol {
-        padding-inline-start: 20px;
-    }
-
-    table {
-        margin: 16px 0;
-        width: 100%;
+      &:hover {
         background: var(--enh-body-focus);
-        border: 1px solid var(--enh-body-highlight);
-        border-collapse: collapse;
+      }
 
-        th {
-            text-align: right;
-        }
+      &.active {
+        background: var(--enh-body-highlight);
+      }
+    }
+  }
 
-        th,
-        td {
-            padding: 4px 8px;
-            border: 1px solid var(--enh-body-highlight);
-        }
+  & p,
+  & section {
+    margin-bottom: 8px;
+  }
+
+  & a {
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  & ol {
+    padding-inline-start: 20px;
+  }
+
+  & table {
+    margin: 16px 0;
+    width: 100%;
+    background: var(--enh-body-focus);
+    border: 1px solid var(--enh-body-highlight);
+    border-collapse: collapse;
+  }
+
+  & th {
+    text-align: right;
+  }
+
+  & th,
+  & td {
+    padding: 4px 8px;
+    border: 1px solid var(--enh-body-highlight);
+  }
+
+  & label {
+    cursor: pointer;
+
+    &:hover {
+      background: var(--enh-body-focus);
     }
 
-    label {
-        cursor: pointer;
-
-        &:hover {
-            background: var(--enh-body-focus);
-        }
-
-        input {
-            cursor: pointer;
-        }
-
-        &.disabled {
-            cursor: not-allowed;
-
-            input {
-                cursor: not-allowed;
-            }
-        }
+    & input {
+      cursor: pointer;
     }
 
-    input[type='text'] {
-        margin-bottom: 16px;
-        width: 100%;
-        padding: 8px;
-        background: var(--enh-body-focus);
-        color: var(--text);
-        border: 2px solid var(--enh-body-highlight);
-        border-radius: 3px;
-        outline: none !important;
+    &.disabled {
+      cursor: not-allowed;
 
-        &:hover,
-        &:focus {
-            background: var(--enh-body-highlight);
-        }
+      & input {
+        cursor: not-allowed;
+      }
     }
+  }
+
+  & input[type="text"] {
+    margin-bottom: 16px;
+    width: 100%;
+    padding: 8px;
+    background: var(--enh-body-focus);
+    color: var(--text);
+    border: 2px solid var(--enh-body-highlight);
+    border-radius: 3px;
+    outline: none !important;
+
+    &:hover,
+    &:focus {
+      background: var(--enh-body-highlight);
+    }
+  }
 }
 
 .header {
-    padding: 0 16px;
+  padding: 0 16px;
 }
 
 .title {
 }
 
 .view {
-    padding: 16px;
+  padding: 16px;
 }
 
 .section-header {
-    margin-bottom: 16px;
+  margin-bottom: 16px;
 }
 
 .field-label {
-    position: relative;
-    margin: 16px 0;
-    padding-top: 16px;
+  position: relative;
+  margin: 16px 0;
+  padding-top: 16px;
 
-    &:not(:first-of-type) {
-        border-top: 1px solid var(--enh-body-highlight);
-    }
+  &:not(:first-of-type) {
+    border-top: 1px solid var(--enh-body-highlight);
+  }
 }
 
 .label-block {
-    display: flex;
-    padding: 8px 8px 8px 0;
+  display: flex;
+  padding: 8px 8px 8px 0;
 
-    input[type='checkbox'] {
-        margin-left: auto;
-    }
+  & input[type="checkbox"] {
+    margin-left: auto;
+  }
 }
 
 .label-inline {
-    padding: 8px 8px 8px 0;
+  padding: 8px 8px 8px 0;
 
-    &:not(:first-child) {
-        padding-left: 8px;
-    }
+  &:not(:first-child) {
+    padding-left: 8px;
+  }
 
-    &:not(:last-child) {
-        margin-right: 8px;
-    }
+  &:not(:last-child) {
+    margin-right: 8px;
+  }
 }
 
 .warn {
-    padding: 8px;
-    background-color: #594c00;
+  padding: 8px;
+  background-color: #594c00;
 }
