@@ -129,7 +129,7 @@ export default (_env: unknown, { mode }: { mode: string }) => {
               loader: "postcss-loader",
               options: {
                 postcssOptions: {
-                  plugins: [postcssPresetEnv()],
+                  plugins: [postcssPresetEnv({ stage: 1 })],
                 },
               },
             },
