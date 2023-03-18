@@ -1,10 +1,10 @@
-import { App, computed, createApp, ref } from "vue"
+import { App, computed, createApp, onBeforeUnmount, ref } from "vue"
 import { onClickOutside } from "../../@common/dom"
 import { DEV_ONLY } from "../../@common/env"
 import { log } from "../../@common/log"
 import { useConfigSettings } from "../core/config"
 import { i18n } from "../core/i18n"
-import { page } from "../core/paging"
+import { ALL, page } from "../core/paging"
 import { useDownloaderSettings } from "../features/downloader"
 import { useTeaserSettings } from "../features/process-teasers"
 import css from "./Settings.module.css"
@@ -115,12 +115,18 @@ function setup() {
   const tabVal = computed(() => tabs[tabIndex.value] && tabs[tabIndex.value]!.val)
   const visible = ref(false)
 
-  settingsContainer.addEventListener("click", () => {
+  const onClickContainer = () => {
     visible.value = !visible.value
 
     if (visible.value) {
       onClickOutside(settingsContainer, () => (visible.value = false))
     }
+  }
+
+  settingsContainer.addEventListener("click", onClickContainer)
+
+  onBeforeUnmount(() => {
+    settingsContainer.removeEventListener("click", onClickContainer)
   })
 
   return {
@@ -136,15 +142,18 @@ function setup() {
   }
 }
 
-const settingsContainer = $(`<div id="enh-settings" class='header__link ${css.switch}'></div>`).get(
-  0
-)!
+const SETTINGS_ID = "enh-settings"
+
+const settingsContainer = $(
+  `<div id="${SETTINGS_ID}" class='header__link ${css.switch}'></div>`
+)[0]!
+
 let app: App | undefined
 
-page("", (pageID, onLeave) => {
-  const destination = $(".page .header__content:first-of-type .dropdown:last-of-type")
+page(ALL, (pageID, onLeave) => {
+  const destination = $(".page .header__content:first-of-type .dropdown:last-of-type")[0]
 
-  if (destination.length) {
+  if (destination) {
     // destination element will be destroyed everytime the page changes,
     // so we need to insert the container after every page change
     destination.before(settingsContainer)

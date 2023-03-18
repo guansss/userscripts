@@ -16,8 +16,8 @@ export function setupPaging() {
     log("Start observing pages.")
 
     const appObserver = new SimpleMutationObserver((mutation) => {
-      detectPageChange(mutation.addedNodes, "pageEnter")
-      detectPageChange(mutation.removedNodes, "pageLeave")
+      detectPageChange(appDiv, mutation.addedNodes, "pageEnter")
+      detectPageChange(appDiv, mutation.removedNodes, "pageLeave")
     })
     appObserver.observe(appDiv, { childList: true, immediate: true })
 
@@ -54,12 +54,25 @@ type PageEnterListener<ID extends IDArg> = (
   onLeave: (fn: PageListener<ID>) => void
 ) => void
 
+export const ALL = "*"
+
 // page listener for iwara
 export function page<ID extends IDArg>(id: ID, enter: PageEnterListener<ID>) {
-  const match =
-    typeof id === "string"
-      ? (className: string) => (className.includes(id) ? id : undefined)
-      : (className: string) => id.find((_id) => className.includes(_id)) || undefined
+  const match = (() => {
+    if (id === ALL) {
+      return () => id
+    }
+
+    const ids: readonly string[] = typeof id === "string" ? [id] : id
+    const classes = ids.map((id) => `page-${id}`)
+
+    return (className: string) => {
+      const split = className.split(" ")
+      const index = classes.findIndex((cls) => split.includes(cls))
+
+      return ids[index]
+    }
+  })()
 
   function callIfMatch(listener: PageListener<ID>) {
     return (className: string) => {
@@ -84,12 +97,21 @@ export function page<ID extends IDArg>(id: ID, enter: PageEnterListener<ID>) {
   emitter.on("pageEnter", onPageEnter)
 }
 
-function detectPageChange(nodes: NodeList, event: keyof Events) {
+function detectPageChange(appDiv: HTMLElement, nodes: NodeList, event: keyof Events) {
   if (nodes.length) {
     for (const node of nodes as any as Iterable<Node>) {
       // a valid class name will be like "page page-videoList", where "videoList" is the ID
       if (hasClass(node, "page")) {
-        emitter.emit(event, node.className)
+        // sometimes there are two (maybe more) "page" elements, and one of them contains only the "page" class,
+        // we ignore it in this case
+        const hasOtherPageElements =
+          $(appDiv)
+            .children(".page")
+            .filter((_, e) => e !== node).length > 0
+
+        if (!hasOtherPageElements) {
+          emitter.emit(event, node.className)
+        }
         break
       }
     }
@@ -98,7 +120,7 @@ function detectPageChange(nodes: NodeList, event: keyof Events) {
 
 DEV_ONLY(() => {
   const logPageID = (action: string) => (className: string) =>
-    ((i: number) => (i === -1 ? undefined : log(action, className.slice(i + 5))))(
+    ((i: number) => log(action, i === -1 ? "<void>" : className.slice(i + 5)))(
       className.indexOf("page-")
     )
   emitter.on("pageEnter", logPageID("enter"))

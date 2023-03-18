@@ -56,7 +56,7 @@ export function hasClass<E extends HTMLElement = HTMLElement>(
   node: Node,
   className: string
 ): node is E {
-  return (node as any).classList && (node as HTMLElement).classList.contains(className)
+  return !!(node as HTMLElement).classList?.contains(className)
 }
 
 export function observeDOM(
