@@ -5,7 +5,7 @@
 .settings {
   position: absolute;
   z-index: 1000;
-  top: calc(100% + 2px); /* plus 2px border */
+  top: 100%;
   right: 0;
   width: 400px;
   background: var(--body);
@@ -38,6 +38,10 @@
         background: var(--enh-body-highlight);
       }
     }
+  }
+
+  & p {
+    color: var(--muted);
   }
 
   & p,
@@ -114,6 +118,7 @@
 }
 
 .title {
+  margin-top: 4px;
 }
 
 .view {
