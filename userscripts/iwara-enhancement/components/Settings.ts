@@ -151,7 +151,9 @@ const settingsContainer = $(
 let app: App | undefined
 
 page(ALL, (pageID, onLeave) => {
-  const destination = $(".page .header__content:first-of-type .dropdown:last-of-type")[0]
+  const destination = $(
+    ".page .header__content:first-of-type .dropdown:last-of-type, a[href='/register']"
+  )[0]
 
   if (destination) {
     // destination element will be destroyed everytime the page changes,
