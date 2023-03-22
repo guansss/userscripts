@@ -278,18 +278,23 @@ function resolveFilename(template: string, source: VideoSource) {
     UP_DATE_TS: videoInfo.created + "",
   }
 
-  let basename = template
+  const wrappedKeywords = FILENAME_KEYWORDS.map((k) => `{${k}}`)
+  const regex = new RegExp(`(${wrappedKeywords.join("|")})`, "g")
 
-  for (const [key, value] of Object.entries(replacements)) {
-    basename = basename.replace(new RegExp(`{${key}}`, "g"), value)
-  }
+  const basename = template.replace(regex, (match) => {
+    const keyword = match.slice(1, -1) as (typeof FILENAME_KEYWORDS)[number]
+    const value = replacements[keyword]
 
-  // strip characters disallowed in file path
-  basename = basename.replace(/[*/:<>?\\|]/g, "")
+    // remove path delimiters
+    return value.replace(/[/\\]/g, "")
+  })
 
-  const ext = source.url.slice(source.url.lastIndexOf("."))
+  const ext = source.url.slice(source.url.lastIndexOf(".")).replace(/[^A-Za-z0-9.]/g, "")
 
-  return basename + ext
+  // strip characters that are forbidden in file systems
+  const filename = (basename + ext).replace(/[*:<>?|]/g, "")
+
+  return filename
 }
 
 function printDownloadMessage(msg: string) {
