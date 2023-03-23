@@ -3,7 +3,7 @@ import { hasClass, SimpleMutationObserver } from "../../@common/dom"
 import { DEV_ONLY } from "../../@common/env"
 import { log } from "../../@common/log"
 import { getReactEventHandlers } from "../../@common/react"
-import { formatDate } from "../../@common/string"
+import { formatDate, formatError, sanitizePath } from "../../@common/string"
 import { delay } from "../../@common/timer"
 import { page } from "../core/paging"
 import { storage } from "../core/storage"
@@ -52,6 +52,7 @@ const RESOLUTIONS = ["Source", "540p", "360p"] as const
 const autoEnabled =
   GM_info.downloadMode === "browser" ? ref(storage.get("auto_down_enabled")) : false
 const filenameTemplate = ref(storage.get("filename"))
+const illegalCharReplacement = ref(storage.get("illegal_char_replacement"))
 const resolution = ref(storage.get("preferred_res"))
 
 const videoInfo = reactive({
@@ -76,7 +77,7 @@ const filename = computed(() => {
 
     return resolveFilename(filenameTemplate.value, source.value)
   } catch (e: any) {
-    return `Unable to resolve filename (${e.message || e})`
+    return `Unable to resolve filename (${formatError(e)})`
   }
 })
 
@@ -96,6 +97,7 @@ export function useDownloaderSettings() {
     resolution,
     filenameTemplate,
     filenamePreview: filename,
+    illegalCharReplacement,
   }
 }
 
@@ -232,7 +234,6 @@ function download(downloadDropdown: HTMLElement) {
     GM_download({
       url: source.value.url,
       name: filename,
-      saveAs: true,
       onload: () => downloadEnded("onload"),
       onerror: (e) => downloadEnded("onerror", e),
       ontimeout: () => downloadEnded("ontimeout"),
@@ -272,9 +273,9 @@ function resolveFilename(template: string, source: VideoSource) {
     TITLE: videoInfo.title,
     RES: source.label,
     AUTHOR: videoInfo.author,
-    DATE: formatDate(new Date()),
+    DATE: formatDate(new Date(), ""),
     DATE_TS: new Date().getTime() + "",
-    UP_DATE: formatDate(new Date(videoInfo.created)),
+    UP_DATE: formatDate(new Date(videoInfo.created), ""),
     UP_DATE_TS: videoInfo.created + "",
   }
 
@@ -285,16 +286,15 @@ function resolveFilename(template: string, source: VideoSource) {
     const keyword = match.slice(1, -1) as (typeof FILENAME_KEYWORDS)[number]
     const value = replacements[keyword]
 
-    // remove path delimiters
-    return value.replace(/[/\\]/g, "")
+    // remove path delimiters in keyword values
+    return value.replace(/[/\\]/g, illegalCharReplacement.value)
   })
 
   const ext = source.url.slice(source.url.lastIndexOf(".")).replace(/[^A-Za-z0-9.]/g, "")
 
-  // strip characters that are forbidden in file systems
-  const filename = (basename + ext).replace(/[*:<>?|]/g, "")
+  const filename = basename + ext
 
-  return filename
+  return sanitizePath(filename, illegalCharReplacement.value)
 }
 
 function printDownloadMessage(msg: string) {

@@ -7,6 +7,7 @@ export const storage = createStorage<{
   auto_down_enabled: boolean
   preferred_res: "Source" | "540p" | "360p"
   filename: string
+  illegal_char_replacement: string
   dark: boolean
   like_rates: boolean
   like_rate_highlight: number
@@ -20,6 +21,7 @@ export const storage = createStorage<{
   auto_down_enabled: true,
   preferred_res: "Source",
   filename: "{DATE} {TITLE} - {AUTHOR} ({ID})",
+  illegal_char_replacement: "_",
   dark: false,
   like_rates: true,
   like_rate_highlight: 4,

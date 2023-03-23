@@ -8,6 +8,8 @@
   top: 100%;
   right: 0;
   width: 400px;
+  max-height: calc(100vh - 65px);
+  overflow: auto;
   background: var(--body);
   font-size: 14px;
   border: 2px solid var(--primary);
@@ -40,7 +42,16 @@
     }
   }
 
-  & p {
+  & details {
+    border: 1px solid var(--enh-body-highlight);
+
+    > * {
+      padding: 0 8px;
+    }
+  }
+
+  & p,
+  & summary {
     color: var(--muted);
   }
 
@@ -59,7 +70,7 @@
   }
 
   & table {
-    margin: 16px 0;
+    margin: 8px 0;
     width: 100%;
     background: var(--enh-body-focus);
     border: 1px solid var(--enh-body-highlight);
@@ -76,7 +87,8 @@
     border: 1px solid var(--enh-body-highlight);
   }
 
-  & label {
+  & label,
+  & summary {
     cursor: pointer;
 
     &:hover {
@@ -97,7 +109,7 @@
   }
 
   & input[type="text"] {
-    margin-bottom: 16px;
+    margin: 8px 0;
     width: 100%;
     padding: 8px;
     background: var(--enh-body-focus);
@@ -149,6 +161,7 @@
 }
 
 .label-inline {
+  display: inline-flex;
   padding: 8px 8px 8px 0;
 
   &:not(:first-child) {

@@ -41,3 +41,16 @@ export function adjustHexColor(color: string, amount: number) {
       .padStart(2, "0")
   )
 }
+
+/**
+ * Replaces characters that are forbidden in file systems.
+ */
+export function sanitizePath(path: string, illegalCharReplacement: string, keepDelimiters = true) {
+  path = path.replace(/[*:<>?|]/g, illegalCharReplacement)
+
+  if (!keepDelimiters) {
+    path = path.replace(/[\\/]/g, illegalCharReplacement)
+  }
+
+  return path
+}

@@ -11,20 +11,15 @@
 
   "s": {
     "enabled": "Enabled",
+    "extra": "Extra settings",
     "download": {
       "label": "Download",
       "auto": {
         "label": "One-click Download",
         "desc": "Automatically starts download when clicking the download button.",
-        "warn": "This feature requires Tampermonkey.",
+        "warn": "Only works in Tampermonkey.",
         "warn_tm": [
-          "This feature requires Tampermonkey's <b>Browser API</b> download mode, please follow these steps:",
-          "Navigate to Tampermonkey's settings panel and then the <b>Settings</b> tab.",
-          "In <b>General</b> section, set <b>Config Mode</b> to <b>Advanced</b> (or <b>Beginner</b>).",
-          "In <b>Downloads BETA</b> section, set <b>Download Mode</b> to <b>Browser API</b>.",
-          "In <b>Downloads BETA</b> section, click <b>Save</b>.",
-          "Grant permission if requested.",
-          "Refresh this page."
+          "This feature requires Tampermonkey's <b>Browser API</b> download mode, please follow <a href='https://www.tampermonkey.net/faq.php#Q302'>this guide</a> and refresh the page once done."
         ]
       },
       "resolution": {
@@ -43,7 +38,8 @@
           "up_date": "date time when the video was uploaded",
           "date_ts": "DATE in timestamp format",
           "up_date_ts": "UP_DATE in timestamp format"
-        }
+        },
+        "replace_illegal_char": "Replace characters that are disallowed in filename with:"
       }
     },
     "ui": {

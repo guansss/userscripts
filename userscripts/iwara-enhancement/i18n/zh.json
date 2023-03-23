@@ -6,6 +6,7 @@
 
   "s": {
     "enabled": "启用",
+    "extra": "更多选项",
     "download": {
       "label": "下载",
       "auto": {
@@ -38,7 +39,8 @@
           "up_date": "视频发布时的日期和时间",
           "date_ts": "DATE 的时间戳格式",
           "up_date_ts": "UP_DATE 的时间戳格式"
-        }
+        },
+        "replace_illegal_char": "将文件名中的非法字符替换为:"
       }
     },
     "ui": {

@@ -2,6 +2,7 @@ import { App, computed, createApp, onBeforeUnmount, ref } from "vue"
 import { onClickOutside } from "../../@common/dom"
 import { DEV_ONLY } from "../../@common/env"
 import { log } from "../../@common/log"
+import { sanitizePath } from "../../@common/string"
 import { useConfigSettings } from "../core/config"
 import { i18n } from "../core/i18n"
 import { ALL, page } from "../core/paging"
@@ -88,6 +89,14 @@ const template = /* html */ `
                     </tr>
                 </table>
             </div>
+            <details>
+                <summary>{{ $t('s.extra') }}</summary>
+                <p>
+                    {{ $t('s.download.filename.replace_illegal_char') }}
+                    <input type='text' v-model='illegalCharReplacement'>
+                    {{ '*miku*miku:dance??.mp4 -> ' }} {{ sanitizePath('*miku*miku:dance??.mp4', illegalCharReplacement) }}
+                </p>
+            </details>
             <input type='text' v-model='filenameTemplate'>
             <p>{{ $t('s.download.filename.preview') + ': ' + filenamePreview }}</p>
         </div>
@@ -136,6 +145,7 @@ function setup() {
     tabVal,
     visible,
     downloadMode: GM_info.downloadMode,
+    sanitizePath,
     ...useDownloaderSettings(),
     ...useConfigSettings(),
     ...useTeaserSettings(),
