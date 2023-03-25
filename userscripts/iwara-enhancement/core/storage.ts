@@ -13,7 +13,6 @@ export const storage = createStorage<{
   like_rate_highlight: number
   like_rate_highlight_opacity: number
   player_size: number
-  hide_list_options: boolean
 }>(SCRIPT_ID, {
   v: GM_info.script.version,
   locale: navigator.language,
@@ -27,5 +26,4 @@ export const storage = createStorage<{
   like_rate_highlight: 4,
   like_rate_highlight_opacity: 0.2,
   player_size: 100,
-  hide_list_options: false,
 })

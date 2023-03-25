@@ -4,10 +4,7 @@
   "name": "Iwara Enhancement",
   "description": "Multiple UI enhancements for better experience.",
 
-  "ui": {
-    "show_list_options": "Show options",
-    "hide_list_options": "Hide options"
-  },
+  "ui": {},
 
   "s": {
     "enabled": "Enabled",
