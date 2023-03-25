@@ -3,7 +3,8 @@ import { hasClass, SimpleMutationObserver } from "../../@common/dom"
 import { DEV_ONLY } from "../../@common/env"
 import { log } from "../../@common/log"
 import { parseAbbreviatedNumber } from "../../@common/number"
-import { throttle, until } from "../../@common/timer"
+import { adjustAlpha } from "../../@common/string"
+import { throttle, until$ } from "../../@common/timer"
 import { page } from "../core/paging"
 import { storage } from "../core/storage"
 
@@ -12,29 +13,32 @@ const highlightThreshold = ref(storage.get("like_rate_highlight"))
 const highlightOpacity = ref(storage.get("like_rate_highlight_opacity"))
 
 const likeRateClass = "enh-like-rate"
+const highlightClass = "enh-highlight"
 
 watchEffect(() => {
   storage.set("like_rates", likeRateEnabled.value)
 
   if (likeRateEnabled.value) {
     document.body.classList.add("enh-show-like-rates")
+    $(".videoTeaser, .imageTeaser").each((i, teaser) => processTeaser(teaser))
   } else {
     document.body.classList.remove("enh-show-like-rates")
+    $("." + highlightClass).removeClass(highlightClass)
   }
 })
 
 watchEffect(() => {
   storage.set("like_rate_highlight", highlightThreshold.value)
 
-  $(".videoTeaser, .imageTeaser")
-    .parent()
-    .each((i, teaser) => processTeaser(teaser))
+  $(".videoTeaser, .imageTeaser").each((i, teaser) => processTeaser(teaser))
 })
 
 watchEffect(() => {
   storage.set("like_rate_highlight_opacity", highlightOpacity.value)
 
-  document.body.style.setProperty("--ehg-hl-op", highlightOpacity.value + "")
+  const color = getComputedStyle(document.body).getPropertyValue("--primary").trim()
+
+  document.body.style.setProperty("--ehg-hl-bg", adjustAlpha(color, highlightOpacity.value))
 })
 
 export function useTeaserSettings() {
@@ -45,47 +49,67 @@ export function useTeaserSettings() {
   }
 }
 
-page(["home", "videoList", "imageList", "subscriptions"] as const, async (pageID, onLeave) => {
-  const teaserObserver = new SimpleMutationObserver((mutation) =>
-    mutation.addedNodes.forEach(detectTeaser)
-  )
+page(
+  ["home", "videoList", "imageList", "subscriptions", "profile", "video", "image"] as const,
+  async (pageID, onLeave) => {
+    const teaserObserver = new SimpleMutationObserver((mutation) =>
+      mutation.addedNodes.forEach(detectColumn)
+    )
 
-  onLeave(() => {
-    teaserObserver.disconnect()
+    onLeave(() => {
+      teaserObserver.disconnect()
 
-    DEV_ONLY(() => $("." + likeRateClass).remove())
-  })
+      DEV_ONLY(() => $("." + likeRateClass).remove())
+    })
 
-  const teaserBatcher = new TeaserBatcher()
+    const teaserBatcher = new TeaserBatcher()
 
-  if (pageID === "home") {
-    const rows = $(".videoTeaser, .imageTeaser").closest(".row")
+    if (["home", "profile", "image"].includes(pageID)) {
+      ;[".videoTeaser", ".imageTeaser"].forEach(async (selector) => {
+        const $teasers = await until$(() => $(selector), 200)
 
-    if (!rows.length) {
-      log("Could not find teaser rows.")
-      return
+        requestProcessTeasers($teasers.toArray())
+      })
+    } else if (pageID === "video") {
+      const selectors = [".moreFromUser", ".moreLikeThis"].flatMap((parentCls) =>
+        [".videoTeaser", ".imageTeaser"].map((cls) => `${parentCls} ${cls}`)
+      )
+
+      selectors.forEach(async (selector) => {
+        const $teasers = await until$(() => $(selector), 200)
+
+        requestProcessTeasers($teasers.toArray())
+      })
+    } else {
+      const $teasers = await until$(
+        () => $(".videoTeaser:first-of-type, .imageTeaser:first-of-type"),
+        200
+      )
+
+      detectRow($teasers.closest(".row")[0]!)
     }
 
-    rows.each((i, row) => detectRow(row))
-  } else {
-    const rowPromise = until(() => $(".videoTeaser, .imageTeaser").closest(".row")[0], 200)
+    function detectRow(row: Node) {
+      teaserObserver.observe(row, { childList: true, immediate: true })
+    }
 
-    onLeave(() => rowPromise.cancel())
+    function detectColumn(column: Node) {
+      const { firstChild } = column
 
-    detectRow(await rowPromise)
-  }
+      if (
+        !!firstChild &&
+        (hasClass(firstChild, "videoTeaser") || hasClass(firstChild, "imageTeaser"))
+      ) {
+        requestProcessTeasers([firstChild])
+      }
+    }
 
-  function detectRow(row: Node) {
-    teaserObserver.observe(row, { childList: true, immediate: true })
-  }
-
-  function detectTeaser(teaser: Node) {
-    if (isTeaser(teaser)) {
-      teaserBatcher.add(teaser)
+    function requestProcessTeasers(teasers: HTMLElement[]) {
+      teasers.forEach((teaser) => teaserBatcher.add(teaser))
       teaserBatcher.run(processTeaser)
     }
   }
-})
+)
 
 class TeaserBatcher {
   teasers: HTMLElement[] = []
@@ -136,19 +160,12 @@ function processTeaser(teaser: HTMLElement) {
     viewsLabel.children().eq(0).clone()
             .addClass(likeRateClass)
             .text(likePercentage + '%')
-            .appendTo(viewsLabel);
+            .prependTo(viewsLabel);
   }
 
-  if (likePercentage >= highlightThreshold.value) {
-    teaser.classList.add("enh-highlight")
+  if (likePercentage >= highlightThreshold.value && likeRateEnabled.value) {
+    teaser.classList.add(highlightClass)
   } else {
-    teaser.classList.remove("enh-highlight")
+    teaser.classList.remove(highlightClass)
   }
-}
-
-function isTeaser<E extends HTMLElement = HTMLElement>(node: Node): node is E {
-  return (
-    !!node.firstChild &&
-    (hasClass(node.firstChild, "videoTeaser") || hasClass(node.firstChild, "imageTeaser"))
-  )
 }

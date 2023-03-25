@@ -75,6 +75,28 @@ export function until<T>(
   return promise as CancelablePromise<NonNullable<T>>
 }
 
+/**
+ * Periodically calls given function until the returned jQuery object is not empty.
+ * @returns A CancelablePromise that resolves with the jQuery object.
+ */
+export function until$<T extends JQuery>(
+  fn: () => T,
+  interval = 0,
+  cancelOnReload = true
+): CancelablePromise<T> {
+  return until(
+    () => {
+      const result = fn()
+
+      if (result.length) {
+        return result
+      }
+    },
+    interval,
+    cancelOnReload
+  )
+}
+
 export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }

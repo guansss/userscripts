@@ -42,6 +42,39 @@ export function adjustHexColor(color: string, amount: number) {
   )
 }
 
+// written by ChatGPT
+export function adjustAlpha(color: string, alpha: number): string {
+  if (alpha < 0 || alpha > 1) {
+    throw new Error('Alpha value must be between 0 and 1');
+  }
+
+  let r: number, g: number, b: number;
+
+  if (color.startsWith('#')) {
+    if (color.length !== 7) {
+      throw new Error('Invalid color format');
+    }
+
+    r = parseInt(color.slice(1, 3), 16);
+    g = parseInt(color.slice(3, 5), 16);
+    b = parseInt(color.slice(5, 7), 16);
+  } else if (color.startsWith('rgb')) {
+    const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+
+    if (!match) {
+      throw new Error('Invalid color format');
+    }
+
+    r = parseInt(match[1]!, 10);
+    g = parseInt(match[2]!, 10);
+    b = parseInt(match[3]!, 10);
+  } else {
+    throw new Error('Invalid color format');
+  }
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 /**
  * Replaces characters that are forbidden in file systems.
  */
