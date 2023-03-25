@@ -2,6 +2,7 @@ import { ref, watchEffect } from "vue"
 import { hasClass, SimpleMutationObserver } from "../../@common/dom"
 import { DEV_ONLY } from "../../@common/env"
 import { log } from "../../@common/log"
+import { parseAbbreviatedNumber } from "../../@common/number"
 import { throttle, until } from "../../@common/timer"
 import { page } from "../core/paging"
 import { storage } from "../core/storage"
@@ -122,13 +123,14 @@ function processTeaser(teaser: HTMLElement) {
   if (likeRateLabel.length) {
     likePercentage = +likeRateLabel.text().trim().replace("%", "")
   } else {
-    let [views, likes] = [viewsLabel, likesLabel].map((icon) => {
-      const value = icon.text().trim()
+    const views = parseAbbreviatedNumber(viewsLabel.text().trim())
+    const likes = parseAbbreviatedNumber(likesLabel.text().trim())
 
-      return value.includes("k") ? +value.slice(0, -1) * 1000 : +value
-    })
+    likePercentage = views === 0 ? 0 : Math.round((1000 * likes) / views) / 10
 
-    likePercentage = views === 0 ? 0 : Math.round((1000 * likes!) / views!) / 10
+    if (Number.isNaN(likePercentage)) {
+      likePercentage = 0
+    }
 
     // prettier-ignore
     viewsLabel.children().eq(0).clone()
