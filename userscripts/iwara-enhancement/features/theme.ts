@@ -17,4 +17,12 @@ export function updateTheme() {
     "--enh-body-highlight",
     adjustHexColor(bodyColor, adjustmentSign * 30)
   )
+
+  const darkClass = "enh-dark"
+
+  if (theme === "dark") {
+    document.body.classList.add(darkClass)
+  } else {
+    document.body.classList.remove(darkClass)
+  }
 }

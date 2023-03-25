@@ -1,6 +1,6 @@
 import { computed, reactive, ref, watchEffect } from "vue"
 import { hasClass, SimpleMutationObserver } from "../../@common/dom"
-import { DEV_ONLY } from "../../@common/env"
+import { ON_RELOAD } from "../../@common/env"
 import { log } from "../../@common/log"
 import { getReactEventHandlers } from "../../@common/react"
 import { formatDate, formatError, sanitizePath } from "../../@common/string"
@@ -49,8 +49,7 @@ const FILENAME_KEYWORDS = [
 ] as const
 const RESOLUTIONS = ["Source", "540p", "360p"] as const
 
-const autoEnabled =
-  GM_info.downloadMode === "browser" ? ref(storage.get("auto_down_enabled")) : false
+const autoEnabled = ref(storage.get("auto_down_enabled"))
 const filenameTemplate = ref(storage.get("filename"))
 const illegalCharReplacement = ref(storage.get("illegal_char_replacement"))
 const resolution = ref(storage.get("preferred_res"))
@@ -83,11 +82,8 @@ const filename = computed(() => {
 
 watchEffect(() => storage.set("preferred_res", resolution.value))
 watchEffect(() => storage.set("filename", filenameTemplate.value))
-
-if (typeof autoEnabled !== "boolean") {
-  watchEffect(() => storage.set("auto_down_enabled", autoEnabled.value))
-  watchEffect(() => convertDownloadDropdown(undefined, autoEnabled.value, source.value))
-}
+watchEffect(() => storage.set("auto_down_enabled", autoEnabled.value))
+watchEffect(() => convertDownloadDropdown(undefined, autoEnabled.value, source.value))
 
 export function useDownloaderSettings() {
   return {
@@ -115,12 +111,10 @@ page("video", (pageID, onLeave) => {
         updateVideoInfo(videoActions)
         updateSources(node)
 
-        if (autoEnabled && autoEnabled.value) {
+        if (autoEnabled.value) {
           convertDownloadDropdown(node, true, source.value)
 
-          DEV_ONLY(() => {
-            onLeave(() => convertDownloadDropdown(node, false, undefined))
-          })
+          ON_RELOAD(() => convertDownloadDropdown(node, false, undefined))
         }
       }
     })
@@ -176,10 +170,13 @@ function convertDownloadDropdown(
   enabled: boolean,
   source: VideoSource | undefined
 ) {
-  // @ts-ignore The parameter is valid but TS doesn't recognize it
-  const $dropdown = $(downloadDropdown || ".page-video__actions > .dropdown") as JQuery<HTMLElement>
+  const $dropdown = downloadDropdown ? $(downloadDropdown) : $(".page-video__actions > .dropdown")
   const $button = $dropdown.find(".downloadButton")
   const rawButtonText = $button.text().replace(/\s*\(.*\)/, "")
+
+  if (!$dropdown.length || !$button.length) {
+    return
+  }
 
   if (enabled) {
     if (!$dropdown.data("converted")) {
@@ -211,40 +208,53 @@ function download(downloadDropdown: HTMLElement) {
     if (!source.value) {
       throw new Error("Missing source.")
     }
-    if (GM_info.downloadMode !== "browser") {
-      throw new Error(`Invalid download mode "${GM_info.downloadMode}".`)
-    }
 
     const $downloadButton = $(downloadDropdown).find(".downloadButton")
 
-    // TODO: properly disable the button
-    $(downloadDropdown).css("pointer-events", "none")
-    $downloadButton.css("background-color", "var(--primary-dark)")
-
     const filename = resolveFilename(filenameTemplate.value, source.value)
 
-    log("Downloading:", filename, source.value.url)
+    log("Downloading:", filename, source.value.url, GM_info.downloadMode)
 
-    if (DEV) {
-      delay(2000).then(() => downloadEnded("onload"))
-      // delay(2000).then(() => downloadEnded('ontimeout'));
-      return
+    if (GM_info.downloadMode === "browser") {
+      setDownloadButtonEnabled(false)
+
+      if (DEV) {
+        delay(2000).then(() => downloadEnded("onload"))
+        // delay(2000).then(() => downloadEnded('ontimeout'));
+        return
+      }
+
+      GM_download({
+        url: source.value.url,
+        name: filename,
+        onload: () => downloadEnded("onload"),
+        onerror: (e) => downloadEnded("onerror", e),
+        ontimeout: () => downloadEnded("ontimeout"),
+      })
+    } else {
+      const a = document.createElement("a")
+      a.href = source.value.url
+      a.download = filename
+      a.click()
     }
 
-    GM_download({
-      url: source.value.url,
-      name: filename,
-      onload: () => downloadEnded("onload"),
-      onerror: (e) => downloadEnded("onerror", e),
-      ontimeout: () => downloadEnded("ontimeout"),
-    })
+    function setDownloadButtonEnabled(enabled: boolean) {
+      log(enabled)
+      if (enabled) {
+        // TODO: properly disable the button
+        $(downloadDropdown).css("pointer-events", "")
+        $downloadButton.css("background-color", "")
+      } else {
+        $(downloadDropdown).css("pointer-events", "none")
+        $downloadButton.css("background-color", "var(--primary-dark)")
+      }
+    }
 
     function downloadEnded(
       type: "onload" | "onerror" | "ontimeout",
       e?: Parameters<Required<Parameters<typeof GM_download>[0]>["onerror"]>[0]
     ) {
-      $(downloadDropdown).css("pointer-events", "")
-      $downloadButton.css("background-color", "")
+      setDownloadButtonEnabled(true)
 
       if (type === "ontimeout") {
         e = { error: "timed_out" } as any

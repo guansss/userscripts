@@ -57,6 +57,7 @@
 
   & p,
   & section {
+    margin-top: 0;
     margin-bottom: 8px;
   }
 
@@ -175,5 +176,11 @@
 
 .warn {
   padding: 8px;
-  background-color: #594c00;
+  background-color: #e9db89;
+}
+
+:global(.enh-dark) {
+  .warn {
+    background-color: #594c00;
+  }
 }

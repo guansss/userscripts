@@ -24,7 +24,7 @@ declare const GM_info: {
     name: string
     version: string
   }
-  downloadMode: "native" | "browser" | "disabled"
+  downloadMode?: "native" | "browser" | "disabled"
 }
 
 declare function GM_download(details: {
@@ -37,7 +37,7 @@ declare function GM_download(details: {
     details: { current?: string }
   }): void
   onload?(): void
-  onprogress?(): void
+  onprogress?(e: { loaded: number; total: number }): void
   ontimeout?(): void
 }): {
   abort(): void

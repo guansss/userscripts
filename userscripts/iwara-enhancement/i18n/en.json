@@ -16,11 +16,7 @@
       "label": "Download",
       "auto": {
         "label": "One-click Download",
-        "desc": "Automatically starts download when clicking the download button.",
-        "warn": "Only works in Tampermonkey.",
-        "warn_tm": [
-          "This feature requires Tampermonkey's <b>Browser API</b> download mode, please follow <a href='https://www.tampermonkey.net/faq.php#Q302'>this guide</a> and refresh the page once done."
-        ]
+        "desc": "Automatically starts download when clicking the download button."
       },
       "resolution": {
         "label": "Preferred Resolution for Download"
@@ -39,7 +35,12 @@
           "date_ts": "DATE in timestamp format",
           "up_date_ts": "UP_DATE in timestamp format"
         },
-        "replace_illegal_char": "Replace characters that are disallowed in filename with:"
+        "replace_illegal_char": "Replace characters that are disallowed in filename with:",
+        "warn": "Only works in Tampermonkey.",
+        "warn_tm": {
+          "desc": "This feature requires Tampermonkey's download mode to be set to <b>Browser API</b>, please follow <a href='https://www.tampermonkey.net/faq.php#Q302' target='_blank' rel='noopener noreferrer'>this guide↗</a> and refresh the page once done.",
+          "steps": []
+        }
       }
     },
     "ui": {

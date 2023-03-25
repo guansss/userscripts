@@ -11,17 +11,7 @@
       "label": "下载",
       "auto": {
         "label": "一键下载",
-        "desc": "点击下载按钮时自动开始下载",
-        "warn": "该功能仅在 Tampermonkey 中可用",
-        "warn_tm": [
-          "该功能需要启用 Tampermonkey 的<b>浏览器 API</b>下载模式，请按照以下步骤启用：",
-          "进入 Tampermonkey 的设置面板，选择<b>设置</b>标签页",
-          "在<b>通用</b>里，设置<b>配置模式</b>为<b>高级<b>（或者<b>初学者</b>）",
-          "在<b>下载 BETA</b>里，设置<b>下载模式</b>为<b>浏览器 API</b>",
-          "在<b>下载 BETA</b>里，点击<b>保存</b>",
-          "如果请求权限的话，选择同意",
-          "刷新当前页面"
-        ]
+        "desc": "点击下载按钮时自动开始下载"
       },
       "resolution": {
         "label": "优先下载的分辨率"
@@ -40,7 +30,19 @@
           "date_ts": "DATE 的时间戳格式",
           "up_date_ts": "UP_DATE 的时间戳格式"
         },
-        "replace_illegal_char": "将文件名中的非法字符替换为:"
+        "replace_illegal_char": "将文件名中的非法字符替换为:",
+        "warn": "该功能仅在 Tampermonkey 中可用",
+        "warn_tm": {
+          "desc": "该功能需要启用 Tampermonkey 的<b>浏览器 API</b>下载模式，请按照以下步骤启用，或者查看<a href='https://www.tampermonkey.net/faq.php#Q302' target='_blank' rel='noopener noreferrer'>官方指南↗</a>",
+          "steps": [
+            "进入 Tampermonkey 的设置面板，选择<b>设置</b>标签页",
+            "在<b>通用</b>里，设置<b>配置模式</b>为<b>高级<b>（或者<b>初学者</b>）",
+            "在<b>下载 BETA</b>里，设置<b>下载模式</b>为<b>浏览器 API</b>",
+            "在<b>下载 BETA</b>里，点击<b>保存</b>",
+            "如果请求权限的话，选择同意",
+            "刷新当前页面"
+          ]
+        }
       }
     },
     "ui": {

@@ -1,5 +1,4 @@
 import { ON_RELOAD } from "./env"
-import { log } from "./log"
 
 export interface CancelablePromise<T> extends Promise<T> {
   /**
@@ -29,53 +28,47 @@ export function throttle<T extends (...args: any) => any>(
 }
 
 /**
- * Periodically calls given function until it returns true.
- */
-export function repeat(fn: () => boolean | void, interval = 200) {
-  if (fn()) {
-    return 0
-  }
-
-  const id = setInterval(() => {
-    try {
-      fn() && clearInterval(id)
-    } catch (e) {
-      log(e)
-      clearInterval(id)
-    }
-  }, interval)
-
-  return id
-}
-
-/**
  * Periodically calls given function until the return value is truthy.
  * @returns A CancelablePromise that resolves with the function's return value when truthy.
  */
-export function until<T>(fn: () => T, interval = 0): CancelablePromise<NonNullable<T>> {
+export function until<T>(
+  fn: () => T,
+  interval = 0,
+  cancelOnReload = true
+): CancelablePromise<NonNullable<T>> {
   let cancelled = false
 
-  const promise = new Promise<NonNullable<T>>((resolve, reject) =>
-    repeat(() => {
+  if (cancelOnReload) {
+    ON_RELOAD(() => (cancelled = true))
+  }
+
+  const STOP = Symbol()
+
+  const promise = new Promise<NonNullable<T>>((resolve, reject) => {
+    const run = () => {
       if (cancelled) {
-        return true
+        return STOP
       }
 
+      const result = fn()
+
+      if (result) {
+        resolve(result as NonNullable<T>)
+        return STOP
+      }
+    }
+
+    const timerId = setInterval(() => {
       try {
-        const result = fn()
-
-        if (result) {
-          resolve(result as NonNullable<T>)
-
-          // break the repeat() loop
-          return true
+        if (run() === STOP) {
+          clearInterval(timerId)
         }
       } catch (e) {
         reject(e)
-        return true
+        clearInterval(timerId)
       }
     }, interval)
-  )
+  })
 
   ;(promise as CancelablePromise<any>).cancel = () => (cancelled = true)
 

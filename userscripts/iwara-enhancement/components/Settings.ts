@@ -57,17 +57,10 @@ const template = /* html */ `
 
             <h3 :class='css.fieldLabel'>{{ $t('s.download.auto.label') }}</h3>
             <p v-html='$t("s.download.auto.desc")'></p>
-            <p v-if='!downloadMode' v-html='$t("s.download.auto.warn")'></p>
-            <section v-else-if='downloadMode !== "browser"' :class='css.warn'>
-                <p v-html='$tm("s.download.auto.warn_tm")[0]'></p>
-                <ol>
-                    <li v-for='line in $tm("s.download.auto.warn_tm").slice(1)'><p v-html='line'></p></li>
-                </ol>
-            </section>
             <p>
-                <label :class='[css.labelBlock, { [css.disabled]: downloadMode !== "browser" }]'>
+                <label :class='css.labelBlock'>
                     {{ $t('s.enabled') }}
-                    <input type='checkbox' :disabled='downloadMode !== "browser"' v-model='autoDownEnabled'>
+                    <input type='checkbox' v-model='autoDownEnabled'>
                 </label>
             </p>
 
@@ -80,7 +73,16 @@ const template = /* html */ `
             </p>
 
             <h3 :class='css.fieldLabel'>{{ $t('s.download.filename.label') }}</h3>
+            <p v-if='!downloadMode' v-html='$t("s.download.filename.warn")'></p>
+            <section v-else-if='downloadMode !== "browser"' :class='css.warn'>
+                <p v-html='$t("s.download.filename.warn_tm.desc")'></p>
+                <ol v-if='$tm("s.download.filename.warn_tm.steps").length'>
+                    <li v-for='step in $tm("s.download.filename.warn_tm.steps")'><p v-html='step'></p></li>
+                </ol>
+            </section>
+
             <p v-html='$t("s.download.filename.desc")'></p>
+
             <div :class='css.keywords'>
                 <table :class='css.keywordTable'>
                     <tr v-for='kw in FILENAME_KEYWORDS'>
