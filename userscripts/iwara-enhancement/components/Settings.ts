@@ -8,6 +8,7 @@ import { i18n } from "../core/i18n"
 import { ALL, page } from "../core/paging"
 import { useDownloaderSettings } from "../features/downloader"
 import { useTeaserSettings } from "../features/process-teasers"
+import { useWidenContentSettings } from "../features/widen-content"
 import css from "./Settings.module.css"
 
 // recommended vscode plugin for syntax highlighting: https://marketplace.visualstudio.com/items?itemName=Tobermory.es6-string-html
@@ -45,11 +46,26 @@ const template = /* html */ `
             <h3 :class='css.fieldLabel'>{{ $t('s.ui.highlight_threshold.label') }}</h3>
             <p v-html='$t("s.ui.highlight_threshold.desc")'></p>
             <p>
-                <input type='number' step='0.1' min='0' max='100' :value='highlightThreshold' @change='highlightThreshold = +$event.target.value'>
+                <input type='number' step='0.1' min='0' max='100' v-model='highlightThreshold'>
             </p>
             <h3 :class='css.fieldLabel'>{{ $t('s.ui.highlight_bg.label') }}</h3>
             <p>
                 <input type="range" min="0" max="1" step="0.01" v-model='highlightOpacity'>
+            </p>
+
+            <h3 :class='css.fieldLabel'>{{ $t('s.ui.widen_content.label') }}</h3>
+            <p v-html='$t("s.ui.widen_content.desc")'></p>
+            <p>
+                <label :class='css.labelBlock'>
+                    {{ $t('s.enabled') }}
+                    <input type='checkbox' v-model='widenContentEnabled'>
+                </label>
+            </p>
+            <p>
+                <label :class='css.labelBlock'>
+                    {{ $t('s.ui.widen_content.scale') }}
+                    <input type='number' step='1' min='10' max='500' :value='widenContentScale' @change='widenContentScale = Math.round($event.target.value)'>
+                </label>
             </p>
         </div>
         <div v-else-if='tabVal === "download"' :class='css.view'>
@@ -107,7 +123,7 @@ const template = /* html */ `
 
             <h3 :class='css.fieldLabel'>{{ $t('s.script.language.label') }}</h3>
             <p>
-                <label v-for='loc in $i18n.availableLocales' :class='css.labelBlock'>
+                <label v-for='loc in $i18n.availableLocales' :class='css.labelInline'>
                     <input type='radio' name='loc' :value='loc' :checked='activeLocale === loc' @change='locale = loc'>
                     {{ $t('language', loc) }}
                 </label>
@@ -151,6 +167,7 @@ function setup() {
     ...useDownloaderSettings(),
     ...useConfigSettings(),
     ...useTeaserSettings(),
+    ...useWidenContentSettings(),
   }
 }
 

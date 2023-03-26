@@ -57,6 +57,11 @@
       },
       "highlight_bg": {
         "label": "高亮透明度"
+      },
+      "widen_content": {
+        "label": "加宽内容区域",
+        "desc": "加宽视频页和图片页的内容区域",
+        "scale": "额外缩放 (%)"
       }
     },
     "script": {

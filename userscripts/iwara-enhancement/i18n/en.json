@@ -52,6 +52,11 @@
       },
       "highlight_bg": {
         "label": "Highlight opacity"
+      },
+      "widen_content": {
+        "label": "Widen content",
+        "desc": "Widen the content area in video and image pages.",
+        "scale": "Additional scale (%)"
       }
     },
     "script": {
