@@ -7,7 +7,7 @@
 // @grant       GM_addStyle
 // @require     https://unpkg.com/jquery@^3.6.0
 // @match       https://www.pixiv.net/*
-// @namespace   https://github.com/guansss
+// @namespace   https://github.com/guansss/userscripts
 // @version     0.1
 // @author      guansss
 // @source      https://github.com/guansss/userscripts
@@ -33,51 +33,39 @@
   }
 
   /**
-   * Periodically calls given function until it returns true.
-   */
-  function repeat(fn) {
-    let interval = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : 200
-    if (fn()) return 0
-
-    const id = setInterval(() => {
-      try {
-        fn() && clearInterval(id)
-      } catch (e) {
-        log(e)
-        clearInterval(id)
-      }
-    }, interval)
-
-    return id
-  }
-
-  /**
    * Periodically calls given function until the return value is truthy.
    * @returns A CancelablePromise that resolves with the function's return value when truthy.
    */
   function until(fn) {
     let interval = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : 0
+    let cancelOnReload = arguments.length > 2 && void 0 !== arguments[2] ? arguments[2] : true
     let cancelled = false
 
-    const promise = new Promise((resolve, reject) =>
-      repeat(() => {
-        if (cancelled) return true
+    if (cancelOnReload);
 
+    const STOP = Symbol()
+
+    const promise = new Promise((resolve, reject) => {
+      const run = () => {
+        if (cancelled) return STOP
+
+        const result = fn()
+
+        if (result) {
+          resolve(result)
+          return STOP
+        }
+      }
+
+      const timerId = setInterval(() => {
         try {
-          const result = fn()
-
-          if (result) {
-            resolve(result)
-
-            // break the repeat() loop
-            return true
-          }
+          if (run() === STOP) clearInterval(timerId)
         } catch (e) {
           reject(e)
-          return true
+          clearInterval(timerId)
         }
       }, interval)
-    )
+    })
     promise.cancel = () => (cancelled = true)
 
     return promise

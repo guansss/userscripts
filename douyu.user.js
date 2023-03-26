@@ -3,7 +3,7 @@
 // @noframes
 // @grant       GM_addStyle
 // @match       *://www.douyu.com/*
-// @namespace   https://github.com/guansss
+// @namespace   https://github.com/guansss/userscripts
 // @version     0.1
 // @author      guansss
 // @source      https://github.com/guansss/userscripts
