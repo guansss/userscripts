@@ -3,7 +3,7 @@ import rootMeta from "../meta"
 
 export default {
   ...rootMeta,
-  version: "1.0",
+  version: "1.1",
   name: {
     default: "Iwara Enhancement",
     "zh-CN": "Iwara增强",
