@@ -3,6 +3,7 @@ import { hasClass, SimpleMutationObserver } from "../../@common/dom"
 import { DEV_ONLY, ON_RELOAD } from "../../@common/env"
 import { once, ready } from "../../@common/events"
 import { log } from "../../@common/log"
+import { CancelablePromise } from "../../@common/timer"
 
 export function setupPaging() {
   ready.then(() => {
@@ -116,6 +117,14 @@ function detectPageChange(appDiv: HTMLElement, nodes: NodeList, event: keyof Eve
       }
     }
   }
+}
+
+export function cancelOnLeave<T>(
+  onLeave: (fn: () => void) => void,
+  promise: CancelablePromise<T>
+): Promise<T> {
+  onLeave(() => promise.cancel())
+  return promise
 }
 
 DEV_ONLY(() => {

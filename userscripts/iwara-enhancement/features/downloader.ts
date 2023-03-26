@@ -1,11 +1,10 @@
 import { computed, reactive, ref, watchEffect } from "vue"
-import { hasClass, SimpleMutationObserver } from "../../@common/dom"
 import { ON_RELOAD } from "../../@common/env"
 import { log } from "../../@common/log"
 import { getReactEventHandlers } from "../../@common/react"
 import { formatDate, formatError, sanitizePath } from "../../@common/string"
-import { delay } from "../../@common/timer"
-import { page } from "../core/paging"
+import { delay, until$ } from "../../@common/timer"
+import { cancelOnLeave, page } from "../core/paging"
 import { storage } from "../core/storage"
 
 // a partial structure of the video data defined in iwara's video page,
@@ -83,7 +82,7 @@ const filename = computed(() => {
 watchEffect(() => storage.set("preferred_res", resolution.value))
 watchEffect(() => storage.set("filename", filenameTemplate.value))
 watchEffect(() => storage.set("auto_down_enabled", autoEnabled.value))
-watchEffect(() => convertDownloadDropdown(undefined, autoEnabled.value, source.value))
+watchEffect(() => convertDownloadDropdown(undefined, autoEnabled.value))
 
 export function useDownloaderSettings() {
   return {
@@ -97,7 +96,7 @@ export function useDownloaderSettings() {
   }
 }
 
-page("video", (pageID, onLeave) => {
+page("video", async (pageID, onLeave) => {
   const videoActions = $(".page-video__actions").get(0)
 
   if (!videoActions) {
@@ -105,28 +104,24 @@ page("video", (pageID, onLeave) => {
     return
   }
 
-  const actionsObserver = new SimpleMutationObserver((mutation) =>
-    mutation.addedNodes.forEach((node) => {
-      if (hasClass(node, "dropdown")) {
-        updateVideoInfo(videoActions)
-        updateSources(node)
-
-        if (autoEnabled.value) {
-          convertDownloadDropdown(node, true, source.value)
-
-          ON_RELOAD(() => convertDownloadDropdown(node, false, undefined))
-        }
-      }
-    })
-  )
-  actionsObserver.observe(videoActions, { childList: true, immediate: true })
-
   onLeave(() => {
     // prevent unexpected downloads
     hasFreshSources.value = false
-
-    actionsObserver.disconnect()
   })
+
+  const $downloadButton = await cancelOnLeave(
+    onLeave,
+    until$(() => $(".page-video__actions .downloadButton"))
+  )
+
+  updateVideoInfo(videoActions)
+  updateSources($downloadButton.closest(".dropdown").get(0)!)
+
+  if (autoEnabled.value) {
+    convertDownloadDropdown($downloadButton.get(0)!, true)
+
+    ON_RELOAD(() => convertDownloadDropdown(undefined, false))
+  }
 })
 
 function updateVideoInfo(videoActions: HTMLElement) {
@@ -165,18 +160,15 @@ function updateSources(downloadDropdown: HTMLElement) {
   hasFreshSources.value = true
 }
 
-function convertDownloadDropdown(
-  downloadDropdown: HTMLElement | undefined,
-  enabled: boolean,
-  source: VideoSource | undefined
-) {
-  const $dropdown = downloadDropdown ? $(downloadDropdown) : $(".page-video__actions > .dropdown")
-  const $button = $dropdown.find(".downloadButton")
-  const rawButtonText = $button.text().replace(/\s*\(.*\)/, "")
+function convertDownloadDropdown(downloadButton: HTMLElement | undefined, enabled: boolean) {
+  const $button = downloadButton ? $(downloadButton) : $(".downloadButton")
+  const $dropdown = $button.closest(".dropdown")
 
-  if (!$dropdown.length || !$button.length) {
+  if (!$dropdown.length) {
     return
   }
+
+  const rawButtonText = $button.text().replace(/\s*\(.*\)/, "")
 
   if (enabled) {
     if (!$dropdown.data("converted")) {
@@ -189,7 +181,9 @@ function convertDownloadDropdown(
         .css("display", "none")
     }
 
-    $button.text(rawButtonText + (source ? ` (${source.label})` : ""))
+    const resolution = source.value?.label
+
+    $button.text(rawButtonText + (resolution ? ` (${resolution})` : ""))
   } else {
     $dropdown
       .data("converted", false)
@@ -239,7 +233,6 @@ function download(downloadDropdown: HTMLElement) {
     }
 
     function setDownloadButtonEnabled(enabled: boolean) {
-      log(enabled)
       if (enabled) {
         // TODO: properly disable the button
         $(downloadDropdown).css("pointer-events", "")
