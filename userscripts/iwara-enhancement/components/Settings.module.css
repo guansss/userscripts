@@ -55,8 +55,7 @@
     color: var(--muted);
   }
 
-  & p,
-  & section {
+  & p {
     margin-top: 0;
     margin-bottom: 8px;
   }
@@ -66,7 +65,8 @@
     cursor: pointer;
   }
 
-  & ol {
+  & ol,
+  & ul {
     padding-inline-start: 20px;
   }
 
@@ -174,8 +174,13 @@
   }
 }
 
-.warn {
+.panel {
+  margin-bottom: 8px;
   padding: 8px;
+  background: var(--enh-body-focus);
+}
+
+.warn {
   background-color: #e9db89;
 }
 

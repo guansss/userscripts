@@ -90,12 +90,12 @@ const template = /* html */ `
 
             <h3 :class='css.fieldLabel'>{{ $t('s.download.filename.label') }}</h3>
             <p v-if='!downloadMode' v-html='$t("s.download.filename.warn")'></p>
-            <section v-else-if='downloadMode !== "browser"' :class='css.warn'>
+            <div v-else-if='downloadMode !== "browser"' :class='[css.panel, css.warn]'>
                 <p v-html='$t("s.download.filename.warn_tm.desc")'></p>
                 <ol v-if='$tm("s.download.filename.warn_tm.steps").length'>
                     <li v-for='step in $tm("s.download.filename.warn_tm.steps")'><p v-html='step'></p></li>
                 </ol>
-            </section>
+            </div>
 
             <p v-html='$t("s.download.filename.desc")'></p>
 
@@ -117,6 +117,12 @@ const template = /* html */ `
             </details>
             <input type='text' v-model='filenameTemplate'>
             <p>{{ $t('s.download.filename.preview') + ': ' + filenamePreview }}</p>
+            <div :class='css.panel'>
+                <p><b>{{ $tm('s.download.filename.tips')[0] }}</b></p>
+                <ul>
+                    <li v-for='tip in $tm("s.download.filename.tips").slice(1)'><p v-html='tip'></p></li>
+                </ul>
+            </div>
         </div>
         <div v-if='tabVal === "script"' :class='css.view'>
             <h2 :class='css.sectionHeader'>{{ $t('s.script.label') }}</h2>

@@ -33,6 +33,11 @@
           "up_date_ts": "UP_DATE in timestamp format"
         },
         "replace_illegal_char": "Replace characters that are disallowed in filename with:",
+        "tips": [
+          "Tips",
+          "You can use \"/\" in the filename to create subfolders, for example {AUTHOR}/{DATE}-{TITLE}.",
+          "If the filename doesn't work, check if you have any browser extensions that may interfere with the download, such as the Aria2 extension."
+        ],
         "warn": "Only works in Tampermonkey.",
         "warn_tm": {
           "desc": "This feature requires Tampermonkey's download mode to be set to <b>Browser API</b>, please follow <a href='https://www.tampermonkey.net/faq.php#Q302' target='_blank' rel='noopener noreferrer'>this guide↗</a> and refresh the page once done.",

@@ -31,6 +31,11 @@
           "up_date_ts": "UP_DATE 的时间戳格式"
         },
         "replace_illegal_char": "将文件名中的非法字符替换为:",
+        "tips": [
+          "提示",
+          "可以在文件名里使用\"/\"来创建文件夹，例如{AUTHOR}/{DATE}-{TITLE}",
+          "如果文件名不起作用，检查一下是否安装了与下载相关的浏览器插件，比如 Aria2 插件"
+        ],
         "warn": "该功能仅在 Tampermonkey 中可用",
         "warn_tm": {
           "desc": "该功能需要启用 Tampermonkey 的<b>浏览器 API</b>下载模式，请按照以下步骤启用，或者查看<a href='https://www.tampermonkey.net/faq.php#Q302' target='_blank' rel='noopener noreferrer'>官方指南↗</a>",
