@@ -1,6 +1,7 @@
 import { ref, watchEffect } from "vue"
 import { hasClass, SimpleMutationObserver } from "../../@common/dom"
 import { DEV_ONLY } from "../../@common/env"
+import { ready } from "../../@common/events"
 import { log } from "../../@common/log"
 import { parseAbbreviatedNumber } from "../../@common/number"
 import { adjustAlpha } from "../../@common/string"
@@ -14,6 +15,8 @@ const highlightOpacity = ref(storage.get("like_rate_highlight_opacity"))
 
 const likeRateClass = "enh-like-rate"
 const highlightClass = "enh-highlight"
+
+ready.then(updateHighlightOpacity)
 
 watchEffect(() => {
   storage.set("like_rates", likeRateEnabled.value)
@@ -36,9 +39,7 @@ watchEffect(() => {
 watchEffect(() => {
   storage.set("like_rate_highlight_opacity", highlightOpacity.value)
 
-  const color = getComputedStyle(document.body).getPropertyValue("--primary").trim()
-
-  document.body.style.setProperty("--ehg-hl-bg", adjustAlpha(color, highlightOpacity.value))
+  updateHighlightOpacity()
 })
 
 export function useTeaserSettings() {
@@ -167,5 +168,14 @@ function processTeaser(teaser: HTMLElement) {
     teaser.classList.add(highlightClass)
   } else {
     teaser.classList.remove(highlightClass)
+  }
+}
+
+function updateHighlightOpacity() {
+  const color = getComputedStyle(document.body).getPropertyValue("--primary").trim()
+
+  // color will be empty before the page is fully loaded
+  if (color) {
+    document.body.style.setProperty("--ehg-hl-bg", adjustAlpha(color, highlightOpacity.value))
   }
 }
