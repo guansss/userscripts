@@ -15,6 +15,6 @@ export default {
   updateURL:
     "https://sleazyfork.org/scripts/416003-iwara-enhancement/code/Iwara%20Enhancement.user.js",
   match: "*://*.iwara.tv/*",
-  runAt: "document-start",
+  'run-at': "document-end",
   noframes: true,
 } satisfies ScriptMeta
