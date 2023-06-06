@@ -72,7 +72,7 @@ page(["video", "image"] as const, (pageID, onLeave) => {
       }
 
       if (mediaHeight > 0) {
-        sidebar.style.marginTop = `${mediaHeight}px`
+        sidebar.style.marginTop = `${mediaArea.offsetTop + mediaHeight}px`
       }
     } else {
       mediaArea.style.marginLeft = ""
