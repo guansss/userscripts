@@ -2,7 +2,7 @@ import { Emitter } from "mitt"
 
 export const ready = new Promise<void>((resolve) => {
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => resolve)
+    document.addEventListener("DOMContentLoaded", () => resolve())
   } else {
     resolve()
   }
