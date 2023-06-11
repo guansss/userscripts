@@ -141,7 +141,7 @@ function processTeaser(teaser: HTMLElement) {
   const viewsLabel = $(teaser).find(".views")
   const likesLabel = $(teaser).find(".likes")
 
-  let likePercentage
+  let likePercentage: number
 
   const likeRateLabel = viewsLabel.children("." + likeRateClass)
 
@@ -151,16 +151,14 @@ function processTeaser(teaser: HTMLElement) {
     const views = parseAbbreviatedNumber(viewsLabel.text().trim())
     const likes = parseAbbreviatedNumber(likesLabel.text().trim())
 
-    likePercentage = views === 0 ? 0 : Math.round((1000 * likes) / views) / 10
+    likePercentage = Math.round((1000 * likes) / views)
 
-    if (Number.isNaN(likePercentage)) {
-      likePercentage = 0
-    }
+    const display = Number.isFinite(likePercentage) ? likePercentage + "%" : "/"
 
     // prettier-ignore
     viewsLabel.children().eq(0).clone()
             .addClass(likeRateClass)
-            .text(likePercentage + '%')
+            .text(display)
             .prependTo(viewsLabel);
   }
 
