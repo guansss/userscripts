@@ -108,7 +108,7 @@ function detectPageChange(appDiv: HTMLElement, nodes: NodeList, event: keyof Eve
         const hasOtherPageElements =
           $(appDiv)
             .children(".page")
-            .filter((_, e) => e !== node).length > 0
+            .filter((_, e) => e !== node && !node.className.includes("page-")).length > 0
 
         if (!hasOtherPageElements) {
           emitter.emit(event, node.className)
