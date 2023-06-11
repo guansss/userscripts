@@ -41,3 +41,10 @@ page(["video"] as const, async (pageID, onLeave) => {
     return undefined
   }
 })
+
+// this "bg" is covering the video player and preventing player from entering fullscreen mode by double-clicks
+GM_addStyle(`
+.videoPlayer__bg {
+  pointer-events: none;
+}
+`)
