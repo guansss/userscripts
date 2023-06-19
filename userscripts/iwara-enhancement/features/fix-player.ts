@@ -34,7 +34,8 @@ page(["video"] as const, async (pageID, onLeave) => {
   function preventVolumeScrolling(player: VideoJsPlayer) {
     const originalGet = WeakMap.prototype.get
 
-    // hook WeakMap.get() to get the data object that contains the event handlers
+    // hook WeakMap.get() to get the event data
+    // https://github.com/videojs/video.js/blob/2b0df25df332dceaab375327887f0721ca8d21d0/src/js/utils/events.js#L271
     WeakMap.prototype.get = function (key: WeakKey) {
       const value = originalGet.call(this, key)
 
@@ -42,7 +43,7 @@ page(["video"] as const, async (pageID, onLeave) => {
         const data = value as { handlers: Record<string, Function[]> } | undefined
 
         if (data?.handlers?.mousewheel) {
-          log("removing mousewheel handlers from Player:", data.handlers.mousewheel.length)
+          log(`removing ${data.handlers.mousewheel.length} mousewheel handler(s) from Player`)
 
           // the listeners are bound functions and cannot be checked with toString(),
           // so we have to remove all mousewheel handlers
@@ -72,8 +73,14 @@ page(["video"] as const, async (pageID, onLeave) => {
   }
 
   function getTargetSource(player: VideoJsPlayer) {
+    const sources = player.currentSources()
+
+    if (!sources.length) {
+      return undefined
+    }
+
     const selectedResName = localStorage.getItem("player-resolution")
-    const source = player.currentSources().find((s: any) => s.name === selectedResName)
+    const source = sources.find((s: any) => s.name === selectedResName)
 
     if (source) {
       return source
