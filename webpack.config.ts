@@ -101,10 +101,7 @@ export default (_env: unknown, { mode }: { mode: string }) => {
             {
               loader: "babel-loader",
               options: {
-                presets: [
-                  ["@babel/preset-env", { targets: "defaults" }],
-                  "@babel/preset-typescript",
-                ],
+                presets: [["@babel/preset-env", {}], "@babel/preset-typescript"],
                 plugins: [BabelPlugin({ isDev })],
                 assumptions: {
                   // we don't write weird code and so it's safe to disable this
