@@ -5,6 +5,7 @@
 // @description:zh-CN请参考脚本的主页以获取更多信息
 // @noframes
 // @grant        unsafeWindow
+// @grant        GM_addStyle
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_download
@@ -15,10 +16,9 @@
 // @require      https://unpkg.com/vue-i18n@^9.2.0-beta.26
 // @match        *://*.iwara.tv/*
 // @namespace    https://github.com/guansss/userscripts
-// @version      1.1
+// @version      1.3
 // @author       guansss
 // @source       https://github.com/guansss/userscripts
-// @runAt        document-start
 // @updateURL    https://sleazyfork.org/scripts/416003-iwara-enhancement/code/Iwara%20Enhancement.user.js
 // @supportURL   https://github.com/guansss/userscripts/issues
 // ==/UserScript==
@@ -71,7 +71,12 @@
 
   SimpleMutationObserver.emptyNodeList = document.querySelectorAll("#__absolutely_nonexisting")
   function hasClass(node, className) {
-    return !!node.classList?.contains(className)
+    var _classList
+    return !!(
+      null !== (_classList = node.classList) &&
+      void 0 !== _classList &&
+      _classList.contains(className)
+    )
   }
 
   let log
@@ -277,7 +282,7 @@
 
   const ready = new Promise((resolve) => {
     if ("loading" === document.readyState)
-      document.addEventListener("DOMContentLoaded", () => resolve)
+      document.addEventListener("DOMContentLoaded", () => resolve())
     else resolve()
   })
 
@@ -367,7 +372,7 @@
           const hasOtherPageElements =
             $(appDiv)
               .children(".page")
-              .filter((_, e) => e !== node).length > 0
+              .filter((_, e) => e !== node && !node.className.includes("page-")).length > 0
 
           if (!hasOtherPageElements) emitter.emit(event, node.className)
           break
@@ -608,6 +613,7 @@
     const rawButtonText = $button.text().replace(/\s*\(.*\)/, "")
 
     if (enabled) {
+      var _source$value
       if (!$dropdown.data("converted"))
         $dropdown
           .data("converted", true)
@@ -617,7 +623,10 @@
           .children(".dropdown__content")
           .css("display", "none")
 
-      const resolution = source.value?.label
+      const resolution =
+        null === (_source$value = source.value) || void 0 === _source$value
+          ? void 0
+          : _source$value.label
 
       $button.text(rawButtonText + (resolution ? ` (${resolution})` : ""))
     } else {
@@ -738,6 +747,8 @@
   const likeRateClass = "enh-like-rate"
   const highlightClass = "enh-highlight"
 
+  ready.then(updateHighlightOpacity)
+
   ;(0, external_Vue_namespaceObject.watchEffect)(() => {
     storage.set("like_rates", likeRateEnabled.value)
 
@@ -759,9 +770,7 @@
   ;(0, external_Vue_namespaceObject.watchEffect)(() => {
     storage.set("like_rate_highlight_opacity", highlightOpacity.value)
 
-    const color = getComputedStyle(document.body).getPropertyValue("--primary").trim()
-
-    document.body.style.setProperty("--ehg-hl-bg", adjustAlpha(color, highlightOpacity.value))
+    updateHighlightOpacity()
   })
 
   function useTeaserSettings() {
@@ -865,17 +874,25 @@
       const views = parseAbbreviatedNumber(viewsLabel.text().trim())
       const likes = parseAbbreviatedNumber(likesLabel.text().trim())
 
-      likePercentage = 0 === views ? 0 : Math.round((1e3 * likes) / views) / 10
+      likePercentage = Math.round((1e3 * likes) / views)
 
-      if (Number.isNaN(likePercentage)) likePercentage = 0
+      const display = Number.isFinite(likePercentage) ? likePercentage + "%" : "/"
 
       // prettier-ignore
-      viewsLabel.children().eq(0).clone().addClass(likeRateClass).text(likePercentage+"%").prependTo(viewsLabel)
+      viewsLabel.children().eq(0).clone().addClass(likeRateClass).text(display).prependTo(viewsLabel)
     }
 
     if (likePercentage >= highlightThreshold.value && likeRateEnabled.value)
       teaser.classList.add(highlightClass)
     else teaser.classList.remove(highlightClass)
+  }
+
+  function updateHighlightOpacity() {
+    const color = getComputedStyle(document.body).getPropertyValue("--primary").trim()
+
+    // color will be empty before the page is fully loaded
+    if (color)
+      document.body.style.setProperty("--ehg-hl-bg", adjustAlpha(color, highlightOpacity.value))
   }
 
   const widenContentEnabled = (0, external_Vue_namespaceObject.ref)(storage.get("widen_content"))
@@ -943,7 +960,7 @@
           mediaArea.style.marginRight = `${(rowWidth - mediaWidth) / 2 - (rowWidth - colWidth)}px`
         }
 
-        if (mediaHeight > 0) sidebar.style.marginTop = `${mediaHeight}px`
+        if (mediaHeight > 0) sidebar.style.marginTop = `${mediaArea.offsetTop + mediaHeight}px`
       } else {
         mediaArea.style.marginLeft = ""
         mediaArea.style.marginRight = ""
@@ -1204,6 +1221,102 @@
   // prevent Sentry from tracking the logging
   setLogger(console.log.__sentry_original__ || console.log)
 
+  const patchedFlag = "__enhPatched"
+
+  page(["video"], async (pageID, onLeave) => {
+    const timerPromise = until(() => {
+      const player = getPlayer()
+
+      if (player) {
+        fixResolution(player)
+
+        if (!(patchedFlag in player)) {
+          player[patchedFlag] = true
+          preventVolumeScrolling(player)
+        }
+      }
+    }, 500)
+
+    onLeave(() => timerPromise.cancel())
+
+    function getPlayer() {
+      var _$$get
+      return null === (_$$get = $(".page-video__player .video-js").get(0)) || void 0 === _$$get
+        ? void 0
+        : _$$get.player
+    }
+
+    function preventVolumeScrolling(player) {
+      const originalGet = WeakMap.prototype.get
+
+      // hook WeakMap.get() to get the event data
+      // https://github.com/videojs/video.js/blob/2b0df25df332dceaab375327887f0721ca8d21d0/src/js/utils/events.js#L271
+      WeakMap.prototype.get = function (key) {
+        const value = originalGet.call(this, key)
+
+        try {
+          var _data$handlers
+          const data = value
+
+          if (
+            null !== data &&
+            void 0 !== data &&
+            null !== (_data$handlers = data.handlers) &&
+            void 0 !== _data$handlers &&
+            _data$handlers.mousewheel
+          ) {
+            log(`removing ${data.handlers.mousewheel.length} mousewheel handler(s) from Player`)
+
+            // the listeners are bound functions and cannot be checked with toString(),
+            // so we have to remove all mousewheel handlers
+            delete data.handlers.mousewheel
+          }
+        } catch (e) {
+          log("error:", e)
+        } finally {
+          return value
+        }
+      }
+
+      // trigger the hook by adding an arbitrary event listener
+      player.on("__dummy", () => {})
+      player.off("__dummy")
+
+      WeakMap.prototype.get = originalGet
+    }
+
+    function fixResolution(player) {
+      const targetSource = getTargetSource(player)
+
+      if (targetSource && targetSource.src !== player.src()) {
+        log(`setting resolution to ${targetSource.name}: ${targetSource.src}`)
+        player.src(targetSource)
+      }
+    }
+
+    function getTargetSource(player) {
+      const sources = player.currentSources()
+
+      if (!sources.length) return
+
+      const selectedResName = localStorage.getItem("player-resolution")
+      const source = sources.find((s) => s.name === selectedResName)
+
+      if (source) return source
+
+      log(`error: source not found for ${selectedResName}`)
+
+      return
+    }
+  })
+
+  // this "bg" is covering the video player and preventing player from entering fullscreen mode by double-clicks
+  GM_addStyle(`
+.videoPlayer__bg {
+  pointer-events: none;
+}
+`)
+
   const state = (0, external_Vue_namespaceObject.reactive)({ theme: "light" })
 
   setInterval(() => {
@@ -1462,22 +1575,40 @@ GM_addStyle(`
         display: none;
       }
 
+.enh-show-like-rates .page-start__subscriptions,
+  .enh-show-like-rates .page-start__videos,
+  .enh-show-like-rates .page-start__images {
+    position: relative;
+    z-index: 0;
+  }
+
+/* for all the affected pages, check out process-teaser.ts */
 .enh-highlight:before {
     content: "";
     position: absolute;
     z-index: -1;
-    top: -15px;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    top: -8px;
+    bottom: 7px;
+    left: 7px;
+    right: 7px;
     background: var(--ehg-hl-bg);
   }
-
-.page-video__sidebar .enh-highlight:before {
+.page-video .enh-highlight:before,
+    .page-image .enh-highlight:before {
       content: none;
     }
-
-.page-video__sidebar .enh-highlight {
+.page-profile .enh-highlight,
+  .page-subscriptions .enh-highlight {
+    position: relative;
+  }
+.page-profile .enh-highlight:before, .page-subscriptions .enh-highlight:before {
+      top: -6px;
+      bottom: -6px;
+      left: -6px;
+      right: -6px;
+    }
+.page-video .enh-highlight,
+  .page-image .enh-highlight {
     background: var(--ehg-hl-bg);
   }
 

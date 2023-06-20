@@ -17,7 +17,7 @@
 
   const ready = new Promise((resolve) => {
     if ("loading" === document.readyState)
-      document.addEventListener("DOMContentLoaded", () => resolve)
+      document.addEventListener("DOMContentLoaded", () => resolve())
     else resolve()
   })
 
@@ -283,10 +283,13 @@ ${options.text}`,
     if ("Stable Diffusion" !== $('meta[property="og:title"]').attr("content")) return
 
     try {
-      const root = await until(
-        () => document.getElementsByTagName("gradio-app")[0]?.shadowRoot,
-        200
-      )
+      const root = await until(() => {
+        var _document$getElements
+        return null === (_document$getElements = document.getElementsByTagName("gradio-app")[0]) ||
+          void 0 === _document$getElements
+          ? void 0
+          : _document$getElements.shadowRoot
+      }, 200)
       const $root = $(root)
 
       const results = await Promise.allSettled([imageViewer($root), control($root)])
@@ -371,6 +374,7 @@ GM_addStyle(`
     margin-right: auto;
     left: 0;
     right: 0;
+    max-width: -webkit-fit-content;
     max-width: fit-content;
     max-width: -moz-fit-content;
 }
@@ -381,6 +385,7 @@ GM_addStyle(`
         margin-right: auto;
         left: 0;
         right: 0;
+        max-width: -webkit-fit-content;
         max-width: -moz-fit-content;
         max-width: fit-content;
     }

@@ -18,7 +18,7 @@
 
   const ready = new Promise((resolve) => {
     if ("loading" === document.readyState)
-      document.addEventListener("DOMContentLoaded", () => resolve)
+      document.addEventListener("DOMContentLoaded", () => resolve())
     else resolve()
   })
 
@@ -112,7 +112,7 @@
       GM_setValue("replacer", rules)
     } catch (e) {
       log(e)
-      alert(e?.message || "Unknown error")
+      alert((null === e || void 0 === e ? void 0 : e.message) || "Unknown error")
     }
 
     return text

@@ -18,7 +18,7 @@
 
   const ready = new Promise((resolve) => {
     if ("loading" === document.readyState)
-      document.addEventListener("DOMContentLoaded", () => resolve)
+      document.addEventListener("DOMContentLoaded", () => resolve())
     else resolve()
   })
 

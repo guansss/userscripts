@@ -14,7 +14,7 @@
 
   const ready = new Promise((resolve) => {
     if ("loading" === document.readyState)
-      document.addEventListener("DOMContentLoaded", () => resolve)
+      document.addEventListener("DOMContentLoaded", () => resolve())
     else resolve()
   })
 
@@ -24,7 +24,12 @@
 
   function onLeave(e) {
     if (e.target === document) {
-      const stuckComment = document.getElementById("comment-higher-container")?.firstElementChild
+      var _document$getElementB
+      const stuckComment =
+        null === (_document$getElementB = document.getElementById("comment-higher-container")) ||
+        void 0 === _document$getElementB
+          ? void 0
+          : _document$getElementB.firstElementChild
 
       if (stuckComment) document.dispatchEvent(new MouseEvent("mousemove"))
     }
