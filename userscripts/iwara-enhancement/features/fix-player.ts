@@ -61,6 +61,18 @@ page(["video"] as const, async (pageID, onLeave) => {
     player.off("__dummy")
 
     WeakMap.prototype.get = originalGet
+
+    const originalOn = player.on
+
+    // prevent adding new mousewheel listeners
+    player.on = function (targetOrType, ...rest) {
+      if (targetOrType === "mousewheel") {
+        log("prevented adding mousewheel listener")
+        return
+      }
+
+      return (originalOn as any).call(this, targetOrType, ...rest)
+    }
   }
 
   function fixResolution(player: VideoJsPlayer) {
