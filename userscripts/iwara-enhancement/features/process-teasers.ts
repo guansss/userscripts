@@ -151,7 +151,7 @@ function processTeaser(teaser: HTMLElement) {
     const views = parseAbbreviatedNumber(viewsLabel.text().trim())
     const likes = parseAbbreviatedNumber(likesLabel.text().trim())
 
-    likePercentage = Math.round((1000 * likes) / views)
+    likePercentage = Math.round((100 * likes) / views)
 
     const display = Number.isFinite(likePercentage) ? likePercentage + "%" : "/"
 
