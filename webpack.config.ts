@@ -4,24 +4,25 @@ import "webpack-dev-server"
 import MiniCssExtractPlugin from "mini-css-extract-plugin"
 import path from "path"
 import postcssPresetEnv from "postcss-preset-env"
-import { Configuration, DefinePlugin } from "webpack"
+import { DefinePlugin, EntryPlugin } from "webpack"
+import { monkeyWebpack } from "webpack-monkey"
 import { BabelPlugin } from "./dev/babel-plugin"
-import { serveUserscripts } from "./dev/middlewares"
-import { getAllUserscripts, USERSCRIPTS_ROOT } from "./dev/utils"
-import { WebpackMinimizer } from "./dev/webpack-minimizer"
-import { WebpackPlugin } from "./dev/webpack-plugin"
+import { USERSCRIPTS_ROOT, getAllUserscripts } from "./dev/utils"
 
 export default (_env: unknown, { mode }: { mode: string }) => {
   const isDev = mode !== "production"
 
-  return {
+  return monkeyWebpack()({
     mode: mode === "production" ? "production" : "development",
     entry: {
       ...Object.fromEntries(getAllUserscripts().map((s) => [s.name, s.entry])),
-      ...(isDev && { "dev-impl": "./dev/client/dev-impl.user.ts" }),
     },
     plugins: [
-      WebpackPlugin(),
+      isDev &&
+        new EntryPlugin(__dirname, path.resolve(__dirname, "dev/client-prelude.ts"), {
+          // make it a global entry
+          name: undefined,
+        }),
       new MiniCssExtractPlugin(),
       new DefinePlugin({
         BUILD_TIME: Date.now(),
@@ -43,44 +44,17 @@ export default (_env: unknown, { mode }: { mode: string }) => {
     ],
     devServer: {
       port: 9527,
-      // we don't want the page to reload, even if hot reloading fails
-      hot: "only",
-
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-      },
-
-      webSocketServer: "sockjs",
-      client: {
-        webSocketTransport: "sockjs",
-        webSocketURL: "ws://127.0.0.1:9527/ws",
-      },
-
-      setupMiddlewares: (middlewares) => {
-        middlewares.unshift(serveUserscripts)
-
-        return middlewares
-      },
     },
-    externals: {
-      ...(!isDev && {
-        vue: "Vue",
-        "vue-i18n": "VueI18n",
-        jquery: "$",
-        "toastify-js": "Toastify",
-      }),
-    },
-    externalsType: "var",
+    externals: isDev
+      ? undefined
+      : {
+          vue: "Vue",
+          "vue-i18n": "VueI18n",
+          jquery: "$",
+          "toastify-js": "Toastify",
+        },
     output: {
-      filename: "[name].user.js",
       path: path.resolve(__dirname, "dist"),
-      // module: true,
-    },
-    experiments: {
-      // outputModule: true,
-    },
-    optimization: {
-      minimizer: [new WebpackMinimizer()],
     },
     resolve: {
       extensions: [".ts", ".tsx", ".js"],
@@ -138,5 +112,5 @@ export default (_env: unknown, { mode }: { mode: string }) => {
         },
       ],
     },
-  } satisfies Configuration
+  })
 }

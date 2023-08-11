@@ -2,8 +2,8 @@
   "compilerOptions": {
     "target": "es2017",
     "useDefineForClassFields": false,
-    "module": "esnext",
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "strict": true,
     "jsx": "preserve",
     "sourceMap": true,
@@ -20,7 +20,8 @@
   "ts-node": {
     "transpileOnly": true,
     "compilerOptions": {
-      "module": "CommonJS"
+      "module": "NodeNext",
+      "moduleResolution": "NodeNext"
     }
   }
 }

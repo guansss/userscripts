@@ -29,7 +29,7 @@
     "jquery": "^3.6.0",
     "lodash-es": "^4.17.21",
     "mini-css-extract-plugin": "^2.7.2",
-    "mitt": "^3.0.0",
+    "mitt": "^3.0.1",
     "postcss": "^8.4.21",
     "postcss-loader": "^7.0.2",
     "postcss-preset-env": "^8.0.1",
@@ -38,12 +38,13 @@
     "toastify-js": "^1.12.0",
     "ts-node": "^10.9.1",
     "type-fest": "^3.6.0",
-    "typescript": "^4.9.5",
+    "typescript": "^5.1.6",
     "vue": "^3.2.20",
     "vue-i18n": "^9.2.0-beta.26",
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.1",
-    "webpack-dev-server": "^4.11.1"
+    "webpack-dev-server": "^4.11.1",
+    "webpack-monkey": "file:../webpack-monkey/dist/webpack-monkey-0.1.0.tgz"
   },
   "browserslist": "last 4 years, not dead"
 }

@@ -1,16 +1,14 @@
-import { DEV_ONLY } from "../@common/env"
-import { enableHMR } from "../@common/hmr"
 import "../@common/jquery"
 import "./components/Settings"
 import { setupPaging } from "./core/paging"
 import "./features/ensure-logger"
-import "./features/widen-content"
 import "./features/fix-player"
 import "./features/process-teasers"
 import "./features/theme"
+import "./features/widen-content"
 import "./index.css"
 
-export async function main() {
+async function main() {
   document.body.classList.add("enh-body")
 
   setupPaging()
@@ -18,4 +16,6 @@ export async function main() {
 
 main()
 
-DEV_ONLY(() => enableHMR(module))
+if (module.hot) {
+  module.hot?.monkeyReload()
+}
