@@ -1,20 +1,50 @@
 import { ref, watch, watchEffect } from "vue"
+import { ON_RELOAD } from "../../@common/env"
 import { log } from "../../@common/log"
+import { throttle } from "../../@common/timer"
 import { page } from "../core/paging"
 import { storage } from "../core/storage"
 
+const widenListEnabled = ref(storage.get("widen_list"))
+const widenListScale = ref(storage.get("widen_list_scale"))
 const widenContentEnabled = ref(storage.get("widen_content"))
 const widenContentScale = ref(storage.get("widen_content_scale"))
 
+watch(widenListEnabled, (enabled) => storage.set("widen_list", enabled))
+watch(widenListScale, (scale) => storage.set("widen_list_scale", scale))
 watch(widenContentEnabled, (enabled) => storage.set("widen_content", enabled))
 watch(widenContentScale, (scale) => storage.set("widen_content_scale", scale))
+watch([widenListEnabled, widenListScale], throttle(updateListScale, 100))
 
 export function useWidenContentSettings() {
   return {
+    widenListEnabled,
+    widenListScale,
     widenContentEnabled,
     widenContentScale,
   }
 }
+
+let widenListStyleEl: HTMLStyleElement | undefined
+
+function updateListScale() {
+  widenListStyleEl?.remove()
+  widenListStyleEl = undefined
+
+  if (widenListEnabled.value) {
+    const pageIds = ["home", "videoList", "imageList", "subscriptions", "profile", "video", "image"]
+    const classes = pageIds.map((pageId) => `.page-${pageId} .container-fluid`)
+
+    widenListStyleEl = GM_addStyle(
+      `${classes.join(",")} {
+          max-width: ${1200 * (widenListScale.value / 100)}px;
+        }`
+    )
+  }
+}
+
+updateListScale()
+ON_RELOAD(() => widenListStyleEl?.remove())
 
 page(["video", "image"] as const, (pageID, onLeave) => {
   const mediaArea = $(".page-video__player, .page-video__slideshow").get(0)!

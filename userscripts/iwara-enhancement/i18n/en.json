@@ -49,19 +49,24 @@
       "label": "UI",
       "like_rate": {
         "label": "Like rate",
-        "desc": "Displays like rates in video and image list."
+        "desc": "Displays like rates in video/image lists."
       },
       "highlight_threshold": {
         "label": "Highlight threshold",
-        "desc": "Highlights video and image items over certain like rate."
+        "desc": "Highlights video/image items over certain like rate."
       },
       "highlight_bg": {
         "label": "Highlight opacity"
       },
       "widen_content": {
         "label": "Widen content",
-        "desc": "Widen the content area in video and image pages.",
+        "desc": "Widen the content area in video/image pages.",
         "scale": "Additional scale (%)"
+      },
+      "widen_list": {
+        "label": "Widen list",
+        "desc": "Widen image/video lists.",
+        "scale": "Scale (%)"
       }
     },
     "script": {

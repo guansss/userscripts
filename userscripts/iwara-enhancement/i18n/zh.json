@@ -66,7 +66,12 @@
       "widen_content": {
         "label": "加宽内容区域",
         "desc": "加宽视频页和图片页的内容区域",
-        "scale": "额外缩放 (%)"
+        "scale": "额外缩放(%)"
+      },
+      "widen_list": {
+        "label": "加宽列表",
+        "desc": "加宽视频列表和图片列表",
+        "scale": "缩放(%)"
       }
     },
     "script": {

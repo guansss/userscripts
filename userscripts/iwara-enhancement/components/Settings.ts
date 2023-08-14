@@ -67,6 +67,21 @@ const template = /* html */ `
                     <input type='number' step='1' min='10' max='500' :value='widenContentScale' @change='widenContentScale = Math.round($event.target.value)'>
                 </label>
             </p>
+            
+            <h3 :class='css.fieldLabel'>{{ $t('s.ui.widen_list.label') }}</h3>
+            <p v-html='$t("s.ui.widen_list.desc")'></p>
+            <p>
+                <label :class='css.labelBlock'>
+                    {{ $t('s.enabled') }}
+                    <input type='checkbox' v-model='widenListEnabled'>
+                </label>
+            </p>
+            <p>
+                <label :class='css.labelBlock'>
+                    {{ $t('s.ui.widen_list.scale') }}
+                    <input type='number' step='1' min='10' max='500' :value='widenListScale' @change='widenListScale = Math.round($event.target.value)'>
+                </label>
+            </p>
         </div>
         <div v-else-if='tabVal === "download"' :class='css.view'>
             <h2 :class='css.sectionHeader'>{{ $t('s.download.label') }}</h2>
