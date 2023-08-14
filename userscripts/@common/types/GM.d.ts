@@ -1,7 +1,7 @@
 // shims for type hints in IDE
 // see https://www.tampermonkey.net/documentation.php
 
-declare const unsafeWindow: Window
+declare const unsafeWindow: Window & typeof globalThis
 
 declare function GM_setValue(name: string, value: any): void
 

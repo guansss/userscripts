@@ -1,4 +1,4 @@
-import { ScriptMeta } from "../@common/meta"
+import { UserscriptMeta } from "webpack-monkey"
 import rootMeta from "../meta"
 
 export default {
@@ -7,4 +7,4 @@ export default {
   name: "SD web UI",
   match: "*://127.0.0.1/*",
   noframes: true,
-} satisfies ScriptMeta
+} satisfies UserscriptMeta

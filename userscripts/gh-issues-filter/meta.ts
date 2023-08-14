@@ -1,4 +1,4 @@
-import { ScriptMeta } from "../@common/meta"
+import { UserscriptMeta } from "webpack-monkey"
 import rootMeta from "../meta"
 
 export default {
@@ -15,4 +15,4 @@ export default {
   match: "*://github.com/*",
   runAt: "document-start",
   noframes: true,
-} satisfies ScriptMeta
+} satisfies UserscriptMeta

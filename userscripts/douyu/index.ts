@@ -15,13 +15,10 @@ function onLeave(e: MouseEvent) {
   }
 }
 
-//asdasd
-console.log(`
-aaaaaaaaaaaaaa
-==================
-bbbbbbbbbbbbb
-`)
-
 ON_RELOAD(() => {
   document.removeEventListener("mouseleave", onLeave)
 })
+
+if (module.hot) {
+  module.hot?.monkeyReload()
+}

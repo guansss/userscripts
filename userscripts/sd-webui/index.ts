@@ -1,6 +1,4 @@
-import { DEV_ONLY } from "../@common/env"
 import { ready } from "../@common/events"
-import { enableHMR } from "../@common/hmr"
 import "../@common/jquery"
 import { formatError } from "../@common/string"
 import { until } from "../@common/timer"
@@ -31,4 +29,6 @@ async function main() {
   }
 }
 
-DEV_ONLY(() => enableHMR(module))
+if (module.hot) {
+  module.hot?.monkeyReload()
+}

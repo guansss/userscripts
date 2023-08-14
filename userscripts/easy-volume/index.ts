@@ -1,5 +1,4 @@
 import { DEV_ONLY, ON_RELOAD } from "../@common/env"
-import { enableHMR } from "../@common/hmr"
 import { log } from "../@common/log"
 import { schemes } from "./scheme"
 import "./schemes/bilibili"
@@ -39,4 +38,6 @@ async function main() {
 // then we need to manually log the error
 main().catch(log)
 
-DEV_ONLY(() => enableHMR(module))
+if (module.hot) {
+  module.hot?.monkeyReload()
+}
