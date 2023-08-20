@@ -93,17 +93,25 @@ page(["video", "image"] as const, (pageID, onLeave) => {
         mediaHeight = mediaArea.offsetHeight
       }
 
-      if (containerWidth > 0 && rowWidth > 0 && colWidth > 0) {
-        const scale = widenContentScale.value / 100
-        const mediaWidth = Math.min(rowWidth * scale, containerWidth)
+      // iwara uses a polyfilled ResizeObserver, which reports an error when resizing DOMs in the callback immediately,
+      // this is so stupid that I have to use setTimeout to avoid the error
+      // see: https://github.com/juggle/resize-observer/issues/103
+      setTimeout(() => {
+        if (containerWidth > 0 && rowWidth > 0 && colWidth > 0) {
+          const scale = widenContentScale.value / 100
+          const mediaWidth = Math.min(rowWidth * scale, containerWidth)
 
-        mediaArea.style.marginLeft = `${(rowWidth - mediaWidth) / 2}px`
-        mediaArea.style.marginRight = `${(rowWidth - mediaWidth) / 2 - (rowWidth - colWidth)}px`
-      }
+          mediaArea.style.marginLeft = `${~~((rowWidth - mediaWidth) / 2)}px`
+          mediaArea.style.marginRight = `${~~(
+            (rowWidth - mediaWidth) / 2 -
+            (rowWidth - colWidth)
+          )}px`
+        }
 
-      if (mediaHeight > 0) {
-        sidebar.style.marginTop = `${mediaArea.offsetTop + mediaHeight}px`
-      }
+        if (mediaHeight > 0) {
+          sidebar.style.marginTop = `${~~(mediaArea.offsetTop + mediaHeight)}px`
+        }
+      }, 0)
     } else {
       mediaArea.style.marginLeft = ""
       mediaArea.style.marginRight = ""
