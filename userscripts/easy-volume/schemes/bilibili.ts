@@ -1,6 +1,6 @@
 import { SimpleMutationObserver } from "../../@common/dom"
 import { ON_RELOAD } from "../../@common/env"
-import { alive, until } from "../../@common/timer"
+import { until } from "../../@common/timer"
 import { register } from "../scheme"
 import { isInIframe } from "../utils"
 
@@ -28,12 +28,9 @@ register({
             height: ${barHeight}px !important;
         }`,
   async run() {
-    const volumeThumb = await alive(
-      until(
-        () =>
-          document.querySelector<HTMLElement>(".bilibili-player-video-volumebar-wrp .bui-thumb"),
-        700
-      )
+    const volumeThumb = await until(
+      () => document.querySelector<HTMLElement>(".bilibili-player-video-volumebar-wrp .bui-thumb"),
+      700
     )
 
     let currentStyle = ""

@@ -1,10 +1,50 @@
 import { ON_RELOAD } from "./env"
 
-export interface CancelablePromise<T> extends Promise<T> {
-  /**
-   * When canceled, the Promise will never resolve/reject (if this method is correctly implemented...).
-   */
-  cancel(): void
+/**
+ * A canceled Promise will not trigger then/catch/finally. Cancels on HMR by default.
+ */
+export class CancelablePromise<T> extends Promise<T> {
+  cancelOnReload = true
+
+  private _canceled = false
+
+  get canceled() {
+    return this._canceled
+  }
+
+  constructor(executor: () => Generator<unknown, T> | AsyncGenerator<unknown, T>) {
+    super(async (resolve, reject) => {
+      const generator = executor()
+
+      try {
+        while (!this._canceled) {
+          const result = await generator.next()
+
+          if (result.done) {
+            resolve(result.value)
+            break
+          }
+        }
+      } catch (e) {
+        reject(e)
+      }
+    })
+
+    ON_RELOAD(() => {
+      if (this.cancelOnReload) {
+        this.cancel()
+      }
+    })
+  }
+
+  cancel() {
+    this._canceled = true
+  }
+
+  withCanceler(canceler: (onCancel: () => void) => void) {
+    canceler(() => this.cancel())
+    return this
+  }
 }
 
 // sometimes I just don't want the script to depend on Lodash...
@@ -31,88 +71,36 @@ export function throttle<T extends (...args: any) => any>(
  * Periodically calls given function until the return value is truthy.
  * @returns A CancelablePromise that resolves with the function's return value when truthy.
  */
-export function until<T>(
-  fn: () => T,
-  interval = 0,
-  cancelOnReload = true
-): CancelablePromise<NonNullable<T>> {
-  let cancelled = false
-
-  if (cancelOnReload) {
-    ON_RELOAD(() => (cancelled = true))
-  }
-
-  const STOP = Symbol()
-
-  const promise = new Promise<NonNullable<T>>((resolve, reject) => {
-    const run = () => {
-      if (cancelled) {
-        return STOP
-      }
-
+export function until<T>(fn: () => T, interval: number): CancelablePromise<NonNullable<T>> {
+  const promise = new CancelablePromise<NonNullable<T>>(function* () {
+    while (true) {
       const result = fn()
 
       if (result) {
-        resolve(result as NonNullable<T>)
-        return STOP
+        return result
       }
-    }
 
-    const timerId = setInterval(() => {
-      try {
-        if (run() === STOP) {
-          clearInterval(timerId)
-        }
-      } catch (e) {
-        reject(e)
-        clearInterval(timerId)
-      }
-    }, interval)
+      yield delay(interval)
+    }
   })
 
-  ;(promise as CancelablePromise<any>).cancel = () => (cancelled = true)
-
-  return promise as CancelablePromise<NonNullable<T>>
+  return promise
 }
 
 /**
  * Periodically calls given function until the returned jQuery object is not empty.
  * @returns A CancelablePromise that resolves with the jQuery object.
  */
-export function until$<T extends JQuery>(
-  fn: () => T,
-  interval = 0,
-  cancelOnReload = true
-): CancelablePromise<T> {
-  return until(
-    () => {
-      const result = fn()
+export function until$<T extends JQuery>(fn: () => T, interval: number): CancelablePromise<T> {
+  return until(() => {
+    const result = fn()
 
-      if (result.length) {
-        return result
-      }
-    },
-    interval,
-    cancelOnReload
-  )
+    if (result.length) {
+      return result
+    }
+  }, interval)
 }
 
 export function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-/**
- * @returns A Promise that resolves/rejects with given Promise, and rejects on HMR during dev.
- */
-export function alive<T>(promise: Promise<T>): Promise<T> {
-  return DEV
-    ? new Promise((resolve, reject) => {
-        promise.then(resolve, reject)
-
-        ON_RELOAD(() => {
-          ;(promise as CancelablePromise<any>).cancel?.()
-          reject(new Error("Module reloaded."))
-        })
-      })
-    : promise
+  return new Promise<void>((resolve) => setTimeout(resolve, ms))
 }

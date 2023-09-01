@@ -5,5 +5,5 @@ export default {
   ...rootMeta,
   version: "0.1",
   name: "Easy volume",
-  match: "*://*/*",
+  match: "*://*.bilibili.com/*",
 } satisfies UserscriptMeta

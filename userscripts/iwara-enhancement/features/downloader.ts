@@ -111,7 +111,7 @@ page("video", async (pageID, onLeave) => {
 
   const $downloadButton = await cancelOnLeave(
     onLeave,
-    until$(() => $(".page-video__actions .downloadButton"))
+    until$(() => $(".page-video__actions .downloadButton"), 100)
   )
 
   updateVideoInfo(videoActions)
